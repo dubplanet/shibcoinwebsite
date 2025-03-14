@@ -212,15 +212,6 @@ function updateChart(period, data = null) {
     // Create new chart
     const chart = new ApexCharts(chartElement, options);
     chart.render();
-    
-    // Update active button
-    document.querySelectorAll('.chart-option').forEach(button => {
-        if (button.getAttribute('data-period') === period) {
-            button.classList.add('active');
-        } else {
-            button.classList.remove('active');
-        }
-    });
 }
 
 async function fetchNews() {
