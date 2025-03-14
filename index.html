@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiba Inu Coin Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="https://cryptologos.cc/logos/shiba-inu-shib-logo.png" alt="Shiba Inu Logo" class="logo">
+            <h1>Shiba Inu Coin Tracker</h1>
+        </header>
+        
+        <div class="price-card">
+            <div class="price-header">
+                <h2>SHIB Price</h2>
+                <span class="update-time" id="lastUpdate">Last updated: ...</span>
+            </div>
+            <div class="price-content">
+                <div class="current-price">
+                    <span id="price">Loading...</span>
+                    <span class="currency">USD</span>
+                </div>
+                <div class="price-change">
+                    <span id="priceChange">...</span>
+                    <span id="changePercent">...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Market Cap</h3>
+                <span id="marketCap">Loading...</span>
+            </div>
+            <div class="stat-card">
+                <h3>24h Volume</h3>
+                <span id="volume">Loading...</span>
+            </div>
+            <div class="stat-card">
+                <h3>Rank</h3>
+                <span id="rank">Loading...</span>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
