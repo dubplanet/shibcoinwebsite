@@ -1,25 +1,31 @@
 const BINANCE_US_API_URL = 'https://api.binance.us/api/v3';
-const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
 const SYMBOL = 'SHIBUSDT';
 
 async function fetchShibaData() {
     try {
         console.log('Fetching data...');
         const [tickerResponse, priceResponse] = await Promise.all([
-            fetch(`${CORS_PROXY}${BINANCE_US_API_URL}/ticker/24hr?symbol=${SYMBOL}`, {
+            fetch(`${BINANCE_US_API_URL}/ticker/24hr?symbol=${SYMBOL}`, {
+                method: 'GET',
                 headers: {
-                    'Origin': 'https://dubplanet.github.io'
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
                 }
             }),
-            fetch(`${CORS_PROXY}${BINANCE_US_API_URL}/ticker/price?symbol=${SYMBOL}`, {
+            fetch(`${BINANCE_US_API_URL}/ticker/price?symbol=${SYMBOL}`, {
+                method: 'GET',
                 headers: {
-                    'Origin': 'https://dubplanet.github.io'
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
                 }
             })
         ]);
 
+        // Add detailed error logging
         if (!tickerResponse.ok || !priceResponse.ok) {
-            throw new Error('API response was not ok');
+            console.error('Ticker Status:', tickerResponse.status);
+            console.error('Price Status:', priceResponse.status);
+            throw new Error(`API response error: ${tickerResponse.status}, ${priceResponse.status}`);
         }
 
         const tickerData = await tickerResponse.json();
@@ -49,7 +55,11 @@ async function fetchShibaData() {
         document.getElementById('marketCap').textContent = 'N/A';
 
     } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Fetch Error Details:', {
+            message: error.message,
+            type: error.name,
+            stack: error.stack
+        });
         document.getElementById('price').textContent = 'Error loading data';
         document.getElementById('priceChange').textContent = '...';
         document.getElementById('changePercent').textContent = '...';
