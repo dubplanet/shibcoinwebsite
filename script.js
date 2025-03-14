@@ -1,8 +1,6 @@
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
 const COIN_ID = 'shiba-inu';
-
-const CRYPTOCOMPARE_API_KEY = 'YOUR_API_KEY'; // Get free API key from cryptocompare.com
-const NEWS_REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
+const NEWS_REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
 
 async function fetchShibaData() {
     try {
@@ -55,8 +53,9 @@ async function fetchShibaData() {
 
 async function fetchNews() {
     try {
+        // Use free news API that doesn't require API key
         const response = await fetch(
-            `https://min-api.cryptocompare.com/data/v2/news/?categories=Shiba%20Inu,SHIB&excludeCategories=Sponsored&api_key=${CRYPTOCOMPARE_API_KEY}`
+            'https://api.coingecko.com/api/v3/news?category=shiba-inu'
         );
 
         if (!response.ok) {
@@ -66,13 +65,18 @@ async function fetchNews() {
         const data = await response.json();
         const newsContainer = document.getElementById('newsContent');
         
-        if (data.Data && data.Data.length > 0) {
-            const newsHTML = data.Data.slice(0, 5).map(article => `
+        if (!newsContainer) {
+            console.error('News container element not found');
+            return;
+        }
+
+        if (data && data.length > 0) {
+            const newsHTML = data.slice(0, 5).map(article => `
                 <div class="news-item">
-                    <h3>${article.title}</h3>
-                    <p>${article.body.substring(0, 150)}...</p>
+                    <h3>${article.title || 'No Title'}</h3>
+                    <p>${article.description?.substring(0, 150) || 'No description available'}...</p>
                     <div class="news-meta">
-                        <span>${new Date(article.published_on * 1000).toLocaleString()}</span>
+                        <span>${new Date(article.published_at).toLocaleString()}</span>
                         <a href="${article.url}" target="_blank" rel="noopener noreferrer">Read more</a>
                     </div>
                 </div>
@@ -84,8 +88,10 @@ async function fetchNews() {
         }
     } catch (error) {
         console.error('News Fetch Error:', error);
-        document.getElementById('newsContent').innerHTML = 
-            '<p>Error loading news. Please try again later.</p>';
+        const newsContainer = document.getElementById('newsContent');
+        if (newsContainer) {
+            newsContainer.innerHTML = '<p>Error loading news. Please try again later.</p>';
+        }
     }
 }
 
@@ -106,9 +112,10 @@ function formatNumber(num) {
     return num.toFixed(2);
 }
 
-// Fetch data immediately and then every minute
-fetchShibaData();
-setInterval(fetchShibaData, 60000); // Updated to 1 minute
-
-fetchNews();
-setInterval(fetchNews, NEWS_REFRESH_INTERVAL);
+// Update the initialization at the bottom of the file
+document.addEventListener('DOMContentLoaded', () => {
+    fetchShibaData();
+    fetchNews();
+    setInterval(fetchShibaData, 60000);
+    setInterval(fetchNews, NEWS_REFRESH_INTERVAL);
+});
