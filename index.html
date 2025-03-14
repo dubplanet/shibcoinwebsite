@@ -1,3 +1,4 @@
+.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,863 +13,134 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Your website content here -->
-    
-    <!-- Make sure scripts are at the end of body tag and properly closed -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="https://cryptologos.cc/logos/shiba-inu-shib-logo.png" alt="SHIB Logo">
+                <span>SHIBA TRACKER</span>
+            </div>
+            <div class="mini-price">
+                <span id="price-mini">$0.00000000</span>
+                <span id="change-mini" class="neutral"><i class="fas fa-caret-up"></i> 0.00%</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1>SHIBA INU <span class="accent">LIVE PRICE</span></h1>
+                <p>Real-time analytics, market data, and price updates</p>
+                <div class="updated">
+                    <i class="fas fa-sync-alt"></i>
+                    <span id="lastUpdate">Last updated: Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="price-section">
+            <div class="price-card">
+                <div class="price-header">
+                    <h2>SHIB/USD</h2>
+                    <div class="timeframe">
+                        <span>24h</span>
+                    </div>
+                </div>
+                <div class="price-content">
+                    <div class="current-price">
+                        <span id="price">$0.00000000</span>
+                    </div>
+                    <div class="price-change">
+                        <span id="priceChange">$0.00000000</span>
+                        <span id="changePercent">(0.00%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Market Cap</h3>
+                        <span id="marketCap">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>24h Volume</h3>
+                        <span id="volume">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Market Rank</h3>
+                        <span id="rank">#0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="chart-section">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2>Price Chart</h2>
+                    <div class="chart-timeframes">
+                        <button class="timeframe-btn active" data-period="1d">1D</button>
+                        <button class="timeframe-btn" data-period="7d">7D</button>
+                        <button class="timeframe-btn" data-period="30d">1M</button>
+                        <button class="timeframe-btn" data-period="1y">1Y</button>
+                    </div>
+                </div>
+                <div id="priceChart" class="chart"></div>
+            </div>
+        </section>
+
+        <section class="news-section">
+            <h2><i class="fas fa-newspaper"></i> Latest SHIB News</h2>
+            <div id="newsContent" class="news-content">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Loading latest news...</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3>About SHIB Tracker</h3>
+                    <p>Real-time Shiba Inu cryptocurrency price tracking, market data and news updates. Not financial advice.</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="https://www.shibatoken.com/" target="_blank">Official SHIB Website</a></li>
+                        <li><a href="https://coinmarketcap.com/currencies/shiba-inu/" target="_blank">CoinMarketCap</a></li>
+                        <li><a href="https://www.coingecko.com/en/coins/shiba-inu" target="_blank">CoinGecko</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 SHIB Tracker. Data provided by CoinGecko API.</p>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="script.js"></script>
 </body>
 </html>
-
-const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
-const COIN_ID = 'shiba-inu';
-const NEWS_REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
-const NEWS_API_URL = 'https://gnews.io/api/v4/search';
-const NEWS_API_KEY = '0a43e914639fc457d1f55e9f8ffb26e1'; // This is a sample key
-
-// Chart data global variable
-let priceHistoryData = [];
-
-async function fetchShibaData() {
-    try {
-        console.log('Fetching data from CoinGecko...');
-        
-        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=true`);
-    
-        if (!response.ok) {
-            throw new Error(`API response error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (!data) {
-            throw new Error('Invalid data structure received from API');
-        }
-        
-        // Update price with null check
-        const price = data.market_data?.current_price?.usd || 0;
-        document.getElementById('price').textContent = `$${price.toFixed(8)}`;
-        
-        if (document.getElementById('price-mini')) {
-            document.getElementById('price-mini').textContent = `$${price.toFixed(8)}`;
-        }
-        
-        // Update price change with null checks
-        const changePercent = data.market_data?.price_change_percentage_24h || 0;
-        const isPositive = changePercent >= 0;
-        const priceChange = data.market_data?.price_change_24h || 0;
-
-        document.getElementById('priceChange').textContent = `${isPositive ? '+' : ''}$${priceChange.toFixed(8)}`;
-        document.getElementById('changePercent').textContent = `(${isPositive ? '+' : ''}${changePercent.toFixed(2)}%)`;
-        
-        // Update mini price change if element exists
-        if (document.getElementById('change-mini')) {
-            document.getElementById('change-mini').textContent = `${isPositive ? '+' : ''}${changePercent.toFixed(2)}%`;
-            document.getElementById('change-mini').className = isPositive ? 'positive' : 'negative';
-            document.getElementById('change-mini').innerHTML = `<i class="fas fa-caret-${isPositive ? 'up' : 'down'}"></i> ${document.getElementById('change-mini').textContent}`;
-        }
-        
-        // Update color classes
-        document.getElementById('priceChange').className = isPositive ? 'positive' : 'negative';
-        document.getElementById('changePercent').className = isPositive ? 'positive' : 'negative';
-
-        // Update market stats with null checks
-        const volume = data.market_data?.total_volume?.usd || 0;
-        const marketCap = data.market_data?.market_cap?.usd || 0;
-        const marketCapRank = data.market_cap_rank || 'N/A';
-
-        document.getElementById('volume').textContent = `$${formatNumber(volume)}`;
-        document.getElementById('marketCap').textContent = `$${formatNumber(marketCap)}`;
-        
-        if (document.getElementById('rank')) {
-            document.getElementById('rank').textContent = `#${marketCapRank}`;
-        }
-        
-        // Update last updated time
-        const lastUpdated = new Date();
-        document.getElementById('lastUpdate').textContent = `Last updated: ${lastUpdated.toLocaleTimeString()}`;
-        
-        // Store sparkline data for chart if available
-        if (data.market_data?.sparkline_7d?.price) {
-            priceHistoryData = data.market_data.sparkline_7d.price;
-            updateChart('7d');
-        } else {
-            fetchChartData('7d');
-        }
-
-    } catch (error) {
-        console.error('Fetch Error Details:', error);
-        handleError();  
-    }
-}
-
-async function fetchChartData(period = '7d') {
-    try {
-        const days = {
-            '1d': 1,
-            '7d': 7,
-            '30d': 30,
-            '1y': 365
-        };
-        
-        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}/market_chart?vs_currency=usd&days=${days[period]}`);
-        
-        if (!response.ok) {
-            throw new Error(`Chart data API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data && data.prices) {
-            const chartData = data.prices.map(item => ({
-                x: item[0],
-                y: item[1]
-            }));
-            
-            updateChart(period, chartData);
-        }
-    } catch (error) {
-        console.error('Chart Data Error:', error);
-    }
-}
-
-function updateChart(period, data = null) {
-    const chartElement = document.getElementById('priceChart');
-    
-    if (!chartElement) return;
-    
-    let chartData = data;
-    
-    if (!chartData && period === '7d' && priceHistoryData.length > 0) {
-        // Use sparkline data if available for 7d
-        const now = new Date();
-        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        
-        chartData = priceHistoryData.map((price, index) => {
-            const timestamp = sevenDaysAgo.getTime() + (index * (7 * 24 * 60 * 60 * 1000) / priceHistoryData.length);
-            return {
-                x: timestamp,
-                y: price
-            };
-        });
-    }
-    
-    if (!chartData) {
-        chartElement.innerHTML = '<p>Chart data not available</p>';
-        return;
-    }
-    
-    // Get min and max for better visualization
-    const prices = chartData.map(item => item.y);
-    const minPrice = Math.min(...prices) * 0.99; // 1% lower than minimum
-    const maxPrice = Math.max(...prices) * 1.01; // 1% higher than maximum
-    
-    const options = {
-        series: [{
-            name: 'SHIB Price',
-            data: chartData
-        }],
-        chart: {
-            type: 'area',
-            height: 300,
-            foreColor: '#b0b0b0',
-            toolbar: {
-                show: false
-            },
-            animations: {
-                enabled: true,
-                easing: 'easeinout',
-                speed: 800
-            },
-            background: 'transparent'
-        },
-        colors: ['#ffd700'],
-        fill: {
-            type: 'gradient',
-            gradient: {
-                shadeIntensity: 1,
-                opacityFrom: 0.7,
-                opacityTo: 0.3,
-                stops: [0, 90, 100]
-            }
-        },
-        dataLabels: {
-            enabled: false
-        },
-        stroke: {
-            curve: 'smooth',
-            width: 2
-        },
-        grid: {
-            borderColor: '#333333',
-            strokeDashArray: 3,
-            xaxis: {
-                lines: {
-                    show: false
-                }
-            }
-        },
-        markers: {
-            size: 0
-        },
-        xaxis: {
-            type: 'datetime',
-            labels: {
-                datetimeUTC: false
-            }
-        },
-        yaxis: {
-            min: minPrice,
-            max: maxPrice,
-            labels: {
-                formatter: function(value) {
-                    return '$' + value.toFixed(8);
-                }
-            }
-        },
-        tooltip: {
-            theme: 'dark',
-            x: {
-                format: 'MMM dd, yyyy HH:mm'
-            },
-            y: {
-                formatter: function(value) {
-                    return '$' + value.toFixed(8);
-                }
-            }
-        }
-    };
-
-    // Clear previous chart if any
-    chartElement.innerHTML = '';
-    
-    // Create new chart
-    const chart = new ApexCharts(chartElement, options);
-    chart.render();
-    
-    // Update active button
-    document.querySelectorAll('.chart-option').forEach(button => {
-        if (button.getAttribute('data-period') === period) {
-            button.classList.add('active');
-        } else {
-            button.classList.remove('active');
-        }
-    });
-}
-
-async function fetchNews() {
-    try {
-        console.log('Fetching SHIB news...');
-        const newsContainer = document.getElementById('newsContent');
-        
-        if (!newsContainer) {
-            console.error('News container element not found');
-            return;
-        }
-        
-        // Show loading spinner
-        newsContainer.innerHTML = `
-            <div class="loading-spinner">
-                <div class="spinner"></div>
-                <p>Loading latest news...</p>
-            </div>
-        `;
-        
-        const response = await fetch(
-            `${NEWS_API_URL}?q=shiba+inu+cryptocurrency&lang=en&max=5&apikey=${NEWS_API_KEY}`
-        );
-        
-        if (!response.ok) {
-            throw new Error(`News API response error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.articles && data.articles.length > 0) {
-            const newsHTML = data.articles.map(article => `
-                <div class="news-item">
-                    <h3>${article.title}</h3>
-                    <p>${article.description?.substring(0, 150) || 'No description available'}...</p>
-                    <div class="news-meta">
-                        <span>${new Date(article.publishedAt).toLocaleString()}</span>
-                        <a href="${article.url}" target="_blank" rel="noopener noreferrer">Read more</a>
-                    </div>
-                </div>
-            `).join('');
-            
-            newsContainer.innerHTML = newsHTML;
-        } else {
-            newsContainer.innerHTML = '<p>No recent news available</p>';
-        }
-    } catch (error) {
-        console.error('News Fetch Error:', error);
-        const newsContainer = document.getElementById('newsContent');
-        if (newsContainer) {
-            newsContainer.innerHTML = '<p>Error loading news. Please try again later.</p>';
-        }
-    }
-}
-
-function handleError() {
-    document.getElementById('price').textContent = 'Error loading data';
-    document.getElementById('priceChange').textContent = '...';
-    document.getElementById('changePercent').textContent = '...';
-    document.getElementById('volume').textContent = '...';
-    document.getElementById('marketCap').textContent = '...';
-    
-    if (document.getElementById('rank')) {
-        document.getElementById('rank').textContent = '...';
-    }
-    
-    if (document.getElementById('price-mini')) {
-        document.getElementById('price-mini').textContent = 'Error';
-    }
-    
-    if (document.getElementById('change-mini')) {
-        document.getElementById('change-mini').textContent = '...';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    fetchShibaData();
-    fetchNews();
-    
-    // Set intervals for refreshing data
-    setInterval(fetchShibaData, 60000);
-    setInterval(fetchNews, NEWS_REFRESH_INTERVAL);
-    
-    // Set up event listeners for the chart period buttons
-    document.querySelectorAll('.timeframe-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            document.querySelectorAll('.timeframe-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            this.classList.add('active');
-            const period = this.getAttribute('data-period');
-            fetchChartData(period);
-        });
-    });
-});
-
-function formatNumber(num) {
-    if (!num || isNaN(num)) return '0.00';
-    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
-    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
-    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
-    return num.toFixed(2);
-}
-
-.neutral {
-    color: var(--text-gray);
-}
-
-.nav-links {
-    display: flex;
-    gap: 25px;
-}
-
-.nav-links a {
-    font-weight: 500;
-    position: relative;
-}
-
-.nav-links a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -5px;
-    left: 0;
-    background-color: var(--accent);
-    transition: width 0.3s ease;
-}
-
-.nav-links a:hover::after,
-.nav-links a.active::after {
-    width: 100%;
-}
-
-.mobile-menu-btn {
-    display: none;
-    font-size: 1.3rem;
-    cursor: pointer;
-}
-
-/* Hero Section */
-.hero {
-    padding: 120px 0 70px;
-    background: linear-gradient(to bottom, var(--gradient-start), var(--gradient-end));
-}
-
-.hero-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.hero-content {
-    max-width: 600px;
-}
-
-h1 {
-    font-size: 3.5rem;
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-}
-
-.accent {
-    color: var(--accent);
-}
-
-.hero-subtitle {
-    font-size: 1.1rem;
-    color: var(--text-gray);
-    margin-bottom: 2rem;
-}
-
-.hero-price-container {
-    background-color: var(--card-bg);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-.hero-price {
-    text-align: center;
-}
-
-#price {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--accent);
-    display: block;
-    margin-bottom: 10px;
-}
-
-.price-change {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    font-size: 1.1rem;
-}
-
-.last-updated {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-gray);
-    font-size: 0.9rem;
-}
-
-.hero-image {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 300px;
-    height: 300px;
-    animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-20px);
-    }
-    100% {
-        transform: translateY(0px);
-    }
-}
-
-/* Stats Section */
-.stats-section {
-    padding: 70px 0;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.stat-card {
-    background-color: var(--card-bg);
-    border-radius: 15px;
-    padding: 25px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid var(--border-color);
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    border-color: var(--accent);
-}
-
-.stat-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 60px;
-    height: 60px;
-    background-color: rgba(255, 204, 0, 0.1);
-    border-radius: 50%;
-    color: var(--accent);
-    font-size: 1.5rem;
-}
-
-.stat-details h3 {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--text-gray);
-    margin-bottom: 5px;
-}
-
-.stat-value {
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-/* Chart Section */
-.chart-section {
-    padding: 70px 0;
-    background-color: var(--secondary);
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
-
-.chart-controls {
-    display: flex;
-    gap: 10px;
-}
-
-.chart-btn {
-    background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-gray);
-    padding: 8px 16px;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-}
-
-.chart-btn:hover, .chart-btn.active {
-    background-color: var(--accent);
-    color: var(--primary);
-    border-color: var(--accent);
-}
-
-.chart-card {
-    background-color: var(--card-bg);
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 30px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-.chart-container {
-    height: 400px;
-    width: 100%;
-}
-
-/* News Section */
-.news-section {
-    padding: 70px 0;
-}
-
-.news-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-}
-
-.news-card {
-    background-color: var(--card-bg);
-    border-radius: 15px;
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid var(--border-color);
-}
-
-.news-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-    border-color: var(--accent);
-}
-
-.news-image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-}
-
-.news-content {
-    padding: 20px;
-}
-
-.news-date {
-    display: block;
-    font-size: 0.8rem;
-    color: var(--text-gray);
-    margin-bottom: 10px;
-}
-
-.news-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-    line-height: 1.4;
-}
-
-.news-excerpt {
-    font-size: 0.9rem;
-    color: var(--text-gray);
-    margin-bottom: 15px;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.news-link {
-    color: var(--accent);
-    font-weight: 500;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.news-link:hover {
-    color: var(--accent-dark);
-}
-
-.loading {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 50px;
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(255, 204, 0, 0.2);
-    border-top: 3px solid var(--accent);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 15px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* CTA Section */
-.cta-section {
-    padding: 70px 0;
-    background-color: var(--secondary);
-}
-
-.cta-content {
-    text-align: center;
-    max-width: 700px;
-    margin: 0 auto;
-}
-
-.cta-content h2 {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-    color: var (--accent);
-}
-
-.cta-content p {
-    font-size: 1.1rem;
-    color: var(--text-gray);
-    margin-bottom: 30px;
-}
-
-.subscribe-form {
-    display: flex;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.subscribe-form input {
-    flex: 1;
-    padding: 15px 20px;
-    border: none;
-    border-radius: 30px 0 0 30px;
-    font-size: 1rem;
-    background-color: var(--card-bg);
-    color: var(--text-light);
-    border: 1px solid var(--border-color);
-}
-
-.subscribe-form button {
-    padding: 15px 25px;
-    border: none;
-    background-color: var(--accent);
-    color: var(--primary);
-    font-weight: 600;
-    border-radius: 0 30px 30px 0;
-    transition: background-color 0.3s ease;
-}
-
-.subscribe-form button:hover {
-    background-color: var(--accent-dark);
-}
-
-/* Footer */
-.footer {
-    background-color: var(--primary);
-    padding: 70px 0 20px;
-    border-top: 1px solid var(--border-color);
-}
-
-.footer-grid {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr;
-    gap: 30px;
-    margin-bottom: 50px;
-}
-
-.footer-about p {
-    margin: 20px 0;
-    color: var(--text-gray);
-    max-width: 300px;
-}
-
-.social-links {
-    display: flex;
-    gap: 15px;
-}
-
-.social-links a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    color: var(--accent);
-    transition: all 0.3s ease;
-}
-
-.social-links a:hover {
-    background-color: var(--accent);
-    color: var(--primary);
-}
-
-.footer-links h3 {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-    font-weight: 600;
-}
-
-.footer-links ul {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.footer-links a {
-    color: var(--text-gray);
-}
-
-.footer-links a:hover {
-    color: var(--accent);
-    padding-left: 5px;
-}
-
-.footer-bottom {
-    text-align: center;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
-}
-
-.footer-bottom p {
-    color: var(--text-gray);
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-}
-
-.footer-bottom a {
-    color: var(--accent);
-}
-
-/* Responsive Design */
-@media (max-width: 992px) {
-    h1 {
-        font-size: 2.8rem;
-    }
-    
-    .hero-container {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .hero-content {
-        margin-bottom: 40px;
-    }
-    
-    .hero-image {
-        width: 200px;
-        height: 200px;
-    }
-    
-    .footer-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-    
-    .footer-about {
-        grid-column: 1 / -1;
-    }
-}
-
-@media (max-width: 768px) {
-    .nav-links {
-        display: none;
-    }
-    
-    .mobile-menu-btn {
-        display: block;
-    }
-    
-    .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-    
-    .charts-container {
-        flex-direction: column;
-    }
-    
-    .chart-card {
-        width: 100%;
-    }
-    
-    .footer-grid {
-        grid-template-columns: 1fr;
-    }
-}
