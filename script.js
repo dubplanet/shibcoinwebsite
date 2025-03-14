@@ -130,6 +130,14 @@ function updateChart(period, data = null) {
     const minPrice = Math.min(...prices) * 0.99; // 1% lower than minimum
     const maxPrice = Math.max(...prices) * 1.01; // 1% higher than maximum
     
+    // Create date formatter based on period
+    let dateFormat = 'MMM dd';
+    if (period === '1d') {
+        dateFormat = 'HH:mm';
+    } else if (period === '1y') {
+        dateFormat = 'MMM yyyy';
+    }
+    
     const options = {
         series: [{
             name: 'SHIB Price',
@@ -147,7 +155,8 @@ function updateChart(period, data = null) {
                 easing: 'easeinout',
                 speed: 800
             },
-            background: 'transparent'
+            background: 'transparent',
+            fontFamily: 'Poppins, sans-serif'
         },
         colors: ['#ffd700'],
         fill: {
@@ -173,15 +182,40 @@ function updateChart(period, data = null) {
                 lines: {
                     show: false
                 }
+            },
+            padding: {
+                bottom: 10
             }
         },
         markers: {
-            size: 0
+            size: 0,
+            hover: {
+                size: 5
+            }
         },
         xaxis: {
             type: 'datetime',
             labels: {
-                datetimeUTC: false
+                datetimeUTC: false,
+                format: dateFormat,
+                style: {
+                    fontSize: '12px',
+                    fontFamily: 'Poppins, sans-serif'
+                },
+                offsetY: 5,
+                rotate: 0,
+                // Limit the number of labels to prevent overcrowding
+                tickAmount: getTickAmount(period)
+            },
+            axisBorder: {
+                show: true,
+                color: '#444'
+            },
+            crosshairs: {
+                show: true
+            },
+            tooltip: {
+                enabled: true
             }
         },
         yaxis: {
@@ -189,8 +223,18 @@ function updateChart(period, data = null) {
             max: maxPrice,
             labels: {
                 formatter: function(value) {
+                    if (value < 0.000001) {
+                        return '$' + value.toExponential(2);
+                    }
                     return '$' + value.toFixed(8);
+                },
+                style: {
+                    fontSize: '12px'
                 }
+            },
+            axisBorder: {
+                show: true,
+                color: '#444'
             }
         },
         tooltip: {
@@ -202,8 +246,44 @@ function updateChart(period, data = null) {
                 formatter: function(value) {
                     return '$' + value.toFixed(8);
                 }
+            },
+            marker: {
+                show: true
             }
-        }
+        },
+        responsive: [{
+            breakpoint: 768,
+            options: {
+                chart: {
+                    height: 250
+                },
+                xaxis: {
+                    labels: {
+                        style: {
+                            fontSize: '10px'
+                        },
+                        tickAmount: Math.min(getTickAmount(period), 5)
+                    }
+                }
+            }
+        }, {
+            breakpoint: 480,
+            options: {
+                chart: {
+                    height: 200
+                },
+                xaxis: {
+                    labels: {
+                        style: {
+                            fontSize: '8px'
+                        },
+                        rotate: -45,
+                        offsetY: 10,
+                        tickAmount: Math.min(getTickAmount(period), 4)
+                    }
+                }
+            }
+        }]
     };
 
     // Clear previous chart if any
@@ -212,6 +292,17 @@ function updateChart(period, data = null) {
     // Create new chart
     const chart = new ApexCharts(chartElement, options);
     chart.render();
+}
+
+// Helper function to determine optimal number of date labels
+function getTickAmount(period) {
+    switch (period) {
+        case '1d': return 6;
+        case '7d': return 7;
+        case '30d': return 10;
+        case '1y': return 12;
+        default: return 7;
+    }
 }
 
 async function fetchNews() {
@@ -288,7 +379,11 @@ function formatNumber(num) {
 // Update the initialization at the bottom of the file
 document.addEventListener('DOMContentLoaded', () => {
     fetchShibaData();
-    fetchNews();
+    // Remove the news fetch since we removed that section
+    // fetchNews();
+    
+    // Set interval for refreshing data
     setInterval(fetchShibaData, 60000);
-    setInterval(fetchNews, NEWS_REFRESH_INTERVAL);
+    // Remove news interval
+    // setInterval(fetchNews, NEWS_REFRESH_INTERVAL);
 });

@@ -262,9 +262,9 @@ body {
     background-color: var(--card-bg);
     border-radius: var(--border-radius);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    padding: 25px;
+    padding: 20px 15px 25px 10px; /* Added more bottom padding for x-axis labels */
     border: 1px solid rgba(255, 215, 0, 0.1);
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 .chart-header {
@@ -307,7 +307,23 @@ body {
 }
 
 .chart {
-    height: 350px;
+    height: 300px;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Better visibility for ApexCharts labels */
+.apexcharts-xaxis-label,
+.apexcharts-yaxis-label {
+    fill: #b0b0b0 !important;
+}
+
+/* Highlight the tooltip */
+.apexcharts-tooltip {
+    border: 1px solid var(--accent-color) !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* News Section */
@@ -493,6 +509,14 @@ footer {
     .news-section h2 {
         font-size: 1.5rem;
     }
+
+    .chart {
+        height: 250px;
+    }
+    
+    .chart-container {
+        padding: 15px 10px 25px 5px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -513,5 +537,13 @@ footer {
     
     .timeframe-btn {
         text-align: center;
+    }
+
+    .chart {
+        height: 200px;
+    }
+    
+    .chart-container {
+        padding: 10px 8px 30px 2px; /* More bottom padding on mobile for angled labels */
     }
 }
