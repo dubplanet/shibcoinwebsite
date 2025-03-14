@@ -1,0 +1,11 @@
+.centered-logo {
+    display: block;
+    margin: 0 auto;
+    width: 400px;
+    height: 400px;
+    object-fit: contain;
+}
+
+header {
+    text-align: center;
+}
