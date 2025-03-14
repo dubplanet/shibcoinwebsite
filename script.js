@@ -1,6 +1,8 @@
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
 const COIN_ID = 'shiba-inu';
 const NEWS_REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
+const NEWS_API_URL = 'https://gnews.io/api/v4/search';
+const NEWS_API_KEY = '0a43e914639fc457d1f55e9f8ffb26e1'; // This is a sample key, get your own at gnews.io
 
 async function fetchShibaData() {
     try {
@@ -53,30 +55,40 @@ async function fetchShibaData() {
 
 async function fetchNews() {
     try {
-        // Use free news API that doesn't require API key
-        const response = await fetch(
-            'https://api.coingecko.com/api/v3/news?category=shiba-inu'
-        );
-
-        if (!response.ok) {
-            throw new Error(`News API response error: ${response.status}`);
-        }
-
-        const data = await response.json();
+        console.log('Fetching SHIB news...');
         const newsContainer = document.getElementById('newsContent');
         
         if (!newsContainer) {
             console.error('News container element not found');
             return;
         }
-
-        if (data && data.length > 0) {
-            const newsHTML = data.slice(0, 5).map(article => `
+        
+        // Show loading spinner
+        newsContainer.innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading latest news...</p>
+            </div>
+        `;
+        
+        const response = await fetch(
+            `${NEWS_API_URL}?q=shiba+inu+cryptocurrency&lang=en&max=5&apikey=${NEWS_API_KEY}`
+        );
+        
+        if (!response.ok) {
+            throw new Error(`News API response error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('News data received:', data);
+        
+        if (data.articles && data.articles.length > 0) {
+            const newsHTML = data.articles.map(article => `
                 <div class="news-item">
-                    <h3>${article.title || 'No Title'}</h3>
-                    <p>${article.description?.substring(0, 150) || 'No description available'}...</p>
+                    <h3>${article.title}</h3>
+                    <p>${article.description}</p>
                     <div class="news-meta">
-                        <span>${new Date(article.published_at).toLocaleString()}</span>
+                        <span>${new Date(article.publishedAt).toLocaleString()}</span>
                         <a href="${article.url}" target="_blank" rel="noopener noreferrer">Read more</a>
                     </div>
                 </div>
@@ -84,7 +96,7 @@ async function fetchNews() {
             
             newsContainer.innerHTML = newsHTML;
         } else {
-            newsContainer.innerHTML = '<p>No recent news available</p>';
+            newsContainer.innerHTML = '<p>No recent news available about Shiba Inu coin.</p>';
         }
     } catch (error) {
         console.error('News Fetch Error:', error);
