@@ -1,5 +1,9 @@
 const BINANCE_US_API_URL = 'https://api.binance.us/api/v3';
 const SYMBOL = 'SHIBUSDT';
+const WS_ENDPOINT = 'wss://stream.binance.us:9443/ws';
+const SYMBOL_LOWER = 'shibusdt';
+
+let ws;
 
 async function fetchShibaData() {
     try {
@@ -68,6 +72,51 @@ async function fetchShibaData() {
     }
 }
 
+function connectWebSocket() {
+    ws = new WebSocket(WS_ENDPOINT);
+    
+    ws.onopen = () => {
+        console.log('WebSocket Connected');
+        ws.send(JSON.stringify({
+            method: 'SUBSCRIBE',
+            params: [
+                `${SYMBOL_LOWER}@ticker`
+            ],
+            id: 1
+        }));
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.e === '24hrTicker') {
+            updateUI(data);
+        }
+    };
+
+    ws.onerror = (error) => {
+        console.error('WebSocket Error:', error);
+    };
+
+    ws.onclose = () => {
+        console.log('WebSocket Closed. Reconnecting...');
+        setTimeout(connectWebSocket, 5000);
+    };
+}
+
+function updateUI(data) {
+    const price = parseFloat(data.c);
+    const priceChange = parseFloat(data.p);
+    const changePercent = parseFloat(data.P);
+    const volume = parseFloat(data.v) * price;
+    const isPositive = priceChange >= 0;
+
+    document.getElementById('price').textContent = `$${price.toFixed(8)}`;
+    document.getElementById('priceChange').textContent = `${isPositive ? '+' : ''}$${priceChange.toFixed(8)}`;
+    document.getElementById('changePercent').textContent = `(${isPositive ? '+' : ''}${changePercent.toFixed(2)}%)`;
+    document.getElementById('volume').textContent = `$${formatNumber(volume)}`;
+    document.getElementById('lastUpdate').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+}
+
 function formatNumber(num) {
     if (num >= 1e9) {
         return (num / 1e9).toFixed(2) + 'B';
@@ -84,3 +133,6 @@ function formatNumber(num) {
 // Fetch data immediately and then every 10 seconds
 fetchShibaData();
 setInterval(fetchShibaData, 10000);
+
+// Start WebSocket connection
+connectWebSocket();
