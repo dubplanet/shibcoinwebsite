@@ -1,13 +1,17 @@
-const BINANCE_API_URL = 'https://api.binance.com/api/v3';
+const BINANCE_US_API_URL = 'https://api.binance.us/api/v3';
 const SYMBOL = 'SHIBUSDT';
 
 async function fetchShibaData() {
     try {
-        // Fetch current price and 24h price change
+        // Fetch current price and 24h price change from Binance.US
         const [tickerResponse, priceResponse] = await Promise.all([
-            fetch(`${BINANCE_API_URL}/ticker/24hr?symbol=${SYMBOL}`),
-            fetch(`${BINANCE_API_URL}/price?symbol=${SYMBOL}`)
+            fetch(`${BINANCE_US_API_URL}/ticker/24hr?symbol=${SYMBOL}`),
+            fetch(`${BINANCE_US_API_URL}/ticker/price?symbol=${SYMBOL}`)
         ]);
+
+        if (!tickerResponse.ok || !priceResponse.ok) {
+            throw new Error('API response was not ok');
+        }
 
         const tickerData = await tickerResponse.json();
         const priceData = await priceResponse.json();
@@ -34,13 +38,16 @@ async function fetchShibaData() {
         const lastUpdated = new Date();
         document.getElementById('lastUpdate').textContent = `Last updated: ${lastUpdated.toLocaleTimeString()}`;
 
-        // Note: Binance API doesn't provide market cap and rank directly
+        // Update market cap (Not available in Binance.US API)
         document.getElementById('marketCap').textContent = 'N/A';
-        document.getElementById('rank').textContent = 'N/A';
 
     } catch (error) {
         console.error('Error fetching data:', error);
         document.getElementById('price').textContent = 'Error loading data';
+        document.getElementById('priceChange').textContent = '...';
+        document.getElementById('changePercent').textContent = '...';
+        document.getElementById('volume').textContent = '...';
+        document.getElementById('marketCap').textContent = '...';
     }
 }
 
@@ -57,6 +64,6 @@ function formatNumber(num) {
     return num.toFixed(2);
 }
 
-// Fetch data immediately and then every 5 seconds
+// Fetch data immediately and then every 10 seconds
 fetchShibaData();
-setInterval(fetchShibaData, 5000);
+setInterval(fetchShibaData, 10000);
