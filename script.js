@@ -1,14 +1,11 @@
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
 const COIN_ID = 'shiba-inu';
-const WS_ENDPOINT = 'wss://stream.binance.us:9443/ws';
-const SYMBOL_LOWER = 'shibusdt';
-
-let ws;
 
 async function fetchShibaData() {
     try {
         console.log('Fetching data from CoinGecko...');
-        const response = await fetch(`${COINGECKO_API_URL}/simple/price?ids=${COIN_ID}&vs_currencies=usd&include_24hr_vol=true&include_24hr_change=true&include_market_cap=true`);
+        // Updated API endpoint to get more detailed coin data including market cap rank
+        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false`);
 
         if (!response.ok) {
             throw new Error(`API response error: ${response.status}`);
@@ -16,20 +13,18 @@ async function fetchShibaData() {
 
         const data = await response.json();
         
-        if (!data || !data[COIN_ID]) {
+        if (!data) {
             throw new Error('Invalid data structure received from API');
         }
 
-        const coinData = data[COIN_ID];
-
         // Update price with null check
-        const price = coinData.usd || 0;
+        const price = data.market_data?.current_price?.usd || 0;
         document.getElementById('price').textContent = `$${price.toFixed(8)}`;
 
         // Update price change with null checks
-        const changePercent = coinData.usd_24h_change || 0;
+        const changePercent = data.market_data?.price_change_percentage_24h || 0;
         const isPositive = changePercent >= 0;
-        const priceChange = (price * changePercent / 100) || 0;
+        const priceChange = data.market_data?.price_change_24h || 0;
 
         document.getElementById('priceChange').textContent = `${isPositive ? '+' : ''}$${priceChange.toFixed(8)}`;
         document.getElementById('changePercent').textContent = `(${isPositive ? '+' : ''}${changePercent.toFixed(2)}%)`;
@@ -37,11 +32,13 @@ async function fetchShibaData() {
         document.getElementById('changePercent').style.color = isPositive ? '#00ff00' : '#ff0000';
 
         // Update market stats with null checks
-        const volume = coinData.usd_24h_vol || 0;
-        const marketCap = coinData.usd_market_cap || 0;
+        const volume = data.market_data?.total_volume?.usd || 0;
+        const marketCap = data.market_data?.market_cap?.usd || 0;
+        const marketCapRank = data.market_cap_rank || 'N/A';
         
         document.getElementById('volume').textContent = `$${formatNumber(volume)}`;
         document.getElementById('marketCap').textContent = `$${formatNumber(marketCap)}`;
+        document.getElementById('rank').textContent = `#${marketCapRank}`; // Make sure you have this element in your HTML
         
         // Update last updated time
         const lastUpdated = new Date();
@@ -59,51 +56,7 @@ function handleError() {
     document.getElementById('changePercent').textContent = '...';
     document.getElementById('volume').textContent = '...';
     document.getElementById('marketCap').textContent = '...';
-}
-
-function connectWebSocket() {
-    ws = new WebSocket(WS_ENDPOINT);
-    
-    ws.onopen = () => {
-        console.log('WebSocket Connected');
-        ws.send(JSON.stringify({
-            method: 'SUBSCRIBE',
-            params: [
-                `${SYMBOL_LOWER}@ticker`
-            ],
-            id: 1
-        }));
-    };
-
-    ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.e === '24hrTicker') {
-            updateUI(data);
-        }
-    };
-
-    ws.onerror = (error) => {
-        console.error('WebSocket Error:', error);
-    };
-
-    ws.onclose = () => {
-        console.log('WebSocket Closed. Reconnecting...');
-        setTimeout(connectWebSocket, 5000);
-    };
-}
-
-function updateUI(data) {
-    const price = parseFloat(data.c);
-    const priceChange = parseFloat(data.p);
-    const changePercent = parseFloat(data.P);
-    const volume = parseFloat(data.v) * price;
-    const isPositive = priceChange >= 0;
-
-    document.getElementById('price').textContent = `$${price.toFixed(8)}`;
-    document.getElementById('priceChange').textContent = `${isPositive ? '+' : ''}$${priceChange.toFixed(8)}`;
-    document.getElementById('changePercent').textContent = `(${isPositive ? '+' : ''}${changePercent.toFixed(2)}%)`;
-    document.getElementById('volume').textContent = `$${formatNumber(volume)}`;
-    document.getElementById('lastUpdate').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+    document.getElementById('rank').textContent = '...';
 }
 
 function formatNumber(num) {
@@ -117,6 +70,3 @@ function formatNumber(num) {
 // Fetch data immediately and then every minute
 fetchShibaData();
 setInterval(fetchShibaData, 60000); // Updated to 1 minute
-
-// Start WebSocket connection
-connectWebSocket();
