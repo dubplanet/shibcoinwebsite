@@ -1,12 +1,21 @@
 const BINANCE_US_API_URL = 'https://api.binance.us/api/v3';
+const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
 const SYMBOL = 'SHIBUSDT';
 
 async function fetchShibaData() {
     try {
-        // Fetch current price and 24h price change from Binance.US
+        console.log('Fetching data...');
         const [tickerResponse, priceResponse] = await Promise.all([
-            fetch(`${BINANCE_US_API_URL}/ticker/24hr?symbol=${SYMBOL}`),
-            fetch(`${BINANCE_US_API_URL}/ticker/price?symbol=${SYMBOL}`)
+            fetch(`${CORS_PROXY}${BINANCE_US_API_URL}/ticker/24hr?symbol=${SYMBOL}`, {
+                headers: {
+                    'Origin': 'https://dubplanet.github.io'
+                }
+            }),
+            fetch(`${CORS_PROXY}${BINANCE_US_API_URL}/ticker/price?symbol=${SYMBOL}`, {
+                headers: {
+                    'Origin': 'https://dubplanet.github.io'
+                }
+            })
         ]);
 
         if (!tickerResponse.ok || !priceResponse.ok) {
@@ -37,8 +46,6 @@ async function fetchShibaData() {
         // Update last updated time
         const lastUpdated = new Date();
         document.getElementById('lastUpdate').textContent = `Last updated: ${lastUpdated.toLocaleTimeString()}`;
-
-        // Update market cap (Not available in Binance.US API)
         document.getElementById('marketCap').textContent = 'N/A';
 
     } catch (error) {
