@@ -1,6 +1,9 @@
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
 const COIN_ID = 'shiba-inu';
 
+const CRYPTOCOMPARE_API_KEY = 'YOUR_API_KEY'; // Get free API key from cryptocompare.com
+const NEWS_REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
+
 async function fetchShibaData() {
     try {
         console.log('Fetching data from CoinGecko...');
@@ -50,6 +53,42 @@ async function fetchShibaData() {
     }
 }
 
+async function fetchNews() {
+    try {
+        const response = await fetch(
+            `https://min-api.cryptocompare.com/data/v2/news/?categories=Shiba%20Inu,SHIB&excludeCategories=Sponsored&api_key=${CRYPTOCOMPARE_API_KEY}`
+        );
+
+        if (!response.ok) {
+            throw new Error(`News API response error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const newsContainer = document.getElementById('newsContent');
+        
+        if (data.Data && data.Data.length > 0) {
+            const newsHTML = data.Data.slice(0, 5).map(article => `
+                <div class="news-item">
+                    <h3>${article.title}</h3>
+                    <p>${article.body.substring(0, 150)}...</p>
+                    <div class="news-meta">
+                        <span>${new Date(article.published_on * 1000).toLocaleString()}</span>
+                        <a href="${article.url}" target="_blank" rel="noopener noreferrer">Read more</a>
+                    </div>
+                </div>
+            `).join('');
+            
+            newsContainer.innerHTML = newsHTML;
+        } else {
+            newsContainer.innerHTML = '<p>No recent news available</p>';
+        }
+    } catch (error) {
+        console.error('News Fetch Error:', error);
+        document.getElementById('newsContent').innerHTML = 
+            '<p>Error loading news. Please try again later.</p>';
+    }
+}
+
 function handleError() {
     document.getElementById('price').textContent = 'Error loading data';
     document.getElementById('priceChange').textContent = '...';
@@ -70,3 +109,6 @@ function formatNumber(num) {
 // Fetch data immediately and then every minute
 fetchShibaData();
 setInterval(fetchShibaData, 60000); // Updated to 1 minute
+
+fetchNews();
+setInterval(fetchNews, NEWS_REFRESH_INTERVAL);
