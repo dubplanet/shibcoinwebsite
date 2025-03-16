@@ -3,21 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shiba Inu Coin Tracker | Live SHIB Price & Analytics</title>
-    <meta name="description" content="Track Shiba Inu (SHIB) cryptocurrency in real-time at ShibaInuCoinTracker.com. Live price data, charts, market cap and analytics updated every minute.">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Primary Meta Tags -->
+    <title>Shiba Inu (SHIB) Live Price Tracker | Real-Time Charts & Analytics</title>
+    <meta name="description" content="Track Shiba Inu (SHIB) cryptocurrency with real-time price updates, interactive charts, market capitalization data, and trading volume at ShibaInuCoinTracker.com.">
+    <meta name="keywords" content="Shiba Inu price, SHIB tracker, SHIB live price, cryptocurrency tracker, Shiba Inu chart, SHIB market cap, SHIB analytics, Shiba coin tracker">
+    <meta name="author" content="ShibaInuCoinTracker">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://shibainucointracker.com/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://shibainucointracker.com/">
+    <meta property="og:title" content="SHIB Live Tracker | Real-Time Shiba Inu Price & Charts">
+    <meta property="og:description" content="Get real-time Shiba Inu (SHIB) price updates, market cap data, trading volume, and interactive price charts updated every minute.">
+    <meta property="og:image" content="https://shibainucointracker.com/images/shib-og-image.jpg">
+    <meta property="og:site_name" content="ShibaInuCoinTracker">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://shibainucointracker.com/">
+    <meta name="twitter:title" content="Live SHIB Price Tracker | Shiba Inu Coin Analytics">
+    <meta name="twitter:description" content="Track Shiba Inu (SHIB) with real-time price data, market stats, and interactive charts. Updated every minute.">
+    <meta name="twitter:image" content="https://shibainucointracker.com/images/shib-twitter-card.jpg">
+    
+    <!-- Favicon and App Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#ffd700">
+
+    <!-- Preconnect to External Resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preload" href="styles.css" as="style">
+    <link rel="preload" href="script.js" as="script">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="canonical" href="https://shibainucointracker.com/">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "WebApplication",
+      "name": "Shiba Inu Coin Tracker",
+      "url": "https://shibainucointracker.com/",
+      "applicationCategory": "FinanceApplication",
+      "description": "Real-time tracking tool for Shiba Inu (SHIB) cryptocurrency prices, market capitalization, trading volume, and historical price charts.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "operatingSystem": "Web browser",
+      "screenshot": "https://shibainucointracker.com/images/screenshot.jpg"
+    }
+    </script>
+
+    <!-- Financial data structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "FinancialProduct",
+      "name": "Shiba Inu Coin (SHIB)",
+      "description": "Shiba Inu (SHIB) is a decentralized cryptocurrency created as an alternative to Dogecoin.",
+      "category": "Cryptocurrency",
+      "url": "https://shibainucointracker.com/",
+      "broker": {
+        "@type": "Organization",
+        "name": "Shiba Inu Coin Tracker"
+      },
+      "feesAndCommissionsSpecification": "No fees for tracking SHIB price data"
+    }
+    </script>
+
+    <!-- FAQ structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Shiba Inu (SHIB) cryptocurrency?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Shiba Inu (SHIB) is a decentralized cryptocurrency created in August 2020 as an Ethereum-based alternative to Dogecoin. It's nicknamed the 'Dogecoin killer' and features a Shiba Inu dog as its mascot."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How accurate is the SHIB price data on ShibaInuCoinTracker.com?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "ShibaInuCoinTracker.com provides real-time price data directly from the CoinGecko API, which aggregates prices across major cryptocurrency exchanges. Our data is updated every minute to ensure accuracy."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How can I buy Shiba Inu (SHIB)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You can purchase SHIB on popular cryptocurrency exchanges like Binance, Coinbase, Kraken, and KuCoin. You'll need to create an account, verify your identity, deposit funds, and then place an order to buy SHIB."
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 
 <body>
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">
-                <img src="https://cryptologos.cc/logos/shiba-inu-shib-logo.png" alt="SHIB Logo">
+                <img src="https://cryptologos.cc/logos/shiba-inu-shib-logo.png" alt="Shiba Inu (SHIB) Cryptocurrency Logo" width="30" height="30">
                 <span>SHIBA INU COIN TRACKER</span>
             </div>
             <div class="mini-price">
@@ -27,11 +134,36 @@
         </div>
     </nav>
 
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" href="https://shibainucointracker.com/">
+                    <span itemprop="name">Home</span>
+                </a>
+                <meta itemprop="position" content="1" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <span itemprop="name">SHIB Price Tracker</span>
+                <meta itemprop="position" content="2" />
+            </li>
+        </ol>
+    </nav>
+
     <div class="hero-section">
         <div class="container">
             <div class="hero-content">
-                <h1>SHIBA INU <span class="accent">LIVE PRICE</span></h1>
-                <p>Real-time analytics, market data, and price updates</p>
+                <h1>SHIBA INU <span class="accent">LIVE PRICE TRACKER</span></h1>
+                <p>Real-time SHIB price analytics, market data, charts, and comprehensive cryptocurrency insights updated every minute</p>
+                <div class="hero-stats">
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-label">Current Price</span>
+                        <span id="hero-price" class="hero-stat-value">$0.00000000</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-label">24h Change</span>
+                        <span id="hero-change" class="hero-stat-value neutral">0.00%</span>
+                    </div>
+                </div>
                 <div class="updated">
                     <i class="fas fa-sync-alt"></i>
                     <span id="lastUpdate">Last updated: Loading...</span>
@@ -105,6 +237,42 @@
                     </div>
                 </div>
                 <div id="priceChart" class="chart"></div>
+            </div>
+        </section>
+
+        <section class="faq-section">
+            <div class="container">
+                <div class="faq-card">
+                    <div class="faq-header">
+                        <h2><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-item">
+                            <h3>What is Shiba Inu (SHIB) cryptocurrency?</h3>
+                            <p>Shiba Inu (SHIB) is a decentralized cryptocurrency created in August 2020 as an Ethereum-based alternative to Dogecoin. It's nicknamed the "Dogecoin killer" and features a Shiba Inu dog as its mascot.</p>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <h3>How accurate is the SHIB price data on ShibaInuCoinTracker.com?</h3>
+                            <p>ShibaInuCoinTracker.com provides real-time price data directly from the CoinGecko API, which aggregates prices across major cryptocurrency exchanges. Our data is updated every minute to ensure accuracy.</p>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <h3>How can I buy Shiba Inu (SHIB)?</h3>
+                            <p>You can purchase SHIB on popular cryptocurrency exchanges like Binance, Coinbase, Kraken, and KuCoin. You'll need to create an account, verify your identity, deposit funds, and then place an order to buy SHIB.</p>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <h3>What factors affect the SHIB price?</h3>
+                            <p>SHIB price is influenced by several factors including overall market sentiment, Bitcoin price movements, adoption news, project developments, celebrity endorsements (particularly Elon Musk tweets), token burns, and macroeconomic factors.</p>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <h3>Is Shiba Inu a good investment?</h3>
+                            <p>Cryptocurrency investments carry significant risk and volatility. SHIB, like other meme coins, can experience dramatic price swings. Always conduct thorough research and consider consulting with a financial advisor before investing. ShibaInuCoinTracker.com provides data for informational purposes only and does not offer investment advice.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -183,3 +351,95 @@
     </script>
 </body>
 </html>
+
+/* FAQ Section Styling */
+.faq-section {
+    padding: 40px 0;
+}
+
+.faq-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    padding: 25px;
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    margin-bottom: 30px;
+}
+
+.faq-header {
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 15px;
+}
+
+.faq-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.faq-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.faq-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 20px;
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.faq-item h3 {
+    color: var(--accent-color);
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.faq-item p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+User-agent: *
+Allow: /
+Sitemap: https://shibainucointracker.com/sitemap.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://shibainucointracker.com/</loc>
+    <lastmod>2025-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
+
+{
+  "name": "Shiba Inu Coin Tracker",
+  "short_name": "SHIB Tracker",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#ffd700",
+  "background_color": "#121212",
+  "display": "standalone",
+  "start_url": "/"
+}
