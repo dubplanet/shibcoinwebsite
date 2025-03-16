@@ -1,8 +1,5 @@
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
 const COIN_ID = 'shiba-inu';
-const NEWS_REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
-const NEWS_API_URL = 'https://gnews.io/api/v4/search';
-const NEWS_API_KEY = '0a43e914639fc457d1f55e9f8ffb26e1'; // This is a sample key, get your own at gnews.io
 
 // Chart data global variable
 let priceHistoryData = [];
@@ -12,26 +9,27 @@ async function fetchShibaData() {
         console.log('Fetching data from CoinGecko...');
         
         const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=true`);
-
+    
         if (!response.ok) {
             throw new Error(`API response error: ${response.status}`);
         }
-
+        
         const data = await response.json();
         
         if (!data) {
             throw new Error('Invalid data structure received from API');
         }
-
+        
         // Update price with null check
         const price = data.market_data?.current_price?.usd || 0;
         if(document.getElementById('price')) {
             document.getElementById('price').textContent = `$${price.toFixed(8)}`;
         }
+        
         if(document.getElementById('price-mini')) {
             document.getElementById('price-mini').textContent = `$${price.toFixed(8)}`;
         }
-
+        
         // Update price change with null checks
         const changePercent = data.market_data?.price_change_percentage_24h || 0;
         const isPositive = changePercent >= 0;
@@ -75,7 +73,7 @@ async function fetchShibaData() {
             const lastUpdated = new Date();
             document.getElementById('lastUpdate').textContent = `Last updated: ${lastUpdated.toLocaleTimeString()}`;
         }
-
+        
         // Store sparkline data for chart if available
         if (data.market_data?.sparkline_7d?.price) {
             priceHistoryData = data.market_data.sparkline_7d.price;
@@ -86,7 +84,7 @@ async function fetchShibaData() {
 
     } catch (error) {
         console.error('Fetch Error Details:', error);
-        handleError();
+        handleError();  
     }
 }
 
@@ -326,126 +324,6 @@ function getTickAmount(period) {
     }
 }
 
-async function fetchNews() {
-    try {
-        console.log('Fetching SHIB news...');
-        const newsContainer = document.getElementById('newsContent');
-        
-        if (!newsContainer) {
-            console.error('News container element not found');
-            return;
-        }
-        
-        // Show loading spinner
-        newsContainer.innerHTML = `
-            <div class="loading-spinner">
-                <div class="spinner"></div>
-                <p>Loading latest news...</p>
-            </div>
-        `;
-        
-        // Try GNews API first
-        try {
-            const response = await fetch(
-                `${NEWS_API_URL}?q=shiba+inu+cryptocurrency&lang=en&max=6&apikey=${NEWS_API_KEY}`
-            );
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.articles && data.articles.length > 0) {
-                    const newsHTML = data.articles.slice(0, 6).map(article => `
-                        <div class="news-item">
-                            <h3>${article.title || 'SHIB News Update'}</h3>
-                            <p>${article.description?.substring(0, 150) || 'No description available'}...</p>
-                            <div class="news-meta">
-                                <div class="news-date">
-                                    <i class="fas fa-clock"></i>
-                                    <span>${new Date(article.publishedAt).toLocaleDateString()}</span>
-                                </div>
-                                <a href="${article.url}" target="_blank" rel="noopener noreferrer">
-                                    <i class="fas fa-external-link-alt"></i> Read more
-                                </a>
-                            </div>
-                        </div>
-                    `).join('');
-                    
-                    newsContainer.innerHTML = newsHTML;
-                    return;
-                }
-            } else {
-                throw new Error(`GNews API response error: ${response.status}`);
-            }
-        } catch (e) {
-            console.warn('GNews API error, trying fallback:', e);
-            
-            // Fallback to CoinGecko status updates if GNews fails
-            try {
-                const response = await fetch('https://api.coingecko.com/api/v3/coins/shiba-inu/status_updates');
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.status_updates && data.status_updates.length > 0) {
-                        const newsData = data.status_updates.map(update => ({
-                            title: update.category,
-                            description: update.description,
-                            url: 'https://www.coingecko.com/en/coins/shiba-inu',
-                            publishedAt: update.created_at
-                        }));
-                        
-                        const newsHTML = newsData.slice(0, 6).map(article => `
-                            <div class="news-item">
-                                <h3>${article.title || 'SHIB News Update'}</h3>
-                                <p>${article.description?.substring(0, 150) || 'No description available'}...</p>
-                                <div class="news-meta">
-                                    <div class="news-date">
-                                        <i class="fas fa-clock"></i>
-                                        <span>${new Date(article.publishedAt).toLocaleDateString()}</span>
-                                    </div>
-                                    <a href="${article.url}" target="_blank" rel="noopener noreferrer">
-                                        <i class="fas fa-external-link-alt"></i> Read more
-                                    </a>
-                                </div>
-                            </div>
-                        `).join('');
-                        
-                        newsContainer.innerHTML = newsHTML;
-                        return;
-                    }
-                }
-                throw new Error('CoinGecko status updates unavailable');
-            } catch (fallbackError) {
-                console.error('Fallback news source also failed:', fallbackError);
-            }
-        }
-        
-        // If we get here, both API calls failed
-        newsContainer.innerHTML = `
-            <div class="news-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Unable to load news at this time. Please try again later.</p>
-                <button onclick="fetchNews()" class="refresh-btn">
-                    <i class="fas fa-sync-alt"></i> Retry
-                </button>
-            </div>
-        `;
-        
-    } catch (error) {
-        console.error('News Fetch Error:', error);
-        const newsContainer = document.getElementById('newsContent');
-        if (newsContainer) {
-            newsContainer.innerHTML = `
-                <div class="news-error">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>Error loading news. Please try again later.</p>
-                    <button onclick="fetchNews()" class="refresh-btn">
-                        <i class="fas fa-sync-alt"></i> Retry
-                    </button>
-                </div>
-            `;
-        }
-    }
-}
-
 function handleError() {
     if (document.getElementById('price')) document.getElementById('price').textContent = 'Error loading data';
     if (document.getElementById('priceChange')) document.getElementById('priceChange').textContent = '...';
@@ -467,7 +345,5 @@ function formatNumber(num) {
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchShibaData();
-    fetchNews();
-    setInterval(fetchShibaData, 60000);
-    setInterval(fetchNews, NEWS_REFRESH_INTERVAL);
+    setInterval(fetchShibaData, 60000); // Update price data every minute
 });
