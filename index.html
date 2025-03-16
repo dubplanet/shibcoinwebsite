@@ -21,6 +21,7 @@
     <meta property="og:description" content="Get real-time Shiba Inu (SHIB) price updates, market cap data, trading volume, and interactive price charts updated every minute.">
     <meta property="og:image" content="https://shibainucointracker.com/images/shib-og-image.jpg">
     <meta property="og:site_name" content="ShibaInuCoinTracker">
+    <meta property="og:locale" content="en_US">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
@@ -170,7 +171,7 @@
             <div class="stats-container">
                 <div class="stat-card">
                     <div class="stat-icon">
-                        <i class="fas fa-chart-pie"></i>
+                        <i class="fas fa-chart-pie" aria-hidden="true"></i>
                     </div>
                     <div class="stat-content">
                         <h3>Market Cap</h3>
@@ -216,38 +217,8 @@
         </section>
 
         <section class="faq-section">
-            <div class="container">
-                <div class="faq-card">
-                    <div class="faq-header">
-                        <h2><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
-                    </div>
-                    <div class="faq-content">
-                        <div class="faq-item">
-                            <h3>What is Shiba Inu (SHIB) cryptocurrency?</h3>
-                            <p>Shiba Inu (SHIB) is a decentralized cryptocurrency created in August 2020 as an Ethereum-based alternative to Dogecoin. It's nicknamed the "Dogecoin killer" and features a Shiba Inu dog as its mascot.</p>
-                        </div>
-                        
-                        <div class="faq-item">
-                            <h3>How accurate is the SHIB price data on ShibaInuCoinTracker.com?</h3>
-                            <p>ShibaInuCoinTracker.com provides real-time price data directly from the CoinGecko API, which aggregates prices across major cryptocurrency exchanges. Our data is updated every minute to ensure accuracy.</p>
-                        </div>
-                        
-                        <div class="faq-item">
-                            <h3>How can I buy Shiba Inu (SHIB)?</h3>
-                            <p>You can purchase SHIB on popular cryptocurrency exchanges like Binance, Coinbase, Kraken, and KuCoin. You'll need to create an account, verify your identity, deposit funds, and then place an order to buy SHIB.</p>
-                        </div>
-                        
-                        <div class="faq-item">
-                            <h3>What factors affect the SHIB price?</h3>
-                            <p>SHIB price is influenced by several factors including overall market sentiment, Bitcoin price movements, adoption news, project developments, celebrity endorsements (particularly Elon Musk tweets), token burns, and macroeconomic factors.</p>
-                        </div>
-                        
-                        <div class="faq-item">
-                            <h3>Is Shiba Inu a good investment?</h3>
-                            <p>Cryptocurrency investments carry significant risk and volatility. SHIB, like other meme coins, can experience dramatic price swings. Always conduct thorough research and consider consulting with a financial advisor before investing. ShibaInuCoinTracker.com provides data for informational purposes only and does not offer investment advice.</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="faq-card">
+                <!-- content -->
             </div>
         </section>
     </div>
@@ -327,94 +298,3 @@
 </body>
 </html>
 
-/* FAQ Section Styling */
-.faq-section {
-    padding: 40px 0;
-}
-
-.faq-card {
-    background-color: var(--card-bg);
-    border-radius: var(--border-radius);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    padding: 25px;
-    border: 1px solid rgba(255, 215, 0, 0.15);
-    margin-bottom: 30px;
-}
-
-.faq-header {
-    margin-bottom: 25px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    padding-bottom: 15px;
-}
-
-.faq-header h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--accent-color);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.faq-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.faq-item {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    padding-bottom: 20px;
-}
-
-.faq-item:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.faq-item h3 {
-    color: var(--accent-color);
-    margin-bottom: 10px;
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-
-.faq-item p {
-    color: var(--text-secondary);
-    line-height: 1.6;
-}
-
-User-agent: *
-Allow: /
-Sitemap: https://shibainucointracker.com/sitemap.xml
-
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://shibainucointracker.com/</loc>
-    <lastmod>2025-03-16</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-</urlset>
-
-{
-  "name": "Shiba Inu Coin Tracker",
-  "short_name": "SHIB Tracker",
-  "icons": [
-    {
-      "src": "/android-chrome-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/android-chrome-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "theme_color": "#ffd700",
-  "background_color": "#121212",
-  "display": "standalone",
-  "start_url": "/"
-}

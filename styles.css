@@ -417,6 +417,20 @@ footer {
     gap: 8px;
 }
 
+/* FAQ Section Styling */
+.faq-section {
+    padding: 40px 0;
+}
+
+.faq-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    padding: 25px;
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    margin-bottom: 30px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .footer-content {
