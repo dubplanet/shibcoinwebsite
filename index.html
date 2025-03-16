@@ -1,3 +1,4 @@
+.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -106,31 +107,7 @@
                 <div id="priceChart" class="chart"></div>
             </div>
         </section>
-
-        <section class="news-section">
-            <h2><i class="fas fa-newspaper"></i> Latest SHIB News</h2>
-            <div id="newsContent" class="news-content">
-                <div class="loading-spinner">
-                    <div class="spinner"></div>
-                    <p>Loading latest news...</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Add this section after the chart section and before the footer -->
-        <section class="news-section">
-            <div class="container">
-                <h2><i class="fas fa-newspaper"></i> Latest SHIB News</h2>
-                <div id="newsContent" class="news-content">
-                    <div class="loading-spinner">
-                        <div class="spinner"></div>
-                        <p>Loading latest news...</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-   
+    </div>
 
     <footer>
         <div class="container">
@@ -166,146 +143,26 @@
             // Set interval for refreshing data
             setInterval(fetchShibaData, 60000);
             
-            // Remove news fetch and timeframe button event listeners
+            // Add timeframe button functionality back
+            document.querySelectorAll('.timeframe-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const period = this.getAttribute('data-period');
+                    
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Fetch chart data for selected period
+                    fetchChartData(period);
+                });
+            });
         });
 
-        // Update the updateChart function to remove the timeframe button part
-        function updateChart(period, data = null) {
-            const chartElement = document.getElementById('priceChart');
-            
-            if (!chartElement) return;
-            
-            let chartData = data;
-            
-            if (!chartData && period === '7d' && priceHistoryData.length > 0) {
-                // Use sparkline data if available for 7d
-                const now = new Date();
-                const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                
-                chartData = priceHistoryData.map((price, index) => {
-                    const timestamp = sevenDaysAgo.getTime() + (index * (7 * 24 * 60 * 60 * 1000) / priceHistoryData.length);
-                    return {
-                        x: timestamp,
-                        y: price
-                    };
-                });
-            }
-            
-            if (!chartData) {
-                chartElement.innerHTML = '<p>Chart data not available</p>';
-                return;
-            }
-            
-            // Get min and max for better visualization
-            const prices = chartData.map(item => item.y);
-            const minPrice = Math.min(...prices) * 0.99; // 1% lower than minimum
-            const maxPrice = Math.max(...prices) * 1.01; // 1% higher than maximum
-            
-            const options = {
-                series: [{
-                    name: 'SHIB Price',
-                    data: chartData
-                }],
-                chart: {
-                    type: 'area',
-                    height: '100%',
-                    foreColor: '#b0b0b0',
-                    toolbar: {
-                        show: false
-                    },
-                    animations: {
-                        enabled: true,
-                        easing: 'easeinout',
-                        speed: 800
-                    },
-                    background: 'transparent'
-                },
-                colors: ['#ffd700'],
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        shadeIntensity: 1,
-                        opacityFrom: 0.7,
-                        opacityTo: 0.3,
-                        stops: [0, 90, 100]
-                    }
-                },
-                dataLabels: {
-                    enabled: false
-                },
-                stroke: {
-                    curve: 'smooth',
-                    width: 2
-                },
-                grid: {
-                    borderColor: '#333333',
-                    strokeDashArray: 3,
-                    xaxis: {
-                        lines: {
-                            show: false
-                        }
-                    }
-                },
-                markers: {
-                    size: 0
-                },
-                xaxis: {
-                    type: 'datetime',
-                    labels: {
-                        datetimeUTC: false,
-                        style: {
-                            fontSize: '10px'
-                        },
-                        offsetY: 5
-                    }
-                },
-                yaxis: {
-                    min: minPrice,
-                    max: maxPrice,
-                    labels: {
-                        formatter: function(value) {
-                            return '$' + value.toFixed(8);
-                        },
-                        style: {
-                            fontSize: '10px'
-                        },
-                        offsetX: -10
-                    }
-                },
-                tooltip: {
-                    theme: 'dark',
-                    x: {
-                        format: 'MMM dd, yyyy HH:mm'
-                    },
-                    y: {
-                        formatter: function(value) {
-                            return '$' + value.toFixed(8);
-                        }
-                    }
-                },
-                responsive: [{
-                    breakpoint: 480,
-                    options: {
-                        chart: {
-                            height: 180
-                        },
-                        xaxis: {
-                            labels: {
-                                rotate: -45,
-                                offsetY: 10
-                            }
-                        }
-                    }
-                }]
-            };
-
-            // Clear previous chart if any
-            chartElement.innerHTML = '';
-            
-            // Create new chart
-            const chart = new ApexCharts(chartElement, options);
-            chart.render();
-        }
+        // The rest of your updateChart function remains the same
     </script>
 </body>
 </html>
