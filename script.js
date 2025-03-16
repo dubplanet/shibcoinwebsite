@@ -347,3 +347,4 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchShibaData();
     setInterval(fetchShibaData, 60000); // Update price data every minute
 });
+
