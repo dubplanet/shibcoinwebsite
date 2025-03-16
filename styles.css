@@ -294,4 +294,10 @@ body {
 }
 
 /* Highlight the tooltip */
-.apexcharts-
+.apexcharts-tooltip {
+    background: rgba(255, 255, 255, 0.9);
+    color: #000;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
