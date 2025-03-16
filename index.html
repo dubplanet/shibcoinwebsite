@@ -50,6 +50,81 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Custom styles for SHIB price displays -->
+    <style>
+        /* Navbar mini price adjustment */
+        .mini-price #price-mini {
+            font-size: 0.85rem;
+        }
+        
+        /* Main price display adjustment */
+        .current-price #price {
+            font-size: 1.8rem;
+            word-break: break-word;
+        }
+        
+        .price-change #priceChange {
+            font-size: 1rem;
+        }
+        
+        /* FAQ Styling */
+        .faq-content {
+            margin-top: 1rem;
+        }
+        
+        .faq-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 0.5rem;
+        }
+        
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            cursor: pointer;
+        }
+        
+        .faq-question h3 {
+            font-size: 1.1rem;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .faq-answer {
+            height: 0;
+            overflow: hidden;
+            transition: height 0.3s ease;
+            padding: 0 1rem;
+        }
+        
+        .faq-answer p {
+            padding-bottom: 1rem;
+            opacity: 0.8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .faq-item.active .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        
+        .fa-chevron-down {
+            transition: transform 0.3s ease;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .mini-price #price-mini {
+                font-size: 0.75rem;
+            }
+            
+            .current-price #price {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+
     <!-- Structured Data -->
     <script type="application/ld+json">
     {
@@ -217,11 +292,73 @@
         </section>
 
         <section class="faq-section">
-            <div class="faq-card">
-                <!-- content -->
+        <div class="faq-card">
+            <div class="faq-header">
+                <h2><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
             </div>
-        </section>
-    </div>
+            <div class="faq-content">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>What is Shiba Inu (SHIB) cryptocurrency?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Shiba Inu (SHIB) is a decentralized cryptocurrency created in August 2020 as an Ethereum-based alternative to Dogecoin. It's nicknamed the 'Dogecoin killer' and features a Shiba Inu dog as its mascot. SHIB is an ERC-20 token that operates on the Ethereum blockchain.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How accurate is the SHIB price data on ShibaInuCoinTracker.com?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>ShibaInuCoinTracker.com provides real-time price data directly from the CoinGecko API, which aggregates prices across major cryptocurrency exchanges. Our data is updated every minute to ensure accuracy and reliability for all users tracking SHIB prices.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How can I buy Shiba Inu (SHIB)?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>You can purchase SHIB on popular cryptocurrency exchanges like Binance, Coinbase, Kraken, and KuCoin. You'll need to create an account, verify your identity, deposit funds, and then place an order to buy SHIB. Always research the best exchange options based on your location and preferred payment methods.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>What factors influence SHIB's price?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>SHIB's price is influenced by several factors including overall market sentiment, Bitcoin's price movement, development progress within the Shiba Inu ecosystem, token burns, social media attention (especially from influential figures), exchange listings, and broader economic trends affecting the cryptocurrency market.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>What is the relationship between SHIB and other tokens like LEASH and BONE?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>SHIB, LEASH, and BONE are all part of the Shiba Inu ecosystem. While SHIB is the primary token, LEASH (originally created as a rebase token) and BONE (governance token) serve different purposes within the ecosystem. BONE allows holders to vote on proposals in the community's governance system, while LEASH has a significantly lower supply and different tokenomics.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Is this website affiliated with the official Shiba Inu team?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>No, ShibaInuCoinTracker.com is not affiliated with the official Shiba Inu development team. We are an independent price tracking service dedicated to providing accurate and timely information about SHIB cryptocurrency to enthusiasts and investors.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <footer>
         <div class="container">
@@ -289,6 +426,24 @@
                     
                     // Fetch chart data for selected period
                     fetchChartData(period);
+                });
+            });
+            
+            // Add FAQ interaction
+            document.querySelectorAll('.faq-question').forEach(question => {
+                question.addEventListener('click', function() {
+                    const parent = this.parentElement;
+                    const answer = this.nextElementSibling;
+                    
+                    // Toggle active class
+                    parent.classList.toggle('active');
+                    
+                    // Expand or collapse answer
+                    if (parent.classList.contains('active')) {
+                        answer.style.height = answer.scrollHeight + 'px';
+                    } else {
+                        answer.style.height = '0';
+                    }
                 });
             });
         });
