@@ -25,35 +25,56 @@ async function fetchShibaData() {
 
         // Update price with null check
         const price = data.market_data?.current_price?.usd || 0;
-        document.getElementById('price').textContent = `$${price.toFixed(8)}`;
-        document.getElementById('price-mini').textContent = `$${price.toFixed(8)}`;
+        if(document.getElementById('price')) {
+            document.getElementById('price').textContent = `$${price.toFixed(8)}`;
+        }
+        if(document.getElementById('price-mini')) {
+            document.getElementById('price-mini').textContent = `$${price.toFixed(8)}`;
+        }
 
         // Update price change with null checks
         const changePercent = data.market_data?.price_change_percentage_24h || 0;
         const isPositive = changePercent >= 0;
         const priceChange = data.market_data?.price_change_24h || 0;
 
-        document.getElementById('priceChange').textContent = `${isPositive ? '+' : ''}$${priceChange.toFixed(8)}`;
-        document.getElementById('changePercent').textContent = `(${isPositive ? '+' : ''}${changePercent.toFixed(2)}%)`;
-        document.getElementById('change-mini').textContent = `${isPositive ? '+' : ''}${changePercent.toFixed(2)}%`;
+        if(document.getElementById('priceChange')) {
+            document.getElementById('priceChange').textContent = `${isPositive ? '+' : ''}$${priceChange.toFixed(8)}`;
+            document.getElementById('priceChange').className = isPositive ? 'positive' : 'negative';
+        }
         
-        // Update color classes
-        document.getElementById('priceChange').className = isPositive ? 'change-positive' : 'change-negative';
-        document.getElementById('changePercent').className = isPositive ? 'change-positive' : 'change-negative';
-        document.getElementById('change-mini').className = isPositive ? 'change-positive' : 'change-negative';
+        if(document.getElementById('changePercent')) {
+            document.getElementById('changePercent').textContent = `(${isPositive ? '+' : ''}${changePercent.toFixed(2)}%)`;
+            document.getElementById('changePercent').className = isPositive ? 'positive' : 'negative';
+        }
+        
+        if(document.getElementById('change-mini')) {
+            document.getElementById('change-mini').textContent = `${isPositive ? '+' : ''}${changePercent.toFixed(2)}%`;
+            document.getElementById('change-mini').className = isPositive ? 'positive' : 'negative';
+            document.getElementById('change-mini').innerHTML = `<i class="fas fa-caret-${isPositive ? 'up' : 'down'}"></i> ${document.getElementById('change-mini').textContent}`;
+        }
 
         // Update market stats with null checks
         const volume = data.market_data?.total_volume?.usd || 0;
         const marketCap = data.market_data?.market_cap?.usd || 0;
         const marketCapRank = data.market_cap_rank || 'N/A';
         
-        document.getElementById('volume').textContent = `$${formatNumber(volume)}`;
-        document.getElementById('marketCap').textContent = `$${formatNumber(marketCap)}`;
-        document.getElementById('rank').textContent = `#${marketCapRank}`;
+        if(document.getElementById('volume')) {
+            document.getElementById('volume').textContent = `$${formatNumber(volume)}`;
+        }
+        
+        if(document.getElementById('marketCap')) {
+            document.getElementById('marketCap').textContent = `$${formatNumber(marketCap)}`;
+        }
+        
+        if(document.getElementById('rank')) {
+            document.getElementById('rank').textContent = `#${marketCapRank}`;
+        }
         
         // Update last updated time
-        const lastUpdated = new Date();
-        document.getElementById('lastUpdate').textContent = `Last updated: ${lastUpdated.toLocaleTimeString()}`;
+        if(document.getElementById('lastUpdate')) {
+            const lastUpdated = new Date();
+            document.getElementById('lastUpdate').textContent = `Last updated: ${lastUpdated.toLocaleTimeString()}`;
+        }
 
         // Store sparkline data for chart if available
         if (data.market_data?.sparkline_7d?.price) {
@@ -323,12 +344,8 @@ async function fetchNews() {
             </div>
         `;
         
-        // Alternative API options in case one doesn't work
-        let newsData = null;
-        let error = null;
-        
+        // Try GNews API first
         try {
-            // Try GNews API first
             const response = await fetch(
                 `${NEWS_API_URL}?q=shiba+inu+cryptocurrency&lang=en&max=6&apikey=${NEWS_API_KEY}`
             );
@@ -336,13 +353,29 @@ async function fetchNews() {
             if (response.ok) {
                 const data = await response.json();
                 if (data.articles && data.articles.length > 0) {
-                    newsData = data.articles;
+                    const newsHTML = data.articles.slice(0, 6).map(article => `
+                        <div class="news-item">
+                            <h3>${article.title || 'SHIB News Update'}</h3>
+                            <p>${article.description?.substring(0, 150) || 'No description available'}...</p>
+                            <div class="news-meta">
+                                <div class="news-date">
+                                    <i class="fas fa-clock"></i>
+                                    <span>${new Date(article.publishedAt).toLocaleDateString()}</span>
+                                </div>
+                                <a href="${article.url}" target="_blank" rel="noopener noreferrer">
+                                    <i class="fas fa-external-link-alt"></i> Read more
+                                </a>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    newsContainer.innerHTML = newsHTML;
+                    return;
                 }
             } else {
                 throw new Error(`GNews API response error: ${response.status}`);
             }
         } catch (e) {
-            error = e;
             console.warn('GNews API error, trying fallback:', e);
             
             // Fallback to CoinGecko status updates if GNews fails
@@ -352,100 +385,76 @@ async function fetchNews() {
                 if (response.ok) {
                     const data = await response.json();
                     if (data.status_updates && data.status_updates.length > 0) {
-                        newsData = data.status_updates.map(update => ({
+                        const newsData = data.status_updates.map(update => ({
                             title: update.category,
                             description: update.description,
                             url: 'https://www.coingecko.com/en/coins/shiba-inu',
                             publishedAt: update.created_at
                         }));
+                        
+                        const newsHTML = newsData.slice(0, 6).map(article => `
+                            <div class="news-item">
+                                <h3>${article.title || 'SHIB News Update'}</h3>
+                                <p>${article.description?.substring(0, 150) || 'No description available'}...</p>
+                                <div class="news-meta">
+                                    <div class="news-date">
+                                        <i class="fas fa-clock"></i>
+                                        <span>${new Date(article.publishedAt).toLocaleDateString()}</span>
+                                    </div>
+                                    <a href="${article.url}" target="_blank" rel="noopener noreferrer">
+                                        <i class="fas fa-external-link-alt"></i> Read more
+                                    </a>
+                                </div>
+                            </div>
+                        `).join('');
+                        
+                        newsContainer.innerHTML = newsHTML;
+                        return;
                     }
                 }
+                throw new Error('CoinGecko status updates unavailable');
             } catch (fallbackError) {
                 console.error('Fallback news source also failed:', fallbackError);
             }
         }
         
-        if (newsData && newsData.length > 0) {
-            const newsHTML = newsData.slice(0, 6).map(article => `
-                <div class="news-item">
-                    <h3>${article.title || 'SHIB News Update'}</h3>
-                    <p>${article.description?.substring(0, 150) || 'No description available'}...</p>
-                    <div class="news-meta">
-                        <div class="news-date">
-                            <i class="fas fa-clock"></i>
-                            <span>${new Date(article.publishedAt).toLocaleDateString()}</span>
-                        </div>
-                        <a href="${article.url}" target="_blank" rel="noopener noreferrer">
-                            <i class="fas fa-external-link-alt"></i> Read more
-                        </a>
-                    </div>
-                </div>
-            `).join('');
-            
-            newsContainer.innerHTML = newsHTML;
-        } else {
-            // If both APIs fail or return no data, show mock news as a fallback
-            const mockNews = [
-                {
-                    title: "Shiba Inu Continues to Gain Momentum in Crypto Market",
-                    description: "The popular meme coin has shown resilience in the volatile cryptocurrency market, with growing adoption across various platforms.",
-                    date: new Date().toLocaleDateString(),
-                    url: "https://www.shibatoken.com/"
-                },
-                {
-                    title: "New Developments in SHIB Ecosystem",
-                    description: "The SHIB development team has announced plans for new features and integrations that aim to expand the utility of the token.",
-                    date: new Date().toLocaleDateString(),
-                    url: "https://www.shibatoken.com/"
-                },
-                {
-                    title: "Shiba Inu Community Grows Past 2 Million Holders",
-                    description: "The SHIB community continues to expand rapidly as more investors join the ecosystem and contribute to its development.",
-                    date: new Date().toLocaleDateString(),
-                    url: "https://www.shibatoken.com/"
-                },
-                {
-                    title: "Major Exchange Adds New SHIB Trading Pairs",
-                    description: "A leading cryptocurrency exchange has announced the addition of new trading pairs for Shiba Inu, increasing its accessibility.",
-                    date: new Date().toLocaleDateString(),
-                    url: "https://www.shibatoken.com/"
-                }
-            ];
-            
-            const mockNewsHTML = mockNews.map(item => `
-                <div class="news-item">
-                    <h3>${item.title}</h3>
-                    <p>${item.description}</p>
-                    <div class="news-meta">
-                        <div class="news-date">
-                            <i class="fas fa-clock"></i>
-                            <span>${item.date}</span>
-                        </div>
-                        <a href="${item.url}" target="_blank" rel="noopener noreferrer">
-                            <i class="fas fa-external-link-alt"></i> Read more
-                        </a>
-                    </div>
-                </div>
-            `).join('');
-            
-            newsContainer.innerHTML = mockNewsHTML;
-        }
+        // If we get here, both API calls failed
+        newsContainer.innerHTML = `
+            <div class="news-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Unable to load news at this time. Please try again later.</p>
+                <button onclick="fetchNews()" class="refresh-btn">
+                    <i class="fas fa-sync-alt"></i> Retry
+                </button>
+            </div>
+        `;
+        
     } catch (error) {
         console.error('News Fetch Error:', error);
         const newsContainer = document.getElementById('newsContent');
         if (newsContainer) {
-            newsContainer.innerHTML = '<p>Error loading news. Please try again later.</p>';
+            newsContainer.innerHTML = `
+                <div class="news-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Error loading news. Please try again later.</p>
+                    <button onclick="fetchNews()" class="refresh-btn">
+                        <i class="fas fa-sync-alt"></i> Retry
+                    </button>
+                </div>
+            `;
         }
     }
 }
 
 function handleError() {
-    document.getElementById('price').textContent = 'Error loading data';
-    document.getElementById('priceChange').textContent = '...';
-    document.getElementById('changePercent').textContent = '...';
-    document.getElementById('volume').textContent = '...';
-    document.getElementById('marketCap').textContent = '...';
-    document.getElementById('rank').textContent = '...';
+    if (document.getElementById('price')) document.getElementById('price').textContent = 'Error loading data';
+    if (document.getElementById('priceChange')) document.getElementById('priceChange').textContent = '...';
+    if (document.getElementById('changePercent')) document.getElementById('changePercent').textContent = '...';
+    if (document.getElementById('volume')) document.getElementById('volume').textContent = '...';
+    if (document.getElementById('marketCap')) document.getElementById('marketCap').textContent = '...';
+    if (document.getElementById('rank')) document.getElementById('rank').textContent = '...';
+    if (document.getElementById('price-mini')) document.getElementById('price-mini').textContent = 'Error';
+    if (document.getElementById('change-mini')) document.getElementById('change-mini').textContent = '...';
 }
 
 function formatNumber(num) {
@@ -456,7 +465,6 @@ function formatNumber(num) {
     return num.toFixed(2);
 }
 
-// Update the initialization at the bottom of the file
 document.addEventListener('DOMContentLoaded', () => {
     fetchShibaData();
     fetchNews();
