@@ -669,6 +669,69 @@
                 font-size: 1.4rem;
             }
         }
+
+        /* Update header styles for mobile */
+        @media (max-width: 768px) {
+            .header-content {
+                display: grid;
+                grid-template-columns: auto 1fr auto auto;
+                align-items: center;
+                gap: 10px;
+                padding: 0.75rem 1rem;
+                height: 60px;
+            }
+
+            .logo {
+                grid-column: 1;
+                justify-self: start;
+            }
+
+            .mini-price {
+                grid-column: 2;
+                justify-self: end;
+                position: static;
+                transform: none;
+                margin-right: 10px;
+                text-align: right;
+            }
+
+            .mobile-menu-toggle {
+                grid-column: 4;
+                justify-self: end;
+                margin: 0;
+            }
+
+            /* Adjust logo size */
+            .logo img {
+                height: 28px;
+            }
+
+            .logo span {
+                font-size: 0.9rem;
+                white-space: nowrap;
+            }
+
+            /* Price display adjustments */
+            .mini-price {
+                font-size: 0.8rem;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            #price-mini {
+                margin-bottom: 2px;
+            }
+
+            /* Remove absolute positioning */
+            .mobile-menu-toggle {
+                position: relative;
+                z-index: 1001;
+                background: none;
+                border: none;
+                padding: 0.5rem;
+            }
+        }
     </style>
 
     <!-- Structured Data -->
