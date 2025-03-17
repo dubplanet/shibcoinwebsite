@@ -118,10 +118,17 @@ async function fetchChartData(period = '7d') {
     }
 }
 
+let currentChart = null;
+
 function updateChart(period, data = null) {
     const chartElement = document.getElementById('priceChart');
     
     if (!chartElement) return;
+    
+    // Destroy existing chart
+    if (currentChart) {
+        currentChart.destroy();
+    }
     
     let chartData = data;
     
@@ -311,6 +318,9 @@ function updateChart(period, data = null) {
     // Create new chart
     const chart = new ApexCharts(chartElement, options);
     chart.render();
+    
+    // Store reference to new chart
+    currentChart = chart;
 }
 
 // Helper function to determine optimal number of date labels
@@ -417,6 +427,74 @@ function animatePriceUpdate(newPrice) {
     }, 1000);
 }
 
+// Single FAQ functionality implementation
+function initializeFAQ() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    // Remove existing listeners if any
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        const clone = question.cloneNode(true);
+        question.parentNode.replaceChild(clone, question);
+    });
+    
+    // Add new listeners
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        const answer = item.querySelector('.faq-answer');
+        const icon = item.querySelector('.fa-chevron-down');
+        
+        if (answer) answer.style.height = '0px';
+        
+        question.addEventListener('click', handleFAQClick.bind(null, item, answer, icon));
+    });
+}
+
+function handleFAQClick(currentItem, answer, icon) {
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        if (item !== currentItem) {
+            item.classList.remove('active');
+            const otherAnswer = item.querySelector('.faq-answer');
+            const otherIcon = item.querySelector('.fa-chevron-down');
+            if (otherAnswer) otherAnswer.style.height = '0px';
+            if (otherIcon) otherIcon.style.transform = 'rotate(0deg)';
+        }
+    });
+    
+    const isExpanding = !currentItem.classList.contains('active');
+    currentItem.classList.toggle('active');
+    
+    if (answer) {
+        answer.style.height = isExpanding ? `${answer.scrollHeight}px` : '0px';
+    }
+    if (icon) {
+        icon.style.transform = isExpanding ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+}
+
+window.addEventListener('error', function(event) {
+    console.error('Global error caught:', event.error);
+    handleError();
+    return false;
+});
+
+// Update initialization
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        createParticles();
+        initializeFAQ();
+        initializeChartControls();
+        
+        fetchShibaData();
+        setInterval(fetchShibaData, 60000);
+    } catch (error) {
+        console.error('Initialization error:', error);
+        handleError();
+    }
+});
+
 // Initialize animations
 document.addEventListener('DOMContentLoaded', () => {
     // Create floating particles in hero section
@@ -425,78 +503,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Original fetchShibaData with animation
     const originalFetchShibaData = window.fetchShibaData;
     window.fetchShibaData = function() {
-        // Animate sync icon
         animateSyncIcon();
-        
-        // Call original function
         return originalFetchShibaData.apply(this, arguments);
     };
 
     fetchShibaData();
-    setInterval(fetchShibaData, 60000); // Update price data every minute
+    setInterval(fetchShibaData, 60000);
 
     // Chart timeframe functionality
     document.querySelectorAll('.timeframe-btn').forEach(button => {
         button.addEventListener('click', function() {
-            // Remove active class from all buttons
             document.querySelectorAll('.timeframe-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
-            // Add active class to clicked button
             this.classList.add('active');
-            
-            // Get the time period and fetch new data
             const period = this.getAttribute('data-period');
             fetchChartData(period);
         });
     });
 
-    // FAQ Functionality
-    const faqQuestions = document.querySelectorAll('.faq-question');
-    
-    faqQuestions.forEach(question => {
-        question.addEventListener('click', function() {
-            const answer = this.nextElementSibling;
-            const parent = this.parentElement;
-            
-            // Toggle active class
-            parent.classList.toggle('active');
-            
-            // Animate answer height
-            if (parent.classList.contains('active')) {
-                answer.style.maxHeight = answer.scrollHeight + 'px';
-                question.querySelector('.faq-icon').innerHTML = '<i class="fas fa-minus"></i>';
-            } else {
-                answer.style.maxHeight = '0';
-                question.querySelector('.faq-icon').innerHTML = '<i class="fas fa-plus"></i>';
-            }
-        });
-    });
-
-    const faqItems = document.querySelectorAll('.faq-item');
-    
-    faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question');
-        const answer = item.querySelector('.faq-answer');
-        const icon = item.querySelector('.fa-chevron-down');
-        
-        // Set initial height to 0
-        answer.style.height = '0px';
-        
-        question.addEventListener('click', () => {
-            // Toggle active class
-            item.classList.toggle('active');
-            
-            // Toggle answer visibility
-            if (item.classList.contains('active')) {
-                answer.style.height = answer.scrollHeight + 'px';
-                icon.style.transform = 'rotate(180deg)';
-            } else {
-                answer.style.height = '0px';
-                icon.style.transform = 'rotate(0deg)';
-            }
-        });
-    });
+    // Single FAQ functionality implementation
+    initializeFAQ();
 });
 
