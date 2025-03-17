@@ -818,6 +818,71 @@
                 font-size: 0.8rem;
             }
         }
+
+        /* Latest News Section Styles */
+        .news-section {
+            margin: 2rem 0;
+        }
+
+        .news-card {
+            background: rgba(30, 30, 40, 0.6);
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            text-align: center;
+        }
+
+        .news-header {
+            margin-bottom: 1rem;
+        }
+
+        .news-header h2 {
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.5rem;
+        }
+
+        .news-content p {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .news-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: var(--accent-color);
+            color: var(--primary-bg);
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .news-btn:hover {
+            background: var(--hover-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Mobile specific styles */
+        @media (max-width: 768px) {
+            .news-card {
+                padding: 20px;
+            }
+            
+            .news-btn {
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 1.1rem;
+            }
+        }
     </style>
 
     <!-- Structured Data -->
@@ -1048,7 +1113,23 @@
             </div>
         </section>
 
- <section class="faq-section">
+        <!-- Latest News Section - Add this between chart and FAQ sections -->
+        <section class="news-section">
+            <div class="news-card">
+                <div class="news-header">
+                    <h2><i class="fas fa-newspaper"></i> Stay Updated</h2>
+                </div>
+                <div class="news-content">
+                    <p>Get the latest Shiba Inu news, market updates, and cryptocurrency insights.</p>
+                    <a href="blog.html" class="news-btn">
+                        <span>Latest News</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="faq-section">
         <div class="faq-card">
             <div class="faq-header">
                 <h2></i>Frequently Asked Questions</h2>
