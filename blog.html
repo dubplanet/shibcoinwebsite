@@ -416,46 +416,29 @@
         }
     </style>
     <style>
-        /* Remove top spacing and fix header positioning */
+        /* Remove the old body padding style and update the header styles */
         body {
             margin: 0;
-            padding: 0;
-            padding-top: 60px; /* Match header height */
+            padding: 0; /* Remove the top padding */
         }
 
-        .site-header {
+        .navbar {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 60px;
             background: rgba(20, 20, 30, 0.95);
             z-index: 1000;
             backdrop-filter: blur(10px);
         }
 
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .hero-section {
+            margin-top: 60px; /* Add margin to hero section instead */
         }
 
-        /* Mobile specific adjustments */
         @media (max-width: 768px) {
-            body {
-                padding-top: 50px; /* Slightly smaller for mobile */
-            }
-
-            .site-header {
-                height: 50px;
-            }
-
-            .header-content {
-                padding: 0 0.75rem;
+            .hero-section {
+                margin-top: 50px; /* Adjust for mobile */
             }
         }
     </style>
@@ -466,7 +449,7 @@
             <div class="logo">
                 <a href="index.html">
                     <img src="shiba-inu-shib-logo.png" alt="Shiba Inu (SHIB) Cryptocurrency Logo" width="30" height="30">
-                    <span>SHIB TRACKER</span>
+                    <span>SHIB Tracker</span>
                 </a>
             </div>
             <div class="main-nav">
