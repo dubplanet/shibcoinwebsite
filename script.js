@@ -343,7 +343,96 @@ function formatNumber(num) {
     return num.toFixed(2);
 }
 
+// Create particle background
+function createParticles() {
+    const particlesContainer = document.createElement('div');
+    particlesContainer.className = 'particles-container';
+    document.querySelector('.hero-section').appendChild(particlesContainer);
+    
+    const particleCount = 20;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Random properties
+        const size = Math.random() * 10 + 5;
+        const posX = Math.random() * 100;
+        const posY = Math.random() * 100;
+        const opacity = Math.random() * 0.5 + 0.1;
+        const duration = Math.random() * 20 + 10;
+        const delay = Math.random() * 5;
+        
+        // Set styles
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${posX}%`;
+        particle.style.top = `${posY}%`;
+        particle.style.opacity = opacity;
+        particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+        
+        particlesContainer.appendChild(particle);
+    }
+}
+
+// Animate sync icon during updates
+function animateSyncIcon() {
+    const syncIcon = document.querySelector('.fa-sync-alt');
+    syncIcon.classList.add('updating');
+    
+    setTimeout(() => {
+        syncIcon.classList.remove('updating');
+    }, 2000);
+}
+
+// Number counter animation
+function animateNumberCounter(element, start, end, duration) {
+    const range = end - start;
+    const increment = end > start ? 1 : -1;
+    const stepTime = Math.abs(Math.floor(duration / range));
+    let current = start;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        element.textContent = current;
+        if (current == end) {
+            clearInterval(timer);
+        }
+    }, stepTime);
+}
+
+// Price update animation
+function animatePriceUpdate(newPrice) {
+    const priceElement = document.getElementById('price');
+    const currentValue = priceElement.textContent.replace('$', '');
+    const newValue = newPrice.replace('$', '');
+    
+    // Add class to flash
+    priceElement.classList.add('price-updated');
+    
+    // Remove class after animation completes
+    setTimeout(() => {
+        priceElement.classList.remove('price-updated');
+    }, 1500);
+    
+    priceElement.textContent = newPrice;
+}
+
+// Initialize animations
 document.addEventListener('DOMContentLoaded', () => {
+    // Create floating particles in hero section
+    createParticles();
+    
+    // Original fetchShibaData with animation
+    const originalFetchShibaData = window.fetchShibaData;
+    window.fetchShibaData = function() {
+        // Animate sync icon
+        animateSyncIcon();
+        
+        // Call original function
+        return originalFetchShibaData.apply(this, arguments);
+    };
+
     fetchShibaData();
     setInterval(fetchShibaData, 60000); // Update price data every minute
 });

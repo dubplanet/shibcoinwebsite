@@ -240,6 +240,93 @@
                 font-size: 1.6rem;
             }
         }
+        
+        /* Animation keyframes */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -100% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Apply animations to elements */
+        .hero-content h1 {
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .hero-content h1 .accent {
+            position: relative;
+            display: inline-block;
+            background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
+            background-size: 200% auto;
+            color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+        
+        .current-price {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .fa-sync-alt {
+            display: inline-block;
+            animation: rotate 2s linear infinite;
+            animation-play-state: paused;
+        }
+        
+        .fa-sync-alt.updating {
+            animation-play-state: running;
+        }
+        
+        .stat-icon {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        /* Particle background */
+        .particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.3);
+            pointer-events: none;
+        }
+
+        /* Price update animation */
+        .price-updated {
+            animation: flashPrice 1.5s ease-out;
+        }
+        
+        @keyframes flashPrice {
+            0% { color: #ffd700; transform: scale(1); }
+            50% { color: #ffffff; transform: scale(1.1); }
+            100% { color: #ffd700; transform: scale(1); }
+        }
     </style>
 
     <!-- Structured Data -->
