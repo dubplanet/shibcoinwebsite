@@ -1,3 +1,14 @@
- 
+User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /includes/
+Disallow: /tmp/
+Disallow: /cgi-bin/
+
+# Prevent crawling of privacy and disclaimer pages
+# Remove these lines if you want these pages indexed
+Disallow: /privacy.html
+Disallow: /disclaimer.html
+
+# Sitemap location
 Sitemap: https://shibainucointracker.com/sitemap.xml
