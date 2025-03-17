@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     
     <!-- Primary Meta Tags -->
     <title>Shiba Inu (SHIB) Live Price Tracker | Real-Time Charts & Analytics</title>
@@ -885,6 +889,55 @@
       ]
     }
     </script>
+
+    <!-- Critical CSS inline -->
+    <style>
+        /* Only include critical above-the-fold styles here */
+        .site-header {
+            background: rgba(20, 20, 30, 0.95);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .hero-section {
+            padding-top: 80px;
+        }
+    </style>
+
+    <!-- Preload critical assets -->
+    <link rel="preload" href="images/shiba-inu-shib-logo.png" as="image">
+    <link rel="preload" href="styles.css" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
+    
+    <!-- Defer non-critical CSS -->
+    <link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" 
+          media="print" onload="this.media='all'">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" 
+          media="print" onload="this.media='all'">
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 </head>
 
 <body>
@@ -1117,8 +1170,18 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="script.js"></script>
+    <!-- Move scripts to end of body -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
+    <script src="script.js" type="module"></script>
+    
+    <!-- Inline critical JS -->
+    <script>
+        // Critical initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            const priceElement = document.getElementById('price-mini');
+            if(priceElement) priceElement.textContent = 'Loading...';
+        });
+    </script>
     
     <!-- Cookie Consent Popup -->
     <div id="cookieConsent" class="cookie-consent">

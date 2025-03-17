@@ -265,26 +265,7 @@ body {
     padding: 20px 15px 25px 10px; /* Added more bottom padding for x-axis labels */
     border: 1px solid rgba(255, 215, 0, 0.1);
     margin-bottom: 30px;
-}
-
-.chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.chart-header h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-.chart {
-    height: 300px;
-    width: 100%;
-    overflow: hidden;
-    border-radius: 8px;
-    margin-top: 10px;
+    min-height: 400px;
 }
 
 /* Better visibility for ApexCharts labels */
@@ -420,6 +401,8 @@ footer {
 /* FAQ Section Styling */
 .faq-section {
     padding: 40px 0;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .faq-card {
@@ -514,8 +497,22 @@ footer {
     }
 
     .header-content {
-        flex-direction: column;
-        padding: 0.5rem 1rem;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 1rem;
+        align-items: center;
+        padding: 0.75rem 1rem;
+    }
+
+    .logo {
+        grid-column: 1;
+        justify-self: start;
+    }
+
+    .mini-price {
+        grid-column: 2;
+        justify-self: end;
+        text-align: right;
     }
     
     .main-nav {
@@ -528,6 +525,29 @@ footer {
     }
 }
 
+/* Move all non-critical styles here */
+@media (max-width: 768px) {
+    /* Mobile styles */
+}
+
+/* Animations */
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -100% 0; }
+    100% { background-position: 200% 0; }
+}
+
 @media (max-width: 480px) {
     .footer-header h2 {
         font-size: 1.3rem;
@@ -535,5 +555,13 @@ footer {
     
     .footer-card {
         padding: 20px 15px;
+    }
+
+    .chart-container {
+        padding: 15px 10px;
+    }
+
+    .price-content #price {
+        font-size: 2.5rem;
     }
 }
