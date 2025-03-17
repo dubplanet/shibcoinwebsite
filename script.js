@@ -526,3 +526,39 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeFAQ();
 });
 
+function updateDataDisplayFromCache() {
+    // Similar to updateDataDisplay but uses dataCache instead
+    if (!dataCache.price) return;
+    
+    const priceElement = document.getElementById('price');
+    if (priceElement) {
+        priceElement.textContent = `$${formatCryptoPrice(dataCache.price)}`;
+    }
+    
+    const miniPriceElement = document.getElementById('price-mini');
+    if (miniPriceElement) {
+        miniPriceElement.textContent = `$${formatCryptoPrice(dataCache.price)}`;
+    }
+    
+    // Update other elements from cache...
+    const marketCapElement = document.getElementById('marketCap');
+    if (marketCapElement && dataCache.marketCap) {
+        marketCapElement.textContent = formatCurrency(dataCache.marketCap);
+    }
+    
+    const volumeElement = document.getElementById('volume');
+    if (volumeElement && dataCache.volume) {
+        volumeElement.textContent = formatCurrency(dataCache.volume);
+    }
+    
+    const rankElement = document.getElementById('rank');
+    if (rankElement && dataCache.rank) {
+        rankElement.textContent = `#${dataCache.rank}`;
+    }
+    
+    // Add warning class to show data might be stale
+    document.querySelectorAll('.price-section .stat-card').forEach(card => {
+        card.classList.add('cached-data');
+    });
+}
+
