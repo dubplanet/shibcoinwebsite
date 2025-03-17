@@ -374,6 +374,21 @@ footer {
     gap: 8px;
 }
 
+/* Add these new styles */
+.footer-links .news-link {
+    color: var(--accent-color);
+    font-weight: 500;
+}
+
+.footer-links .news-link i {
+    font-size: 1rem;
+}
+
+.footer-links .news-link:hover {
+    transform: translateX(5px);
+    color: var(--hover-color);
+}
+
 .footer-links a:hover {
     color: var(--accent-color);
     transform: translateX(5px);
