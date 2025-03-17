@@ -732,6 +732,88 @@
                 padding: 0.5rem;
             }
         }
+
+        /* Header Styles */
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .logo span {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        .main-nav ul {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .main-nav a:hover {
+            color: #ffd700;
+        }
+
+        .mini-price {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        #price-mini {
+            color: #ffd700;
+        }
+
+        /* Basic responsive adjustments */
+        @media (max-width: 768px) {
+            .logo img {
+                height: 28px;
+            }
+
+            .logo span {
+                font-size: 0.9rem;
+            }
+
+            .mini-price {
+                font-size: 0.8rem;
+            }
+        }
     </style>
 
     <!-- Structured Data -->
@@ -807,41 +889,30 @@
 
 <body>
     <header class="site-header">
-        <div class="header-content">
-            <div class="logo">
-                <a href="index.html">
-                    <img src="shiba-inu-shib-logo.png" alt="Shiba Inu Coin Logo">
-                    <span>SHIB Tracker</span>
-                </a>
-            </div>
-            
-            <div class="mobile-menu-toggle">
-                <button id="menuToggle" aria-label="Toggle navigation menu">
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                </button>
-            </div>
-            
-            <nav class="main-nav" id="mainNav">
-                <ul>
-                    <li><a href="index.html" class="active"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="blog.html"><i class="fas fa-newspaper"></i> News</a></li>
-                </ul>
-                
-                <div class="mobile-only social-links">
-                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="#" aria-label="Telegram"><i class="fab fa-telegram-plane"></i></a>
-                    <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
-                </div>
-            </nav>
-            
-            <div class="mini-price">
-                <span id="price-mini">Loading...</span>
-                <span id="change-mini" class="neutral">...</span>
-            </div>
+    <div class="header-content">
+        <!-- Logo -->
+        <div class="logo">
+            <a href="index.html">
+                <img src="images/shiba-inu-shib-logo.png" alt="Shiba Inu Coin Logo">
+                <span>SHIB Tracker</span>
+            </a>
         </div>
-    </header>
+        
+        <!-- Navigation -->
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html" class="active"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="blog.html"><i class="fas fa-newspaper"></i> News</a></li>
+            </ul>
+        </nav>
+        
+        <!-- Price display -->
+        <div class="mini-price">
+            <span id="price-mini">Loading...</span>
+            <span id="change-mini" class="neutral">...</span>
+        </div>
+    </div>
+</header>
 
     <div class="hero-section">
         <div class="container">
@@ -1065,27 +1136,21 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Keep only the necessary functionality
             fetchShibaData();
-            
-            // Set default chart period to 7d
             fetchChartData('7d');
-            
-            // Set interval for refreshing data
             setInterval(fetchShibaData, 60000);
             
             // Cookie consent management
             const cookieConsent = document.getElementById('cookieConsent');
             const cookieAccept = document.getElementById('cookieAccept');
             
-            // Check if user has already accepted cookies
             if (!localStorage.getItem('cookieConsent')) {
-                // Show the cookie banner with slight delay for better UX
                 setTimeout(() => {
                     cookieConsent.classList.add('active');
                 }, 1000);
             }
             
-            // Handle accept button click
             cookieAccept.addEventListener('click', () => {
                 localStorage.setItem('cookieConsent', 'accepted');
                 cookieConsent.classList.remove('active');
@@ -1096,34 +1161,24 @@
                 }, 500);
             });
             
-            // Add timeframe button functionality back
+            // Chart timeframe functionality
             document.querySelectorAll('.timeframe-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const period = this.getAttribute('data-period');
-                    
-                    // Remove active class from all buttons
                     document.querySelectorAll('.timeframe-btn').forEach(btn => {
                         btn.classList.remove('active');
                     });
-                    
-                    // Add active class to clicked button
                     this.classList.add('active');
-                    
-                    // Fetch chart data for selected period
                     fetchChartData(period);
                 });
             });
             
-            // Add FAQ interaction
+            // FAQ functionality
             document.querySelectorAll('.faq-question').forEach(question => {
                 question.addEventListener('click', function() {
                     const parent = this.parentElement;
                     const answer = this.nextElementSibling;
-                    
-                    // Toggle active class
                     parent.classList.toggle('active');
-                    
-                    // Expand or collapse answer
                     if (parent.classList.contains('active')) {
                         answer.style.height = answer.scrollHeight + 'px';
                     } else {
