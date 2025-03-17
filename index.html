@@ -281,10 +281,6 @@
             animation: shimmer 3s linear infinite;
         }
         
-        .current-price {
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
         .fa-sync-alt {
             display: inline-block;
             animation: rotate 2s linear infinite;
@@ -297,6 +293,12 @@
         
         .stat-icon {
             animation: float 4s ease-in-out infinite;
+        }
+        
+        /* Make price updates more subtle without animation */
+        .price-updated {
+            transition: color 0.3s ease;
+            color: #ffffff !important;
         }
         
         /* Particle background */

@@ -401,21 +401,20 @@ function animateNumberCounter(element, start, end, duration) {
     }, stepTime);
 }
 
-// Price update animation
+// Replace the animatePriceUpdate function with this version
 function animatePriceUpdate(newPrice) {
     const priceElement = document.getElementById('price');
-    const currentValue = priceElement.textContent.replace('$', '');
-    const newValue = newPrice.replace('$', '');
     
-    // Add class to flash
+    // Add class for color change only (no movement)
     priceElement.classList.add('price-updated');
     
-    // Remove class after animation completes
+    // Update the text immediately
+    priceElement.textContent = newPrice;
+    
+    // Remove highlight effect after a brief period
     setTimeout(() => {
         priceElement.classList.remove('price-updated');
-    }, 1500);
-    
-    priceElement.textContent = newPrice;
+    }, 1000);
 }
 
 // Initialize animations
