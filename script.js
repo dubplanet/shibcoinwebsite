@@ -451,5 +451,27 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchChartData(period);
         });
     });
+
+    // FAQ Functionality
+    const faqQuestions = document.querySelectorAll('.faq-question');
+    
+    faqQuestions.forEach(question => {
+        question.addEventListener('click', function() {
+            const answer = this.nextElementSibling;
+            const parent = this.parentElement;
+            
+            // Toggle active class
+            parent.classList.toggle('active');
+            
+            // Animate answer height
+            if (parent.classList.contains('active')) {
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+                question.querySelector('.faq-icon').innerHTML = '<i class="fas fa-minus"></i>';
+            } else {
+                answer.style.maxHeight = '0';
+                question.querySelector('.faq-icon').innerHTML = '<i class="fas fa-plus"></i>';
+            }
+        });
+    });
 });
 
