@@ -22,6 +22,7 @@ body {
     color: var(--text-primary);
     font-family: 'Poppins', sans-serif;
     line-height: 1.6;
+    padding-top: 60px; /* Matches header height */
 }
 
 .container {
@@ -417,9 +418,10 @@ footer {
 /* Header Styles */
 .site-header {
     background: rgba(20, 20, 30, 0.8);
-    padding: 1rem 0;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    width: 100%;
     z-index: 100;
     backdrop-filter: blur(10px);
 }
@@ -427,7 +429,7 @@ footer {
 .header-content {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0.75rem 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -514,14 +516,36 @@ footer {
         justify-self: end;
         text-align: right;
     }
-    
-    .main-nav {
-        margin-top: 0.75rem;
+
+    body {
+        padding-top: 50px; /* Slightly smaller for mobile */
     }
-    
-    .main-nav li {
-        margin-left: 1rem;
-        margin-right: 1rem;
+
+    .site-header {
+        position: fixed;
+        height: 50px; /* Fixed height for mobile */
+    }
+
+    .header-content {
+        height: 100%;
+        padding: 0 1rem;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .logo img {
+        height: 28px;
+    }
+
+    .logo span {
+        font-size: 0.9rem;
+    }
+
+    .mini-price {
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
     }
 }
 
