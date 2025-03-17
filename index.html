@@ -113,6 +113,123 @@
             transition: transform 0.3s ease;
         }
         
+        /* Cookie Consent Popup */
+        .cookie-consent {
+            position: fixed;
+            bottom: -100px;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 30, 0.95);
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(0);
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            border-top: 2px solid #ffd700;
+        }
+        
+        .cookie-consent.active {
+            transform: translateY(-100px);
+            opacity: 1;
+        }
+        
+        .cookie-consent.closing {
+            transform: translateY(100px);
+            opacity: 0;
+        }
+        
+        .cookie-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .cookie-text {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+        
+        .cookie-text i {
+            font-size: 1.5rem;
+            color: #ffd700;
+        }
+        
+        .cookie-text p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .cookie-text a {
+            color: #ffd700;
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+        
+        .cookie-text a:hover {
+            color: #ffffff;
+        }
+        
+        .cookie-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .cookie-btn {
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .cookie-btn.accept {
+            background: #ffd700;
+            color: #000;
+            border: none;
+        }
+        
+        .cookie-btn.accept:hover {
+            background: #ffffff;
+        }
+        
+        .cookie-btn.more {
+            background: transparent;
+            color: #ffffff;
+            border: 1px solid #ffd700;
+        }
+        
+        .cookie-btn.more:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        /* Responsive adjustments for cookie consent */
+        @media (max-width: 768px) {
+            .cookie-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .cookie-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .cookie-btn {
+                flex: 1;
+                text-align: center;
+            }
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .mini-price #price-mini {
@@ -415,6 +532,21 @@
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="script.js"></script>
+    
+    <!-- Cookie Consent Popup -->
+    <div id="cookieConsent" class="cookie-consent">
+        <div class="cookie-content">
+            <div class="cookie-text">
+                <i class="fas fa-cookie-bite"></i>
+                <p>We use cookies to enhance your experience on our website. By continuing to browse, you agree to our <a href="privacy.html">Privacy Policy</a>.</p>
+            </div>
+            <div class="cookie-buttons">
+                <button id="cookieAccept" class="cookie-btn accept">Accept</button>
+                <a href="privacy.html" class="cookie-btn more">Learn More</a>
+            </div>
+        </div>
+    </div>
+    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             fetchShibaData();
@@ -424,6 +556,29 @@
             
             // Set interval for refreshing data
             setInterval(fetchShibaData, 60000);
+            
+            // Cookie consent management
+            const cookieConsent = document.getElementById('cookieConsent');
+            const cookieAccept = document.getElementById('cookieAccept');
+            
+            // Check if user has already accepted cookies
+            if (!localStorage.getItem('cookieConsent')) {
+                // Show the cookie banner with slight delay for better UX
+                setTimeout(() => {
+                    cookieConsent.classList.add('active');
+                }, 1000);
+            }
+            
+            // Handle accept button click
+            cookieAccept.addEventListener('click', () => {
+                localStorage.setItem('cookieConsent', 'accepted');
+                cookieConsent.classList.remove('active');
+                cookieConsent.classList.add('closing');
+                
+                setTimeout(() => {
+                    cookieConsent.style.display = 'none';
+                }, 500);
+            });
             
             // Add timeframe button functionality back
             document.querySelectorAll('.timeframe-btn').forEach(button => {
@@ -461,8 +616,6 @@
                 });
             });
         });
-
-        // The rest of your updateChart function remains the same
     </script>
 </body>
 </html>
