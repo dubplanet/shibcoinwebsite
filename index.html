@@ -510,6 +510,43 @@
                 transform: translateY(-50%);
             }
         }
+
+        /* Logo Styles */
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+            gap: 10px;
+        }
+        
+        .logo img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .logo span {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffd700;
+        }
+        
+        /* Mobile Responsive Logo */
+        @media (max-width: 768px) {
+            .logo img {
+                height: 32px;
+            }
+            
+            .logo span {
+                font-size: 1rem;
+            }
+        }
     </style>
 
     <!-- Structured Data -->
@@ -605,20 +642,6 @@
                 <ul>
                     <li><a href="index.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
                     <li><a href="blog.html"><i class="fas fa-newspaper"></i> News</a></li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle"><i class="fas fa-info-circle"></i> About <i class="fas fa-chevron-down"></i></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#about-shib">About SHIB</a></li>
-                            <li><a href="#ecosystem">Ecosystem</a></li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle"><i class="fas fa-file-alt"></i> Legal <i class="fas fa-chevron-down"></i></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="disclaimer.html">Disclaimer</a></li>
-                            <li><a href="privacy.html">Privacy Policy</a></li>
-                        </ul>
-                    </li>
                 </ul>
                 
                 <div class="mobile-only social-links">
