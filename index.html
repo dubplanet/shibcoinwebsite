@@ -329,6 +329,187 @@
             50% { color: #ffffff; transform: scale(1.1); }
             100% { color: #ffd700; transform: scale(1); }
         }
+
+        /* Mobile Navigation Styles */
+        .mobile-menu-toggle {
+            display: none;
+        }
+        
+        .mobile-only {
+            display: none;
+        }
+        
+        /* Dropdown menu styles */
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .dropdown-toggle .fa-chevron-down {
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .dropdown.active .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(30, 30, 40, 0.95);
+            min-width: 200px;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .dropdown.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-menu li {
+            margin: 0 !important;
+        }
+        
+        .dropdown-menu a {
+            padding: 12px 16px;
+            display: block;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .dropdown-menu a:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 15px;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+                margin-left: auto;
+            }
+            
+            #menuToggle {
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                height: 24px;
+            }
+            
+            #menuToggle .bar {
+                display: block;
+                width: 25px;
+                height: 3px;
+                background: #ffd700;
+                border-radius: 3px;
+                transition: all 0.3s ease;
+            }
+            
+            #menuToggle.active .bar:nth-child(1) {
+                transform: translateY(8px) rotate(45deg);
+            }
+            
+            #menuToggle.active .bar:nth-child(2) {
+                opacity: 0;
+            }
+            
+            #menuToggle.active .bar:nth-child(3) {
+                transform: translateY(-10px) rotate(-45deg);
+            }
+            
+            .main-nav {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(20, 20, 30, 0.98);
+                padding: 20px;
+                transform: translateX(100%);
+                transition: transform 0.3s ease-in-out;
+                overflow-y: auto;
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .main-nav.active {
+                transform: translateX(0);
+            }
+            
+            .main-nav ul {
+                flex-direction: column;
+            }
+            
+            .main-nav li {
+                margin: 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .main-nav a {
+                padding: 15px 0;
+                display: block;
+                font-size: 1.1rem;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                background: rgba(0, 0, 0, 0.2);
+                min-width: auto;
+                box-shadow: none;
+                border-radius: 0;
+                max-height: 0;
+                overflow: hidden;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                transition: max-height 0.3s ease;
+            }
+            
+            .dropdown.active .dropdown-menu {
+                max-height: 500px;
+            }
+            
+            .mobile-only {
+                display: flex;
+                margin-top: auto;
+                padding-top: 20px;
+                justify-content: center;
+                gap: 20px;
+            }
+            
+            .mobile-only a {
+                font-size: 1.4rem;
+                color: #ffd700;
+            }
+            
+            .mini-price {
+                position: absolute;
+                right: 60px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+        }
     </style>
 
     <!-- Structured Data -->
@@ -403,18 +584,56 @@
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
+    <header class="site-header">
+        <div class="header-content">
             <div class="logo">
-                <img src="https://cryptologos.cc/logos/shiba-inu-shib-logo.png" alt="Shiba Inu (SHIB) Cryptocurrency Logo" width="30" height="30">
-                <span>SHIBA TRACKER</span>
+                <a href="index.html">
+                    <img src="images/shiba-inu-shib-logo.png" alt="Shiba Inu Coin Logo">
+                    <span>SHIB Tracker</span>
+                </a>
             </div>
+            
+            <div class="mobile-menu-toggle">
+                <button id="menuToggle" aria-label="Toggle navigation menu">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+            </div>
+            
+            <nav class="main-nav" id="mainNav">
+                <ul>
+                    <li><a href="index.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="blog.html"><i class="fas fa-newspaper"></i> News</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle"><i class="fas fa-info-circle"></i> About <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#about-shib">About SHIB</a></li>
+                            <li><a href="#ecosystem">Ecosystem</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle"><i class="fas fa-file-alt"></i> Legal <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="disclaimer.html">Disclaimer</a></li>
+                            <li><a href="privacy.html">Privacy Policy</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="mobile-only social-links">
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Telegram"><i class="fab fa-telegram-plane"></i></a>
+                    <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                </div>
+            </nav>
+            
             <div class="mini-price">
-                <span id="price-mini">$0.00000000</span>
-                <span id="change-mini" class="neutral"><i class="fas fa-caret-up"></i> 0.00%</span>
+                <span id="price-mini">Loading...</span>
+                <span id="change-mini" class="neutral">...</span>
             </div>
         </div>
-    </nav>
+    </header>
 
     <div class="hero-section">
         <div class="container">
@@ -706,6 +925,74 @@
             });
         });
     </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const mainNav = document.getElementById('mainNav');
+        
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                menuToggle.classList.toggle('active');
+                mainNav.classList.toggle('active');
+                
+                // Set aria-expanded attribute for accessibility
+                const isExpanded = mainNav.classList.contains('active');
+                menuToggle.setAttribute('aria-expanded', isExpanded);
+                
+                // Prevent scrolling when menu is open
+                document.body.style.overflow = isExpanded ? 'hidden' : '';
+            });
+        }
+        
+        // Dropdown functionality
+        const dropdowns = document.querySelectorAll('.dropdown');
+        
+        dropdowns.forEach(dropdown => {
+            const toggle = dropdown.querySelector('.dropdown-toggle');
+            
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Close other dropdowns
+                dropdowns.forEach(d => {
+                    if (d !== dropdown && d.classList.contains('active')) {
+                        d.classList.remove('active');
+                    }
+                });
+                
+                dropdown.classList.toggle('active');
+            });
+        });
+        
+        // Close dropdowns and menu when clicking outside
+        document.addEventListener('click', (e) => {
+            // Close dropdowns when clicking outside
+            if (!e.target.closest('.dropdown')) {
+                dropdowns.forEach(d => d.classList.remove('active'));
+            }
+            
+            // Close mobile menu when clicking outside
+            if (window.innerWidth <= 768 && mainNav.classList.contains('active') && 
+                !e.target.closest('.main-nav') && !e.target.closest('#menuToggle')) {
+                mainNav.classList.remove('active');
+                menuToggle.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+        
+        // Update active menu item based on current page
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.main-nav a');
+        
+        navLinks.forEach(link => {
+            const linkPath = link.getAttribute('href');
+            if (currentPath.includes(linkPath) && linkPath !== '#') {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
 </body>
 </html>
 
