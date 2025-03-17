@@ -284,6 +284,36 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Chart Controls */
+.chart-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.timeframe-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--accent-color);
+    background: transparent;
+    color: var(--accent-color);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    min-width: 60px;
+    text-align: center;
+}
+
+.timeframe-btn:hover {
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.timeframe-btn.active {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+}
+
 /* Updated Footer Styles */
 footer {
     background-color: var(--primary-bg);
@@ -561,6 +591,17 @@ footer {
     .mini-price {
         font-size: 0.9rem;
         margin-right: 0.5rem;
+    }
+
+    .chart-controls {
+        justify-content: center;
+        padding: 0.5rem;
+    }
+
+    .timeframe-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        min-width: 50px;
     }
 }
 

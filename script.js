@@ -434,5 +434,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchShibaData();
     setInterval(fetchShibaData, 60000); // Update price data every minute
+
+    // Chart timeframe functionality
+    document.querySelectorAll('.timeframe-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get the time period and fetch new data
+            const period = this.getAttribute('data-period');
+            fetchChartData(period);
+        });
+    });
 });
 
