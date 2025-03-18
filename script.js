@@ -47,49 +47,56 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Core data fetching
 async function fetchShibaData() {
+    const syncIcon = document.querySelector('.fa-sync-alt');
+    if (syncIcon) syncIcon.classList.add('updating');
+
     try {
-        const syncIcon = document.querySelector('.fa-sync-alt');
-        if (syncIcon) syncIcon.classList.add('updating');
-
-        // Add timeout protection
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=true`, {
-            signal: controller.signal,
-            headers: API_HEADERS
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) throw new Error(`API Error: ${response.status}`);
+        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false`);
+        
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
 
         const data = await response.json();
         
-        // Validate required data
-        if (!data?.market_data?.current_price?.usd) {
-            throw new Error('Invalid data structure');
+        // Update price displays
+        const price = data.market_data.current_price.usd;
+        const change24h = data.market_data.price_change_percentage_24h;
+        
+        // Update main price
+        document.getElementById('price').textContent = `$${formatCryptoPrice(price)}`;
+        
+        // Update mini price
+        document.getElementById('price-mini').textContent = `$${formatCryptoPrice(price)}`;
+        
+        // Update 24h change
+        const changePercent = document.getElementById('changePercent');
+        const changeMini = document.getElementById('change-mini');
+        const changeClass = change24h >= 0 ? 'up' : 'down';
+        const changeSymbol = change24h >= 0 ? '+' : '';
+        
+        if (changePercent) {
+            changePercent.textContent = `(${changeSymbol}${change24h.toFixed(2)}%)`;
+            changePercent.className = changeClass;
         }
-
-        // Cache the data
-        dataCache = {
-            price: data.market_data.current_price.usd,
-            marketCap: data.market_data.market_cap.usd,
-            volume: data.market_data.total_volume.usd,
-            rank: data.market_cap_rank,
-            change24h: data.market_data.price_change_percentage_24h,
-            lastUpdated: new Date().toISOString()
-        };
-
-        // Update UI
-        updatePriceDisplay(data);
-
-        // Hide loading indicator
+        
+        if (changeMini) {
+            changeMini.textContent = `${changeSymbol}${change24h.toFixed(2)}%`;
+            changeMini.className = changeClass;
+        }
+        
+        // Update market stats
+        document.getElementById('marketCap').textContent = formatNumber(data.market_data.market_cap.usd);
+        document.getElementById('volume').textContent = formatNumber(data.market_data.total_volume.usd);
+        document.getElementById('rank').textContent = `#${data.market_cap_rank}`;
+        
         if (syncIcon) syncIcon.classList.remove('updating');
-
         return data;
+
     } catch (error) {
-        handleFetchError(error);
+        if (syncIcon) syncIcon.classList.remove('updating');
+        document.getElementById('price').textContent = 'Error loading price';
+        document.getElementById('price-mini').textContent = 'Error';
         return null;
     }
 }
@@ -273,23 +280,33 @@ function updateAlertsList() {
 }
 
 // Utility Functions
-const formatCryptoPrice = price => {
-    if (!price) return '0.00000000';
-    const decimals = price < 0.00001 ? 10 : price < 0.0001 ? 8 : price < 0.01 ? 6 : price < 1 ? 4 : 2;
-    return price.toFixed(decimals);
-};
-
-const formatNumber = num => {
-    if (!num) return '$0';
-    const tiers = [
-        { threshold: 1e9, suffix: 'B' },
-        { threshold: 1e6, suffix: 'M' },
-        { threshold: 1e3, suffix: 'K' }
-    ];
+function formatCryptoPrice(price) {
+    if (!price && price !== 0) return '0.00000000';
     
-    const tier = tiers.find(t => num >= t.threshold);
-    return tier ? `$${(num / tier.threshold).toFixed(2)}${tier.suffix}` : `$${num.toFixed(2)}`;
-};
+    if (price < 0.00001) {
+        return price.toFixed(10);
+    } else if (price < 0.0001) {
+        return price.toFixed(8);
+    } else if (price < 0.01) {
+        return price.toFixed(6);
+    } else if (price < 1) {
+        return price.toFixed(4);
+    }
+    return price.toFixed(2);
+}
+
+function formatNumber(num) {
+    if (!num) return '$0';
+    
+    if (num >= 1e9) {
+        return `$${(num / 1e9).toFixed(2)}B`;
+    } else if (num >= 1e6) {
+        return `$${(num / 1e6).toFixed(2)}M`;
+    } else if (num >= 1e3) {
+        return `$${(num / 1e3).toFixed(2)}K`;
+    }
+    return `$${num.toFixed(2)}`;
+}
 
 // Cleanup
 window.addEventListener('beforeunload', () => {

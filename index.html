@@ -1003,6 +1003,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+    <!-- Add this in your HTML head if not already present -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 
 <body>
@@ -1350,6 +1354,36 @@ function initializeCookieConsent() {
         setTimeout(() => cookieConsent.style.display = 'none', 500);
     });
 }
+</script>
+
+<!-- Add this right before </body> -->
+<script>
+    // Test API connection on load
+    async function testAPIConnection() {
+        try {
+            const response = await fetch('https://api.coingecko.com/api/v3/ping');
+            if (response.ok) {
+                console.log('API connection successful');
+                return true;
+            }
+            throw new Error('API connection failed');
+        } catch (error) {
+            console.error('API Error:', error);
+            return false;
+        }
+    }
+
+    // Initialize with connection test
+    document.addEventListener('DOMContentLoaded', async () => {
+        const apiAvailable = await testAPIConnection();
+        if (apiAvailable) {
+            fetchShibaData();
+            setInterval(fetchShibaData, 60000);
+        } else {
+            document.getElementById('price').textContent = 'API Unavailable';
+            document.getElementById('price-mini').textContent = 'Error';
+        }
+    });
 </script>
 </body>
 </html>
