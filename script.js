@@ -3,31 +3,35 @@
     // Global variables
     const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
     const COIN_ID = 'shiba-inu';
+    const API_CACHE_DURATION = 60000; // 1 minute
+    const API_HEADERS = {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
+    };
     let priceAlerts = [];
     let dataCache = null;
     
-    // Initialize everything on page load
-    document.addEventListener('DOMContentLoaded', () => {
-        // Set up all event listeners
-        initializeEventListeners();
-        
-        // Initial data fetch
-        fetchShibaData();
-        
-        // Set refresh interval
-        setInterval(fetchShibaData, 60000); // Refresh every minute
-        
-        // Initialize chart if it exists
-        if (document.getElementById('priceChart')) {
-            fetchChartData('7d');
-        }
-        
-        // Load price alerts
-        const savedAlerts = localStorage.getItem('shibPriceAlerts');
-        if (savedAlerts) {
-            priceAlerts = JSON.parse(savedAlerts);
-            updateAlertsList();
-            updateAlertCount();
+    // Replace the DOMContentLoaded event listener
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Initialize containers first
+            initializeContainers();
+            
+            // Set up event listeners
+            initializeEventListeners();
+            
+            // Initial data fetch
+            await fetchShibaData();
+            
+            // Start refresh interval
+            startDataRefresh();
+            
+            // Load alerts if they exist
+            loadSavedAlerts();
+            
+        } catch (error) {
+            console.error('Initialization error:', error);
+            handleFetchError();
         }
     });
     
@@ -117,158 +121,194 @@
     // Fetch SHIB data from API
     async function fetchShibaData() {
         try {
-            // Show loading indicator
+            // Show loading state
             const syncIcon = document.querySelector('.fa-sync-alt');
             if (syncIcon) syncIcon.classList.add('updating');
-            
-            // Make API request with timeout
+
+            // Add timeout protection
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000);
-            
-            const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false`, {
-                signal: controller.signal
+
+            const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false`, {
+                signal: controller.signal,
+                headers: API_HEADERS,
+                cache: 'no-store'
             });
-            
+
             clearTimeout(timeoutId);
-            
+
             if (!response.ok) {
-                throw new Error(`API returned status: ${response.status}`);
+                throw new Error(`API Error: ${response.status}`);
             }
-            
+
             const data = await response.json();
             
-            // Update the display
+            // Validate required data
+            if (!data.market_data?.current_price?.usd) {
+                throw new Error('Invalid data structure received');
+            }
+
+            // Update cache
+            dataCache = {
+                price: data.market_data.current_price.usd,
+                marketCap: data.market_data.market_cap?.usd,
+                volume: data.market_data.total_volume?.usd,
+                rank: data.market_cap_rank,
+                change24h: data.market_data.price_change_percentage_24h,
+                lastUpdated: new Date().toISOString()
+            };
+
+            // Update UI
             updatePriceDisplay(data);
             
-            // Cache the data
-            dataCache = data;
-            
-            // Check price alerts
-            if (data.market_data?.current_price?.usd) {
-                checkPriceAlerts(data.market_data.current_price.usd);
-            }
-            
-            // Hide loading indicator
             if (syncIcon) syncIcon.classList.remove('updating');
             
             return data;
+
         } catch (error) {
-            console.error('Error fetching data:', error);
-            
-            // Hide loading indicator
-            const syncIcon = document.querySelector('.fa-sync-alt');
-            if (syncIcon) syncIcon.classList.remove('updating');
-            
-            showNotification('Could not load SHIB price data. Please try again later.', 'error');
+            console.error('Fetch error:', error);
+            handleFetchError();
+            return null;
         }
+    }
+
+    // Add this new error handler
+    function handleFetchError() {
+        const syncIcon = document.querySelector('.fa-sync-alt');
+        if (syncIcon) syncIcon.classList.remove('updating');
+
+        // Try to use cached data if available
+        if (dataCache?.price) {
+            updatePriceFromCache();
+            showNotification('Using cached data - Connection issue', 'warning');
+        } else {
+            showNotification('Unable to load SHIB data', 'error');
+            displayErrorState();
+        }
+    }
+
+    // Add this function to show error state
+    function displayErrorState() {
+        const elements = {
+            price: document.getElementById('price'),
+            miniPrice: document.getElementById('price-mini'),
+            changePercent: document.getElementById('changePercent'),
+            priceChange: document.getElementById('priceChange'),
+            marketCap: document.getElementById('marketCap'),
+            volume: document.getElementById('volume'),
+            rank: document.getElementById('rank')
+        };
+
+        Object.values(elements).forEach(el => {
+            if (el) {
+                el.textContent = '--';
+                el.classList.remove('up', 'down');
+                el.classList.add('error');
+            }
+        });
+    }
+
+    // Add this function to update from cache
+    function updatePriceFromCache() {
+        if (!dataCache) return;
+        
+        const elements = {
+            price: { id: 'price', value: formatCryptoPrice(dataCache.price) },
+            miniPrice: { id: 'price-mini', value: formatCryptoPrice(dataCache.price) },
+            marketCap: { id: 'marketCap', value: formatNumber(dataCache.marketCap) },
+            volume: { id: 'volume', value: formatNumber(dataCache.volume) },
+            rank: { id: 'rank', value: `#${dataCache.rank}` }
+        };
+
+        Object.entries(elements).forEach(([key, { id, value }]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+                element.classList.add('cached');
+            }
+        });
     }
     
     // Update the UI with coin data
     function updatePriceDisplay(data) {
-        try {
-            // Validate data
-            if (!data || !data.market_data || !data.market_data.current_price) {
-                throw new Error('Invalid data structure from API');
-            }
-            
-            // Extract values
-            const price = data.market_data.current_price.usd;
-            const formattedPrice = formatCryptoPrice(price);
-            const change24h = data.market_data.price_change_percentage_24h || 0;
-            const changeClass = change24h >= 0 ? 'up' : 'down';
-            const changeSymbol = change24h >= 0 ? '+' : '';
-            const priceChangeUSD = data.market_data.price_change_24h_in_currency?.usd || 0;
-            
-            // Update main price
-            const priceElement = document.getElementById('price');
-            if (priceElement) {
-                priceElement.textContent = `$${formattedPrice}`;
-                priceElement.classList.add('price-updated');
-                setTimeout(() => priceElement.classList.remove('price-updated'), 1000);
-            }
-            
-            // Update mini price in header
-            const miniPriceElement = document.getElementById('price-mini');
-            if (miniPriceElement) {
-                miniPriceElement.textContent = `$${formattedPrice}`;
-            }
-            
-            // Update 24h change percentage
-            const changePercentElement = document.getElementById('changePercent');
-            if (changePercentElement) {
-                changePercentElement.textContent = `(${changeSymbol}${change24h.toFixed(2)}%)`;
-                changePercentElement.className = changeClass;
-            }
-            
-            // Update mini change in header
-            const miniChangeElement = document.getElementById('change-mini');
-            if (miniChangeElement) {
-                miniChangeElement.textContent = `${changeSymbol}${change24h.toFixed(2)}%`;
-                miniChangeElement.className = changeClass;
-            }
-            
-            // Update price change in USD
-            const priceChangeElement = document.getElementById('priceChange');
-            if (priceChangeElement) {
-                priceChangeElement.textContent = `${changeSymbol}$${Math.abs(priceChangeUSD).toFixed(8)}`;
-                priceChangeElement.className = changeClass;
-            }
-            
-            // Update market stats
-            const marketCapElement = document.getElementById('marketCap');
-            if (marketCapElement) {
-                marketCapElement.textContent = formatNumber(data.market_data.market_cap.usd);
-            }
-            
-            const volumeElement = document.getElementById('volume');
-            if (volumeElement) {
-                volumeElement.textContent = formatNumber(data.market_data.total_volume.usd);
-            }
-            
-            const rankElement = document.getElementById('rank');
-            if (rankElement) {
-                rankElement.textContent = `#${data.market_cap_rank}`;
-            }
-            
-            // Update last updated time
-            const lastUpdateElement = document.getElementById('lastUpdate');
-            if (lastUpdateElement) {
-                lastUpdateElement.textContent = `Last updated: ${formatLastUpdated(data.last_updated)}`;
-            }
-        } catch (error) {
-            console.error('Error updating price display:', error);
+        if (!data?.market_data?.current_price?.usd) {
+            throw new Error('Invalid price data');
         }
+
+        const elements = {
+            price: {
+                id: 'price',
+                value: formatCryptoPrice(data.market_data.current_price.usd)
+            },
+            priceMini: {
+                id: 'price-mini',
+                value: formatCryptoPrice(data.market_data.current_price.usd)
+            },
+            marketCap: {
+                id: 'marketCap',
+                value: formatNumber(data.market_data.market_cap?.usd || 0)
+            },
+            volume: {
+                id: 'volume',
+                value: formatNumber(data.market_data.total_volume?.usd || 0)
+            },
+            rank: {
+                id: 'rank',
+                value: `#${data.market_cap_rank || '0'}`
+            },
+            change24h: {
+                id: 'changePercent',
+                value: `(${data.market_data.price_change_percentage_24h?.toFixed(2) || '0.00'}%)`
+            }
+        };
+
+        // Update all elements
+        Object.values(elements).forEach(({id, value}) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            }
+        });
+
+        // Update change classes
+        const changeValue = data.market_data.price_change_percentage_24h || 0;
+        const changeClass = changeValue >= 0 ? 'up' : 'down';
+        
+        ['changePercent', 'change-mini'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.className = changeClass;
+            }
+        });
     }
     
     // Helper formatting functions
     function formatCryptoPrice(price) {
-        if (price === undefined || price === null) return "0.00000000";
+        if (typeof price !== 'number') return '0.00000000';
         
         if (price < 0.00001) {
-            return price.toFixed(10).replace(/0+$/, '');
+            return price.toFixed(10);
         } else if (price < 0.0001) {
-            return price.toFixed(8).replace(/0+$/, '');
+            return price.toFixed(8);
         } else if (price < 0.01) {
-            return price.toFixed(6).replace(/0+$/, '');
+            return price.toFixed(6);
         } else if (price < 1) {
-            return price.toFixed(4).replace(/0+$/, '');
-        } else {
-            return price.toFixed(2);
+            return price.toFixed(4);
         }
+        return price.toFixed(2);
     }
     
-    function formatNumber(value) {
-        if (!value && value !== 0) return "$0";
+    function formatNumber(num) {
+        if (!num) return '$0';
         
-        if (value >= 1e9) {
-            return `$${(value / 1e9).toFixed(2)}B`;
-        } else if (value >= 1e6) {
-            return `$${(value / 1e6).toFixed(2)}M`;
-        } else if (value >= 1e3) {
-            return `$${(value / 1e3).toFixed(2)}K`;
-        } else {
-            return `$${value.toFixed(2)}`;
+        if (num >= 1e9) {
+            return `$${(num / 1e9).toFixed(2)}B`;
+        } else if (num >= 1e6) {
+            return `$${(num / 1e6).toFixed(2)}M`;
+        } else if (num >= 1e3) {
+            return `$${(num / 1e3).toFixed(2)}K`;
         }
+        return `$${num.toFixed(2)}`;
     }
     
     function formatLastUpdated(dateString) {
@@ -476,4 +516,61 @@
         audio.play().catch(err => console.error('Error playing sound:', err));
     }
     
+    // Add this new function
+    function initializeContainers() {
+        // Create notification container if it doesn't exist
+        if (!document.getElementById('notificationContainer')) {
+            const container = document.createElement('div');
+            container.id = 'notificationContainer';
+            container.className = 'notification-container';
+            document.body.appendChild(container);
+        }
+    }
+
+    // Add this new function
+    function startDataRefresh() {
+        // Clear any existing intervals
+        if (window.priceRefreshInterval) {
+            clearInterval(window.priceRefreshInterval);
+        }
+        
+        // Set new interval
+        window.priceRefreshInterval = setInterval(fetchShibaData, API_CACHE_DURATION);
+    }
+
     // Chart functionality will be loaded from script.js
+
+    function handleError() {
+        // Hide loading state
+        const syncIcon = document.querySelector('.fa-sync-alt');
+        if (syncIcon) syncIcon.classList.remove('updating');
+        
+        // Show error state in UI
+        const elements = ['price', 'price-mini', 'marketCap', 'volume', 'rank'];
+        elements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = 'Error loading';
+                element.classList.add('error');
+            }
+        });
+        
+        // Show error notification
+        const container = document.getElementById('notificationContainer');
+        if (container) {
+            const notification = document.createElement('div');
+            notification.className = 'notification error';
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-title">Error</div>
+                    <div class="notification-message">Could not load SHIB price data. Please try again later.</div>
+                </div>
+            `;
+            container.appendChild(notification);
+            
+            // Remove notification after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+    }
