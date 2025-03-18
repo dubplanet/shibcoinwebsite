@@ -108,47 +108,45 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        // Fetch both price and supply data in parallel
-        const [quoteResponse, supplyResponse] = await Promise.all([
+        // Get both current and volume data
+        const [quoteResponse, volumeResponse] = await Promise.all([
             fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
                 headers: API_HEADERS
             }),
-            fetch(`${DIA_API_URL}/supply/${SHIB_SYMBOL}`, {
+            fetch(`${DIA_API_URL}/volume/${SHIB_SYMBOL}/24h`, {
                 headers: API_HEADERS
             })
         ]);
 
-        if (!quoteResponse.ok || !supplyResponse.ok) {
-            throw new Error(`API Error: Quote ${quoteResponse.status}, Supply ${supplyResponse.status}`);
+        if (!quoteResponse.ok || !volumeResponse.ok) {
+            throw new Error(`API Error: Quote ${quoteResponse.status}, Volume ${volumeResponse.status}`);
         }
 
         const quoteData = await quoteResponse.json();
-        const supplyData = await supplyResponse.json();
+        const volumeData = await volumeResponse.json();
 
-        // Debug log
         console.log('Quote Data:', quoteData);
-        console.log('Supply Data:', supplyData);
+        console.log('Volume Data:', volumeData);
 
-        // Validate data
-        if (!quoteData?.Price || !supplyData?.CirculatingSupply) {
-            throw new Error('Invalid data structure received');
+        // Validate and process data
+        if (!quoteData?.Price) {
+            throw new Error('Invalid price data received');
         }
 
-        // Calculate market cap
+        // Calculate values
         const price = parseFloat(quoteData.Price);
-        const circulatingSupply = parseFloat(supplyData.CirculatingSupply);
-        const marketCap = price * circulatingSupply;
+        const volume24h = volumeData?.Volume || quoteData.VolumeYesterdayUSD || 0;
+        const marketCap = price * (quoteData.CirculatingSupply || 589735030408322);
 
         // Update cache
         dataCache = {
             price: price,
             marketCap: marketCap,
-            volume: parseFloat(quoteData.Volume24) || 0,
-            lastUpdated: quoteData.Time,
-            change24h: calculatePriceChange(price, quoteData.PriceYesterday)
+            volume: volume24h,
+            lastUpdated: quoteData.Time
         };
 
-        console.log('Processed Data:', dataCache); // Debug log
+        console.log('Processed Data:', dataCache);
         updatePriceDisplay(dataCache);
         return dataCache;
 
@@ -217,35 +215,21 @@ function displayErrorState(message = 'Error loading data') {
 }
 
 // UI Updates
+// Update updatePriceDisplay function
 function updatePriceDisplay(data) {
     const elements = {
         price: { id: 'price', value: formatCryptoPrice(data.price) },
         priceMini: { id: 'price-mini', value: formatCryptoPrice(data.price) },
         marketCap: { id: 'marketCap', value: formatNumber(data.marketCap) },
-        volume: { id: 'volume', value: formatNumber(data.volume) },
-        change: { 
-            id: 'changePercent', 
-            value: `${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%`,
-            className: data.change24h >= 0 ? 'up' : 'down'
-        }
+        volume: { id: 'volume', value: formatNumber(data.volume) }
     };
 
-    Object.entries(elements).forEach(([key, { id, value, className }]) => {
+    Object.entries(elements).forEach(([key, { id, value }]) => {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = value;
-            if (className) {
-                element.className = className;
-            }
         }
     });
-
-    // Also update mini price change indicator if it exists
-    const changeMini = document.getElementById('change-mini');
-    if (changeMini) {
-        changeMini.textContent = `${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%`;
-        changeMini.className = data.change24h >= 0 ? 'up' : 'down';
-    }
 }
 
 // Alert System
@@ -281,25 +265,24 @@ function updateAlertsList() {
 }
 
 // Utility Functions
+// Update formatNumber function to handle large volumes better
 function formatNumber(num) {
     if (!num || isNaN(num)) return '$0';
     
-    // Use absolute value for formatting but keep sign for display
     const absNum = Math.abs(num);
     let formatted;
     
     if (absNum >= 1e9) {
-        formatted = `${(absNum / 1e9).toFixed(2)}B`;
+        formatted = `$${(absNum / 1e9).toFixed(2)}B`;
     } else if (absNum >= 1e6) {
-        formatted = `${(absNum / 1e6).toFixed(2)}M`;
+        formatted = `$${(absNum / 1e6).toFixed(2)}M`;
     } else if (absNum >= 1e3) {
-        formatted = `${(absNum / 1e3).toFixed(2)}K`;
+        formatted = `$${(absNum / 1e3).toFixed(2)}K`;
     } else {
-        formatted = absNum.toFixed(2);
+        formatted = `$${absNum.toFixed(2)}`;
     }
     
-    // Add dollar sign and handle negative numbers
-    return `$${num < 0 ? '-' : ''}${formatted}`;
+    return num < 0 ? `-${formatted}` : formatted;
 }
 
 function formatCryptoPrice(price) {
