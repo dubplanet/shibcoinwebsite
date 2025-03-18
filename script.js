@@ -113,11 +113,13 @@ async function fetchChartData(period = '7d') {
             '1y': 365
         }[period] || 7;
 
-        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}/market_chart?vs_currency=usd&days=${days}&interval=hourly`, {
-            headers: API_HEADERS
-        });
+        const response = await fetch(
+            `${COINGECKO_API_URL}/coins/${COIN_ID}/market_chart?vs_currency=usd&days=${days}`, {
+                headers: API_HEADERS
+            }
+        );
 
-        if (!response.ok) throw new Error(`Chart API Error: ${response.status}`);
+        if (!response.ok) throw new Error('Failed to fetch chart data');
 
         const data = await response.json();
         
@@ -138,8 +140,8 @@ function updateChart(priceData, period) {
     const ctx = document.getElementById('priceChart');
     if (!ctx) return;
 
-    // Destroy existing chart if it exists
-    if (window.priceChart) {
+    // Destroy existing chart
+    if (window.priceChart instanceof Chart) {
         window.priceChart.destroy();
     }
 
@@ -158,7 +160,9 @@ function updateChart(priceData, period) {
                 backgroundColor: 'rgba(255, 215, 0, 0.1)',
                 borderWidth: 2,
                 fill: true,
-                tension: 0.4
+                tension: 0.4,
+                pointRadius: 0,
+                pointHitRadius: 20
             }]
         },
         options: {
@@ -172,25 +176,77 @@ function updateChart(priceData, period) {
                 x: {
                     type: 'time',
                     time: {
-                        unit: period === '24h' ? 'hour' : 'day'
+                        unit: period === '24h' ? 'hour' : 'day',
+                        tooltipFormat: period === '24h' ? 'HH:mm' : 'MMM d',
+                        displayFormats: {
+                            hour: 'HH:mm',
+                            day: 'MMM d'
+                        }
                     },
                     grid: {
                         display: false
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        maxRotation: 0
                     }
                 },
                 y: {
+                    position: 'right',
                     grid: {
                         color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        callback: function(value) {
+                            return '$' + value.toFixed(8);
+                        }
                     }
                 }
             },
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffd700',
+                    bodyColor: '#ffffff',
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return 'SHIB: $' + context.parsed.y.toFixed(8);
+                        }
+                    }
                 }
             }
         }
     });
+}
+
+function showChartError() {
+    const container = document.querySelector('.chart-container');
+    if (container) {
+        container.innerHTML = `
+            <div class="chart-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Unable to load chart data</p>
+                <button onclick="fetchChartData('7d')" class="retry-btn">
+                    Try Again
+                </button>
+            </div>
+        `;
+    }
 }
 
 // Error handling
