@@ -444,57 +444,97 @@
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
+    <header class="site-header">
+        <div class="header-content">
+            <!-- Logo -->
             <div class="logo">
                 <a href="index.html">
-                    <img src="shiba-inu-shib-logo.png" alt="Shiba Inu (SHIB) Cryptocurrency Logo" width="30" height="30">
+                    <img src="shiba-inu-shib-logo.png" alt="Shiba Inu Coin Logo">
                     <span>SHIB Tracker</span>
                 </a>
             </div>
-            <div class="main-nav">
+            
+            <!-- Navigation -->
+            <nav class="main-nav">
                 <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="blog.html" class="active">News</a></li>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="blog.html" class="active"><i class="fas fa-newspaper"></i> News</a></li>
                 </ul>
+            </nav>
+            
+            <!-- Price display -->
+            <div class="mini-price">
+                <span id="price-mini">Loading...</span>
+                <span class="currency">USD</span>
             </div>
         </div>
-    </nav>
+    </header>
 
     <div class="hero-section">
         <div class="container">
             <div class="hero-content">
                 <h1>SHIBA INU<span class="accent"> NEWS & UPDATES</span></h1>
-                <p>Latest cryptocurrency news, market analysis, and Shiba Inu ecosystem developments</p>
+                <p>Stay informed with the latest SHIB news, market analysis, and ecosystem updates</p>
+                <div class="updated">
+                    <i class="fas fa-sync-alt"></i>
+                    <span id="lastUpdate">Last updated: Loading...</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <main class="blog-section">
-        <div class="blog-controls">
-            <div class="blog-search">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Search articles...">
+    <div class="container">
+        <section class="price-section">
+            <div class="price-card">
+                <div class="price-header">
+                    <h2>SHIB/USD</h2>
+                    <div class="timeframe">
+                        <span>24h</span>
+                    </div>
+                </div>
+                <div class="price-content">
+                    <div class="current-price">
+                        <span id="price">$0.00000000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Volume stats -->
+            <div class="price-stats">
+                <div class="stat-box">
+                    <span class="stat-label">24h Volume</span>
+                    <span class="stat-value" id="volume">Loading...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog content starts here -->
+        <section class="blog-section">
+            <div class="blog-controls">
+                <div class="blog-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search articles...">
+                </div>
+                
+                <div class="blog-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="news">News</button>
+                    <button class="filter-btn" data-filter="analysis">Analysis</button>
+                    <button class="filter-btn" data-filter="updates">Updates</button>
+                </div>
             </div>
             
-            <div class="blog-filters">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="news">News</button>
-                <button class="filter-btn" data-filter="analysis">Analysis</button>
-                <button class="filter-btn" data-filter="updates">Updates</button>
+            <div id="blogContent">
+                <div class="loader">
+                    <div class="spinner"></div>
+                </div>
             </div>
-        </div>
-        
-        <div id="blogContent">
-            <div class="loader">
-                <div class="spinner"></div>
+            
+            <div class="pagination" id="pagination">
+                <!-- Pagination will be added dynamically -->
             </div>
-        </div>
-        
-        <div class="pagination" id="pagination">
-            <!-- Pagination will be added dynamically -->
-        </div>
-    </main>
+        </section>
+    </div>
 
     <footer>
         <div class="container">
@@ -549,5 +589,25 @@
     </footer>
 
     <script src="blog.js"></script>
+    <script src="script.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Initialize data
+            await fetchShibaData();
+            
+            // Set up refresh interval
+            setInterval(fetchShibaData, 60000);
+
+            // Initialize UI components
+            initializeMobileMenu();
+            initializeCookieConsent();
+
+        } catch (error) {
+            console.error('Initialization error:', error);
+            displayErrorState('Error loading data');
+        }
+    });
+    </script>
 </body>
 </html>
