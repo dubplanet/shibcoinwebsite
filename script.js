@@ -1,4 +1,4 @@
-// If this declaration exists multiple times, you should remove the extras
+// Update API constants - remove duplicates and update endpoint
 const DIA_API_URL = 'https://api.diadata.org/v1';
 const SHIB_SYMBOL = 'SHIB';
 const API_TIMEOUT = 10000;
@@ -52,23 +52,13 @@ function initializeContainers() {
     });
 }
 
-// Replace the existing initialization
+// Update initialization
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Initialize data
         await fetchShibaData();
-        
-        // Set up refresh interval
-        setInterval(fetchShibaData, 60000);
-
-        // Initialize UI components
-        initializeMobileMenu();
-        initializeFAQ();
-        initializeCookieConsent();
-
-        // Initialize alerts if needed
-        loadSavedAlerts();
-
+        priceRefreshInterval = setInterval(fetchShibaData, API_CACHE_DURATION);
+        initializeContainers();
+        initializeEventListeners();
     } catch (error) {
         console.error('Initialization error:', error);
         displayErrorState('Error loading data');
@@ -112,15 +102,15 @@ function handleInitializationError(error) {
 }
 
 // Core data fetching
-// Update fetchShibaData function
+// Update fetchShibaData function with proper error handling
 async function fetchShibaData() {
     const syncIcon = document.querySelector('.fa-sync-alt');
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        // Get current price data using the correct endpoint
         const response = await fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
-            headers: API_HEADERS
+            headers: API_HEADERS,
+            timeout: API_TIMEOUT
         });
 
         if (!response.ok) {
@@ -128,22 +118,22 @@ async function fetchShibaData() {
         }
 
         const data = await response.json();
-        console.log('Raw API Response:', data); // Debug log
+        console.log('API Response:', data); // Debug log
 
-        if (!data) {
+        // Validate data structure
+        if (!data || typeof data.Price === 'undefined') {
             throw new Error('Invalid data structure received');
         }
 
         // Update cache with new data
         dataCache = {
             price: parseFloat(data.Price) || 0,
-            marketCap: parseFloat(data.MarketCap) || 0,
-            volume: parseFloat(data.VolumeYesterdayUSD) || 0,
+            marketCap: parseFloat(data.Volume24) * parseFloat(data.Price) || 0, // Estimate market cap
+            volume: parseFloat(data.Volume24) || 0,
             lastUpdated: data.Time,
             change24h: calculatePriceChange(data.Price, data.PriceYesterday)
         };
 
-        console.log('Processed Data:', dataCache); // Debug log
         updatePriceDisplay(dataCache);
         return dataCache;
 
