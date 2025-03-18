@@ -703,8 +703,14 @@ footer {
 
 /* Update grid layout without rank box */
 .price-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    display: flex;
+    justify-content: center;
     margin: 1rem 0;
+}
+
+.stat-box {
+    padding: 1rem;
+    background: rgba(30, 30, 40, 0.6);
+    border-radius: var(--border-radius);
+    text-align: center;
 }

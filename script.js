@@ -198,7 +198,6 @@ function displayErrorState(message = 'Error loading data') {
     const elements = {
         price: { id: 'price', value: message },
         priceMini: { id: 'price-mini', value: 'Error' },
-        marketCap: { id: 'marketCap', value: '--' },
         volume: { id: 'volume', value: '--' }
     };
 
@@ -216,7 +215,6 @@ function updatePriceDisplay(data) {
     const elements = {
         price: { id: 'price', value: formatCryptoPrice(data.price) },
         priceMini: { id: 'price-mini', value: formatCryptoPrice(data.price) },
-        marketCap: { id: 'marketCap', value: formatNumber(data.marketCap) },
         volume: { id: 'volume', value: formatNumber(data.volume) }
     };
 
