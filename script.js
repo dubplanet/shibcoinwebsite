@@ -1,13 +1,14 @@
 // Global constants
-const CMC_API_URL = 'https://pro-api.coinmarketcap.com/v2';
-const COIN_ID = '5994'; // SHIB ID on CoinMarketCap
+const DIA_API_URL = 'https://api.diadata.org/v1';
+const COIN_SYMBOL = 'SHIB'; // DIA uses uppercase symbols
 const API_CACHE_DURATION = 60000; // 1 minute
 const MAX_RETRIES = 3;
 const API_HEADERS = {
-    'X-CMC_PRO_API_KEY': '39f838a8-b264-4fdc-87d9-97d8fadc5361',
     'Accept': 'application/json',
     'Cache-Control': 'no-cache'
 };
+const CMC_API_URL = 'https://pro-api.coinmarketcap.com/v2';
+const COIN_ID = '5994'; // SHIB ID on CoinMarketCap
 const API_TIMEOUT = 10000; // 10 seconds timeout
 
 // Update the API URL to use proxy
@@ -138,33 +139,38 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json'
-            }
+        // Get current price
+        const priceResponse = await fetch(`${DIA_API_URL}/quotation/SHIB`, {
+            headers: API_HEADERS
         });
         
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
+        if (!priceResponse.ok) {
+            throw new Error(`API Error: ${priceResponse.status}`);
         }
 
-        const result = await response.json();
-        
-        if (!result.data || !result.data['5994']) {
-            throw new Error('Invalid API response structure');
+        const priceData = await priceResponse.json();
+
+        // Get supply info
+        const supplyResponse = await fetch(`${DIA_API_URL}/supply/SHIB`, {
+            headers: API_HEADERS
+        });
+
+        if (!supplyResponse.ok) {
+            throw new Error(`API Error: ${supplyResponse.status}`);
         }
 
-        const data = result.data['5994'];
-        
+        const supplyData = await supplyResponse.json();
+
+        // Calculate market cap
+        const marketCap = priceData.Price * supplyData.CirculatingSupply;
+
         // Cache the data
         dataCache = {
-            price: data.quote.USD.price,
-            marketCap: data.quote.USD.market_cap,
-            volume: data.quote.USD.volume_24h,
-            rank: data.cmc_rank,
-            change24h: data.quote.USD.percent_change_24h,
-            lastUpdated: data.quote.USD.last_updated
+            price: priceData.Price,
+            marketCap: marketCap,
+            volume: priceData.Volume24,
+            lastUpdated: priceData.Time,
+            change24h: ((priceData.Price - priceData.PriceYesterday) / priceData.PriceYesterday) * 100
         };
 
         // Update UI
@@ -182,31 +188,30 @@ async function fetchShibaData() {
 // Add the chart data fetching function
 async function fetchChartData(period = '7d') {
     try {
-        const timeStart = getTimeStart(period);
-        const count = period === '24h' ? 24 : period === '7d' ? 168 : period === '30d' ? 720 : 2160;
+        const endDate = new Date().toISOString();
+        const startDate = getTimeStart(period);
 
-        const response = await fetch(`${CMC_API_URL}/cryptocurrency/quotes/historical?id=${COIN_ID}&count=${count}&interval=hourly&convert=USD`, {
-            headers: API_HEADERS
-        });
+        const response = await fetch(
+            `${DIA_API_URL}/chart/SHIB/USD/${startDate}/${endDate}`, {
+                headers: API_HEADERS
+            }
+        );
 
-        if (!response.ok) throw new Error('Failed to fetch CMC chart data');
+        if (!response.ok) throw new Error('Chart data fetch failed');
 
-        const result = await response.json();
+        const data = await response.json();
         
-        if (!result.data || !result.data.quotes) {
-            throw new Error('Invalid CMC chart data structure');
-        }
-
-        const chartData = result.data.quotes.map(quote => ({
-            timestamp: new Date(quote.timestamp).getTime(),
-            price: quote.quote.USD.price
+        // Transform data for chart
+        const chartData = data.Data.map(point => ({
+            timestamp: new Date(point.Time).getTime(),
+            price: point.Price
         }));
 
         updateChart(chartData, period);
         return chartData;
     } catch (error) {
-        console.error('Chart Error:', error);
-        showChartError('Unable to load CMC chart data');
+        console.error('Chart error:', error);
+        showChartError();
     }
 }
 
@@ -352,29 +357,19 @@ function handleFetchError(error) {
     const syncIcon = document.querySelector('.fa-sync-alt');
     if (syncIcon) syncIcon.classList.remove('updating');
 
-    // Update UI elements with error state
-    const elements = {
-        price: document.getElementById('price'),
-        priceMini: document.getElementById('price-mini'),
-        marketCap: document.getElementById('marketCap'),
-        volume: document.getElementById('volume'),
-        rank: document.getElementById('rank'),
-        changePercent: document.getElementById('changePercent')
-    };
+    // Check if it's a rate limit error
+    if (error.message.includes('429')) {
+        showNotification('API rate limit reached. Please try again later.', 'warning');
+    } else if (error.message.includes('403')) {
+        showNotification('API access denied. Please check credentials.', 'error');
+    } else {
+        showNotification('Unable to fetch price data.', 'error');
+    }
 
     if (dataCache?.price) {
-        // Use cached data if available
         updatePriceFromCache();
-        showNotification('Using cached data - Connection issue', 'warning');
     } else {
-        // Show error state
-        Object.values(elements).forEach(el => {
-            if (el) {
-                el.textContent = 'Error';
-                el.classList.add('error');
-            }
-        });
-        showNotification('Unable to load price data', 'error');
+        displayErrorState();
     }
 }
 
@@ -447,6 +442,7 @@ function updateAlertsList() {
 function formatCryptoPrice(price) {
     if (!price && price !== 0) return '0.00000000';
     
+    // DIA returns prices in standard decimal format
     if (price < 0.00001) {
         return price.toFixed(10);
     } else if (price < 0.0001) {
