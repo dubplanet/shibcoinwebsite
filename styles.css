@@ -700,3 +700,11 @@ footer {
 .error {
     color: #ff3b3b;
 }
+
+/* Update grid layout without rank box */
+.price-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+}

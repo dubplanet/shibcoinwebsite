@@ -217,30 +217,15 @@ function updatePriceDisplay(data) {
         price: { id: 'price', value: formatCryptoPrice(data.price) },
         priceMini: { id: 'price-mini', value: formatCryptoPrice(data.price) },
         marketCap: { id: 'marketCap', value: formatNumber(data.marketCap) },
-        volume: { id: 'volume', value: formatNumber(data.volume) },
-        change: { 
-            id: 'changePercent', 
-            value: `${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%`,
-            className: data.change24h >= 0 ? 'up' : 'down'
-        }
+        volume: { id: 'volume', value: formatNumber(data.volume) }
     };
 
-    Object.entries(elements).forEach(([key, { id, value, className }]) => {
+    Object.entries(elements).forEach(([key, { id, value }]) => {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = value;
-            if (className) {
-                element.className = className;
-            }
         }
     });
-
-    // Also update mini price change indicator if it exists
-    const changeMini = document.getElementById('change-mini');
-    if (changeMini) {
-        changeMini.textContent = `${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%`;
-        changeMini.className = data.change24h >= 0 ? 'up' : 'down';
-    }
 }
 
 // Alert System
