@@ -7,12 +7,7 @@ const API_HEADERS = {
     'Accept': 'application/json',
     'Cache-Control': 'no-cache'
 };
-const CMC_API_URL = 'https://pro-api.coinmarketcap.com/v2';
-const COIN_ID = '5994'; // SHIB ID on CoinMarketCap
 const API_TIMEOUT = 10000; // 10 seconds timeout
-
-// Update the API URL to use proxy
-const API_URL = '/api/proxy';  // Points to your proxy endpoint
 
 // Add after constants
 async function checkAPIStatus() {
@@ -20,7 +15,7 @@ async function checkAPIStatus() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
-        const response = await fetch(`${CMC_API_URL}/cryptocurrency/info?id=${COIN_ID}`, {
+        const response = await fetch(`${DIA_API_URL}/quotation/SHIB`, {
             signal: controller.signal,
             headers: API_HEADERS
         });
@@ -28,7 +23,7 @@ async function checkAPIStatus() {
         clearTimeout(timeoutId);
         return response.ok;
     } catch (error) {
-        console.error('CMC API Status Check Failed:', error);
+        console.error('DIA API Status Check Failed:', error);
         return false;
     }
 }
@@ -85,13 +80,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 function handleInitializationError(error) {
     console.error('Initialization error:', error);
     
-    // Update UI to show error state
     const elements = {
         price: 'API Unavailable',
         'price-mini': 'Error',
         marketCap: '--',
         volume: '--',
-        rank: '--',
         changePercent: '--'
     };
 
@@ -109,7 +102,7 @@ function handleInitializationError(error) {
         container.innerHTML = `
             <div class="chart-error">
                 <i class="fas fa-exclamation-triangle"></i>
-                <p>CoinGecko API is currently unavailable</p>
+                <p>API is currently unavailable</p>
                 <p class="error-details">Please try again later</p>
                 <button onclick="location.reload()" class="retry-btn">
                     Retry
@@ -384,6 +377,24 @@ function handleError() {
     }
 }
 
+function updateUIForError() {
+    const elements = {
+        price: 'Error',
+        'price-mini': 'Error',
+        marketCap: '--',
+        volume: '--',
+        changePercent: '--'
+    };
+
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+            element.classList.add('error');
+        }
+    });
+}
+
 // UI Updates
 function updatePriceDisplay(data) {
     const elements = {
@@ -391,7 +402,6 @@ function updatePriceDisplay(data) {
         priceMini: { id: 'price-mini', value: formatCryptoPrice(data.price) },
         marketCap: { id: 'marketCap', value: formatNumber(data.marketCap) },
         volume: { id: 'volume', value: formatNumber(data.volume) },
-        rank: { id: 'rank', value: `#${data.rank}` },
         change: { id: 'changePercent', value: `${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%` }
     };
 
@@ -442,7 +452,6 @@ function updateAlertsList() {
 function formatCryptoPrice(price) {
     if (!price && price !== 0) return '0.00000000';
     
-    // DIA returns prices in standard decimal format
     if (price < 0.00001) {
         return price.toFixed(10);
     } else if (price < 0.0001) {
@@ -452,7 +461,7 @@ function formatCryptoPrice(price) {
     } else if (price < 1) {
         return price.toFixed(4);
     }
-    return price.toFixed(2);
+    return price.toFixed(2); // Add missing return statement
 }
 
 function formatNumber(num) {
@@ -472,4 +481,20 @@ function formatNumber(num) {
 window.addEventListener('beforeunload', () => {
     clearInterval(priceRefreshInterval);
 });
+
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('notificationContainer');
+    if (!container) return;
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <div class="notification-message">${message}</div>
+        </div>
+    `;
+
+    container.appendChild(notification);
+    setTimeout(() => notification.remove(), 5000);
+}
 

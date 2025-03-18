@@ -10,7 +10,7 @@
     
     <!-- Primary Meta Tags -->
     <title>Shiba Inu (SHIB) Live Price Tracker | Real-Time Charts & Analytics</title>
-    <meta name="description" content="Track Shiba Inu (SHIB) cryptocurrency with real-time price updates, interactive charts, market capitalization data, and trading volume at ShibaInuCoinTracker.com.">
+    <meta name="description" content="Track Shiba Inu (SHIB) cryptocurrency with real-time price updates using DIAdata API...">
     <meta name="keywords" content="Shiba Inu price, SHIB tracker, SHIB live price, cryptocurrency tracker, Shiba Inu chart, SHIB market cap, SHIB analytics, Shiba coin tracker">
     <meta name="author" content="ShibaInuCoinTracker">
     <meta name="robots" content="index, follow, max-image-preview:large">
@@ -940,7 +940,7 @@
           "name": "How accurate is the SHIB price data on ShibaInuCoinTracker.com?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "ShibaInuCoinTracker.com provides real-time price data directly from the CoinGecko API, which aggregates prices across major cryptocurrency exchanges. Our data is updated every minute to ensure accuracy."
+            "text": "ShibaInuCoinTracker.com provides real-time price data directly from the DIAdata API, which provides accurate cryptocurrency market data. Our data is updated every minute to ensure accuracy."
           }
         },
         {
@@ -1106,6 +1106,7 @@
             <div class="chart-container">
                 <div class="chart-header">
                     <h2>Price Chart</h2>
+                    <!-- Update chart timeframes to match DIAdata API capabilities -->
                     <div class="chart-timeframes">
                         <button class="timeframe-btn" data-period="24h">24H</button>
                         <button class="timeframe-btn active" data-period="7d">7D</button>
@@ -1155,7 +1156,7 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>ShibaInuCoinTracker.com provides real-time price data directly from the CoinGecko API, which aggregates prices across major cryptocurrency exchanges. Our data is updated every minute to ensure accuracy and reliability for all users tracking SHIB prices.</p>
+                        <p>ShibaInuCoinTracker.com provides real-time price data directly from the DIAdata API, which provides accurate cryptocurrency market data. Our data is updated every minute to ensure accuracy and reliability for all users tracking SHIB prices.</p>
                     </div>
                 </div>
                 
@@ -1228,8 +1229,6 @@
                             <ul>
                                 <li><a href="blog.html" class="news-link"><i class="fas fa-newspaper"></i> Latest News</a></li>
                                 <li><a href="https://www.shibatoken.com/" target="_blank"><i class="fas fa-external-link-alt"></i> Official SHIB Website</a></li>
-                                <li><a href="https://coinmarketcap.com/currencies/shiba-inu/" target="_blank"><i class="fas fa-chart-bar"></i> CoinMarketCap</a></li>
-                                <li><a href="https://www.coingecko.com/en/coins/shiba-inu" target="_blank"><i class="fas fa-chart-line"></i> CoinGecko</a></li>
                             </ul>
                         </div>
                     </div>
@@ -1250,7 +1249,7 @@
                 </div>
                 
                 <div class="footer-bottom">
-                    <p><i class="fas fa-copyright"></i> 2025 ShibaInuCoinTracker.com. Data provided by CoinGecko API.</p>
+                    <p><i class="fas fa-copyright"></i> 2025 ShibaInuCoinTracker.com. Data provided by DIAdata API.</p>
                 </div>
             </div>
         </div>
@@ -1404,6 +1403,21 @@ function initializeCookieConsent() {
             document.getElementById('price-mini').textContent = 'Error';
         }
     });
+</script>
+<!-- Update the initialization script -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize core functionality with DIAdata API
+    fetchShibaData();
+    fetchChartData('7d');
+    setInterval(fetchShibaData, 60000);
+
+    // Initialize other components
+    initializeMobileMenu();
+    initializeChartTimeframes();
+    initializeFAQ();
+    initializeCookieConsent();
+});
 </script>
 </body>
 </html>
