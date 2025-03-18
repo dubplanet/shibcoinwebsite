@@ -1,12 +1,12 @@
 // Global constants
-const COINGECKO_API_URL = '/api/coingecko'; // Use relative path for proxy
-const COIN_ID = 'shiba-inu';
+const CMC_API_URL = 'https://pro-api.coinmarketcap.com/v2';
+const COIN_ID = '5994'; // SHIB ID on CoinMarketCap
 const API_CACHE_DURATION = 60000; // 1 minute
 const MAX_RETRIES = 3;
 const API_HEADERS = {
+    'X-CMC_PRO_API_KEY': '39f838a8-b264-4fdc-87d9-97d8fadc5361',
     'Accept': 'application/json',
-    'Cache-Control': 'no-cache',
-    'mode': 'cors'
+    'Cache-Control': 'no-cache'
 };
 const API_TIMEOUT = 10000; // 10 seconds timeout
 
@@ -16,7 +16,7 @@ async function checkAPIStatus() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
-        const response = await fetch(`${COINGECKO_API_URL}/ping`, {
+        const response = await fetch(`${CMC_API_URL}/cryptocurrency/info?id=${COIN_ID}`, {
             signal: controller.signal,
             headers: API_HEADERS
         });
@@ -24,7 +24,7 @@ async function checkAPIStatus() {
         clearTimeout(timeoutId);
         return response.ok;
     } catch (error) {
-        console.error('API Status Check Failed:', error);
+        console.error('CMC API Status Check Failed:', error);
         return false;
     }
 }
@@ -134,90 +134,90 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false`, {
+        const response = await fetch(`${CMC_API_URL}/cryptocurrency/quotes/latest?id=${COIN_ID}&convert=USD`, {
             method: 'GET',
-            headers: API_HEADERS,
-            mode: 'cors',
-            credentials: 'omit'
+            headers: API_HEADERS
         });
         
         if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
+            throw new Error(`CMC API Error: ${response.status}`);
         }
 
-        const data = await response.json();
+        const result = await response.json();
         
-        // Update price displays
-        const price = data.market_data.current_price.usd;
-        const change24h = data.market_data.price_change_percentage_24h;
-        
-        // Update main price
-        document.getElementById('price').textContent = `$${formatCryptoPrice(price)}`;
-        
-        // Update mini price
-        document.getElementById('price-mini').textContent = `$${formatCryptoPrice(price)}`;
-        
-        // Update 24h change
-        const changePercent = document.getElementById('changePercent');
-        const changeMini = document.getElementById('change-mini');
-        const changeClass = change24h >= 0 ? 'up' : 'down';
-        const changeSymbol = change24h >= 0 ? '+' : '';
-        
-        if (changePercent) {
-            changePercent.textContent = `(${changeSymbol}${change24h.toFixed(2)}%)`;
-            changePercent.className = changeClass;
+        if (!result.data || !result.data[COIN_ID]) {
+            throw new Error('Invalid CMC API response structure');
         }
+
+        const data = result.data[COIN_ID];
         
-        if (changeMini) {
-            changeMini.textContent = `${changeSymbol}${change24h.toFixed(2)}%`;
-            changeMini.className = changeClass;
-        }
-        
-        // Update market stats
-        document.getElementById('marketCap').textContent = formatNumber(data.market_data.market_cap.usd);
-        document.getElementById('volume').textContent = formatNumber(data.market_data.total_volume.usd);
-        document.getElementById('rank').textContent = `#${data.market_cap_rank}`;
+        // Cache the data
+        dataCache = {
+            price: data.quote.USD.price,
+            marketCap: data.quote.USD.market_cap,
+            volume: data.quote.USD.volume_24h,
+            rank: data.cmc_rank,
+            change24h: data.quote.USD.percent_change_24h,
+            lastUpdated: data.quote.USD.last_updated
+        };
+
+        // Update UI
+        updatePriceDisplay(dataCache);
         
         if (syncIcon) syncIcon.classList.remove('updating');
-        return data;
+        return dataCache;
 
     } catch (error) {
         handleFetchError(error);
+        return null;
     }
 }
 
 // Add the chart data fetching function
 async function fetchChartData(period = '7d') {
     try {
-        const days = {
-            '24h': 1,
-            '7d': 7,
-            '30d': 30,
-            '90d': 90,
-            '1y': 365
-        }[period] || 7;
+        const timeStart = getTimeStart(period);
+        const count = period === '24h' ? 24 : period === '7d' ? 168 : period === '30d' ? 720 : 2160;
 
-        const response = await fetch(
-            `${COINGECKO_API_URL}/coins/${COIN_ID}/market_chart?vs_currency=usd&days=${days}`, {
-                method: 'GET',
-                headers: API_HEADERS,
-                mode: 'cors',
-                credentials: 'omit'
-            }
-        );
+        const response = await fetch(`${CMC_API_URL}/cryptocurrency/quotes/historical?id=${COIN_ID}&count=${count}&interval=hourly&convert=USD`, {
+            headers: API_HEADERS
+        });
 
-        if (!response.ok) throw new Error('Failed to fetch chart data');
+        if (!response.ok) throw new Error('Failed to fetch CMC chart data');
 
-        const data = await response.json();
+        const result = await response.json();
         
-        if (!data?.prices || !Array.isArray(data.prices)) {
-            throw new Error('Invalid chart data structure');
+        if (!result.data || !result.data.quotes) {
+            throw new Error('Invalid CMC chart data structure');
         }
 
-        updateChart(data.prices, period);
-        return data;
+        const chartData = result.data.quotes.map(quote => ({
+            timestamp: new Date(quote.timestamp).getTime(),
+            price: quote.quote.USD.price
+        }));
+
+        updateChart(chartData, period);
+        return chartData;
     } catch (error) {
-        showChartError();
+        console.error('Chart Error:', error);
+        showChartError('Unable to load CMC chart data');
+    }
+}
+
+// Helper function for chart timeframes
+function getTimeStart(period) {
+    const now = new Date();
+    switch (period) {
+        case '24h':
+            return new Date(now - 24 * 60 * 60 * 1000).toISOString();
+        case '7d':
+            return new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+        case '30d':
+            return new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+        case '90d':
+            return new Date(now - 90 * 24 * 60 * 60 * 1000).toISOString();
+        default:
+            return new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
     }
 }
 
@@ -231,7 +231,7 @@ function updateChart(priceData, period) {
         window.priceChart.destroy();
     }
 
-    const chartData = priceData.map(([timestamp, price]) => ({
+    const chartData = priceData.map(({ timestamp, price }) => ({
         x: new Date(timestamp),
         y: price
     }));
@@ -381,15 +381,13 @@ function handleError() {
 
 // UI Updates
 function updatePriceDisplay(data) {
-    if (!data?.market_data?.current_price?.usd) return;
-    
     const elements = {
-        price: { id: 'price', value: formatCryptoPrice(data.market_data.current_price.usd) },
-        priceMini: { id: 'price-mini', value: formatCryptoPrice(data.market_data.current_price.usd) },
-        marketCap: { id: 'marketCap', value: formatNumber(data.market_data.market_cap.usd) },
-        volume: { id: 'volume', value: formatNumber(data.market_data.total_volume.usd) },
-        rank: { id: 'rank', value: `#${data.market_cap_rank}` },
-        change: { id: 'changePercent', value: `${data.market_data.price_change_percentage_24h >= 0 ? '+' : ''}${data.market_data.price_change_percentage_24h.toFixed(2)}%` }
+        price: { id: 'price', value: formatCryptoPrice(data.price) },
+        priceMini: { id: 'price-mini', value: formatCryptoPrice(data.price) },
+        marketCap: { id: 'marketCap', value: formatNumber(data.marketCap) },
+        volume: { id: 'volume', value: formatNumber(data.volume) },
+        rank: { id: 'rank', value: `#${data.rank}` },
+        change: { id: 'changePercent', value: `${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%` }
     };
 
     Object.entries(elements).forEach(([key, { id, value }]) => {
@@ -397,7 +395,7 @@ function updatePriceDisplay(data) {
         if (element) {
             element.textContent = value;
             if (key === 'change') {
-                element.className = data.market_data.price_change_percentage_24h >= 0 ? 'up' : 'down';
+                element.className = data.change24h >= 0 ? 'up' : 'down';
             }
         }
     });
