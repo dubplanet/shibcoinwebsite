@@ -1,92 +1,89 @@
+// Global variables and API constants
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
 const COIN_ID = 'shiba-inu';
 
-// Chart data global variable
-let priceHistoryData = [];
+// Properly initialize dataCache
+let dataCache = {
+    price: null,
+    marketCap: null,
+    volume: null,
+    rank: null,
+    change24h: null,
+    lastUpdated: null
+};
 
+// Define formatCryptoPrice globally to ensure it's available everywhere
+function formatCryptoPrice(price) {
+    if (!price && price !== 0) return "0.00000000";
+    
+    // For very small values, show more decimal places
+    if (price < 0.00001) {
+        return price.toFixed(10).replace(/0+$/, '');
+    } else if (price < 0.0001) {
+        return price.toFixed(8).replace(/0+$/, '');
+    } else if (price < 0.01) {
+        return price.toFixed(6).replace(/0+$/, '');
+    } else if (price < 1) {
+        return price.toFixed(4).replace(/0+$/, '');
+    } else {
+        return price.toFixed(2);
+    }
+}
+
+// Fixed fetch function with error handling
 async function fetchShibaData() {
     try {
-        console.log('Fetching data from CoinGecko...');
+        // Show loading indicator
+        const syncIcon = document.querySelector('.fa-sync-alt');
+        if (syncIcon) syncIcon.classList.add('updating');
         
-        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=true`);
-    
+        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false`);
+        
         if (!response.ok) {
             throw new Error(`API response error: ${response.status}`);
         }
         
         const data = await response.json();
         
-        if (!data) {
-            throw new Error('Invalid data structure received from API');
-        }
+        // Update dataCache
+        dataCache = {
+            price: data.market_data.current_price.usd,
+            marketCap: data.market_data.market_cap.usd,
+            volume: data.market_data.total_volume.usd,
+            rank: data.market_cap_rank,
+            change24h: data.market_data.price_change_percentage_24h,
+            lastUpdated: data.last_updated
+        };
         
-        // Update price with null check
-        const price = data.market_data?.current_price?.usd || 0;
-        if(document.getElementById('price')) {
-            document.getElementById('price').textContent = `$${price.toFixed(8)}`;
-        }
+        // Update UI
+        updatePriceDisplay(data);
         
-        if(document.getElementById('price-mini')) {
-            document.getElementById('price-mini').textContent = `$${price.toFixed(8)}`;
-        }
+        // Check price alerts
+        checkPriceAlerts(dataCache.price);
         
-        // Update price change with null checks
-        const changePercent = data.market_data?.price_change_percentage_24h || 0;
-        const isPositive = changePercent >= 0;
-        const priceChange = data.market_data?.price_change_24h || 0;
-
-        if(document.getElementById('priceChange')) {
-            document.getElementById('priceChange').textContent = `${isPositive ? '+' : ''}$${priceChange.toFixed(8)}`;
-            document.getElementById('priceChange').className = isPositive ? 'positive' : 'negative';
-        }
+        // Hide loading indicator
+        if (syncIcon) syncIcon.classList.remove('updating');
         
-        if(document.getElementById('changePercent')) {
-            document.getElementById('changePercent').textContent = `(${isPositive ? '+' : ''}${changePercent.toFixed(2)}%)`;
-            document.getElementById('changePercent').className = isPositive ? 'positive' : 'negative';
-        }
-        
-        if(document.getElementById('change-mini')) {
-            document.getElementById('change-mini').textContent = `${isPositive ? '+' : ''}${changePercent.toFixed(2)}%`;
-            document.getElementById('change-mini').className = isPositive ? 'positive' : 'negative';
-            document.getElementById('change-mini').innerHTML = `<i class="fas fa-caret-${isPositive ? 'up' : 'down'}"></i> ${document.getElementById('change-mini').textContent}`;
-        }
-
-        // Update market stats with null checks
-        const volume = data.market_data?.total_volume?.usd || 0;
-        const marketCap = data.market_data?.market_cap?.usd || 0;
-        const marketCapRank = data.market_cap_rank || 'N/A';
-        
-        if(document.getElementById('volume')) {
-            document.getElementById('volume').textContent = `$${formatNumber(volume)}`;
-        }
-        
-        if(document.getElementById('marketCap')) {
-            document.getElementById('marketCap').textContent = `$${formatNumber(marketCap)}`;
-        }
-        
-        if(document.getElementById('rank')) {
-            document.getElementById('rank').textContent = `#${marketCapRank}`;
-        }
-        
-        // Update last updated time
-        if(document.getElementById('lastUpdate')) {
-            const lastUpdated = new Date();
-            document.getElementById('lastUpdate').textContent = `Last updated: ${lastUpdated.toLocaleTimeString()}`;
-        }
-        
-        // Store sparkline data for chart if available
-        if (data.market_data?.sparkline_7d?.price) {
-            priceHistoryData = data.market_data.sparkline_7d.price;
-            updateChart('7d');
-        } else {
-            fetchChartData('7d');
-        }
-
+        return data;
     } catch (error) {
-        console.error('Fetch Error Details:', error);
-        handleError();  
+        console.error('Fetch Error:', error);
+        
+        // Use cached data if available
+        if (dataCache.price) {
+            updateDataDisplayFromCache();
+            showNotification('Using cached data. API connection issue.', 'warning');
+        } else {
+            showNotification('Could not load SHIB data. Please try again later.', 'error');
+        }
+        
+        // Hide loading indicator
+        const syncIcon = document.querySelector('.fa-sync-alt');
+        if (syncIcon) syncIcon.classList.remove('updating');
     }
 }
+
+// Chart data global variable
+let priceHistoryData = [];
 
 async function fetchChartData(period = '7d') {
     try {
