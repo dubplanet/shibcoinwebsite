@@ -10,6 +10,9 @@ const API_HEADERS = {
     'Cache-Control': 'no-cache'
 };
 
+// Update the constants
+const SHIB_SYMBOL = 'SHIB';
+
 // Add missing constants
 const MAX_RETRIES = 3;
 const API_CACHE_DURATION = 60000; // 1 minute
@@ -154,59 +157,32 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        // Get current price and supply data
-        const [quoteResponse, supplyResponse] = await Promise.all([
-            fetch(`${DIA_API_URL}/quotation/${BLOCKCHAIN}/${SHIB_ADDRESS}`, {
-                headers: API_HEADERS
-            }),
-            fetch(`${DIA_API_URL}/supply/${BLOCKCHAIN}/${SHIB_ADDRESS}`, {
-                headers: API_HEADERS
-            })
-        ]);
-
-        if (!quoteResponse.ok || !supplyResponse.ok) {
-            throw new Error(`API Error: Quote ${quoteResponse.status}, Supply ${supplyResponse.status}`);
-        }
-
-        const quoteData = await quoteResponse.json();
-        const supplyData = await supplyResponse.json();
-
-        // Get 24h historical data for percentage change
-        const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-        const historicalResponse = await fetch(
-            `${DIA_API_URL}/chart/${BLOCKCHAIN}/${SHIB_ADDRESS}?starttime=${yesterday}`,
-            { headers: API_HEADERS }
-        );
-
-        if (!historicalResponse.ok) {
-            throw new Error('Failed to fetch historical data');
-        }
-
-        const historicalData = await historicalResponse.json();
-        const oldestPrice = historicalData.Data[0]?.Price || quoteData.Price;
-        
-        // Calculate market cap and 24h change
-        const circulatingSupply = parseFloat(supplyData.CirculatingSupply) || 0;
-        const currentPrice = parseFloat(quoteData.Price) || 0;
-        const marketCap = currentPrice * circulatingSupply;
-        const change24h = ((currentPrice - oldestPrice) / oldestPrice) * 100;
-
-        console.log('Price Data:', {
-            price: currentPrice,
-            marketCap: marketCap,
-            supply: circulatingSupply,
-            change24h: change24h
+        // Get current price data using the correct endpoint
+        const response = await fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
+            headers: API_HEADERS
         });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Raw API Response:', data); // Debug log
+
+        if (!data) {
+            throw new Error('Invalid data structure received');
+        }
 
         // Update cache with new data
         dataCache = {
-            price: currentPrice,
-            marketCap: marketCap,
-            volume: parseFloat(quoteData.Volume24) || 0,
-            lastUpdated: quoteData.Time,
-            change24h: change24h
+            price: parseFloat(data.Price) || 0,
+            marketCap: parseFloat(data.MarketCap) || 0,
+            volume: parseFloat(data.VolumeYesterdayUSD) || 0,
+            lastUpdated: data.Time,
+            change24h: calculatePriceChange(data.Price, data.PriceYesterday)
         };
 
+        console.log('Processed Data:', dataCache); // Debug log
         updatePriceDisplay(dataCache);
         return dataCache;
 
@@ -227,7 +203,7 @@ async function fetchChartData(period = '7d') {
         const startDate = getTimeStart(period);
 
         const response = await fetch(
-            `${DIA_API_URL}/chart/${BLOCKCHAIN}/${SHIB_ADDRESS}?starttime=${startDate}&endtime=${endDate}`, {
+            `${DIA_API_URL}/chart/${SHIB_SYMBOL}/USD/${startDate}/${endDate}`, {
                 headers: API_HEADERS
             }
         );
@@ -237,13 +213,13 @@ async function fetchChartData(period = '7d') {
         }
 
         const result = await response.json();
-        console.log('Chart Data Response:', result); // Debug log
+        console.log('Chart Data:', result); // Debug log
 
-        if (!result || !result.Data) {
+        if (!result.Prices || !Array.isArray(result.Prices)) {
             throw new Error('Invalid chart data structure');
         }
 
-        const chartData = result.Data
+        const chartData = result.Prices
             .filter(point => point && point.Price > 0)
             .map(point => ({
                 x: new Date(point.Time).getTime(),
@@ -251,13 +227,12 @@ async function fetchChartData(period = '7d') {
             }))
             .sort((a, b) => a.x - b.x);
 
-        console.log(`Processed ${chartData.length} chart points`); // Debug log
         updateChart(chartData, period);
         return chartData;
 
     } catch (error) {
         console.error('Chart Error:', error);
-        showChartError(`Unable to load SHIB price history: ${error.message}`);
+        showChartError('Unable to load price history');
         return null;
     }
 }
