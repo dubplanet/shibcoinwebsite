@@ -10,6 +10,12 @@ const API_HEADERS = {
     'Cache-Control': 'no-cache'
 };
 
+// Add missing constants
+const MAX_RETRIES = 3;
+const API_CACHE_DURATION = 60000; // 1 minute
+let dataCache = null;
+let priceRefreshInterval = null;
+
 // Add after constants
 async function checkAPIStatus() {
     try {
@@ -31,9 +37,24 @@ async function checkAPIStatus() {
 
 // State management
 let priceAlerts = [];
-let dataCache = null;
 let retryCount = 0;
-let priceRefreshInterval;
+
+// Initialize containers function
+function initializeContainers() {
+    const containers = {
+        priceContainer: document.getElementById('price'),
+        chartContainer: document.querySelector('.chart-container'),
+        alertsContainer: document.getElementById('alertsList'),
+        notificationContainer: document.getElementById('notificationContainer')
+    };
+
+    // Validate required containers
+    Object.entries(containers).forEach(([key, element]) => {
+        if (!element) {
+            console.error(`Required container ${key} not found`);
+        }
+    });
+}
 
 // Replace the existing initialization
 document.addEventListener('DOMContentLoaded', async () => {
@@ -133,9 +154,8 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        const response = await fetch(`${DIA_API_URL}${QUOTE_ENDPOINT}/${BLOCKCHAIN}/${SHIB_ADDRESS}`, {
-            headers: API_HEADERS,
-            timeout: API_TIMEOUT
+        const response = await fetch(`${DIA_API_URL}/quotation/${BLOCKCHAIN}/${SHIB_ADDRESS}`, {
+            headers: API_HEADERS
         });
 
         if (!response.ok) {
@@ -154,7 +174,7 @@ async function fetchShibaData() {
             marketCap: data.MarketCap || 0,
             volume: data.Volume24 || 0,
             lastUpdated: data.Time || new Date().toISOString(),
-            change24h: data.PriceChange24h || 0
+            change24h: calculatePriceChange(data.Price, data.PriceYesterday)
         };
 
         updatePriceDisplay(dataCache);
@@ -541,6 +561,30 @@ function updatePriceFromCache() {
     const priceElement = document.getElementById('price');
     if (priceElement) {
         priceElement.classList.add('cached');
+    }
+}
+
+function initializeEventListeners() {
+    // Chart timeframe buttons
+    document.querySelectorAll('.timeframe-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            document.querySelectorAll('.timeframe-btn').forEach(btn => 
+                btn.classList.remove('active')
+            );
+            this.classList.add('active');
+            fetchChartData(this.getAttribute('data-period'));
+        });
+    });
+
+    // Alert form
+    const alertForm = document.getElementById('alertForm');
+    if (alertForm) {
+        alertForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const price = parseFloat(this.querySelector('[name="alertPrice"]').value);
+            const type = this.querySelector('[name="alertType"]').value;
+            addPriceAlert(price, type);
+        });
     }
 }
 
