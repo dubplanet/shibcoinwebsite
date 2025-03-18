@@ -1,4 +1,4 @@
-// Global API constants - keep only these declarations
+// If this declaration exists multiple times, you should remove the extras
 const DIA_API_URL = 'https://api.diadata.org/v1';
 const SHIB_SYMBOL = 'SHIB';
 const API_TIMEOUT = 10000;
