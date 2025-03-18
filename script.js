@@ -8,6 +8,7 @@ const API_HEADERS = {
     'Cache-Control': 'no-cache'
 };
 
+   
 // State management
 let priceAlerts = [];
 let dataCache = null;
@@ -312,3 +313,4 @@ function formatNumber(num) {
 window.addEventListener('beforeunload', () => {
     clearInterval(priceRefreshInterval);
 });
+

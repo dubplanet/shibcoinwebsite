@@ -1259,6 +1259,7 @@
     <!-- Move scripts to end of body -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
     <script src="script.js" type="module"></script>
+
     
     <!-- Inline critical JS -->
     <script>
@@ -1282,7 +1283,26 @@
             </div>
         </div>
     </div>
-    
+        // 1. First, make sure script.js is loaded before using fetchShibaData
+    <script src="script.js"></script>
+    <script>
+        // Then initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Only initialize after script.js is loaded
+            if (typeof fetchShibaData === 'function') {
+                const apiAvailable = await testAPIConnection();
+                if (apiAvailable) {
+                    fetchShibaData();
+                    setInterval(fetchShibaData, 60000);
+                } else {
+                    document.getElementById('price').textContent = 'API Unavailable';
+                    document.getElementById('price-mini').textContent = 'Error';
+                }
+            } else {
+                console.error('Required functions not loaded');
+            }
+        });
+    </script>
     <!-- Replace multiple script tags with this single consolidated version at the bottom of body -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
