@@ -7,21 +7,58 @@ const API_HEADERS = {
     'Accept': 'application/json',
     'Cache-Control': 'no-cache'
 };
+const API_TIMEOUT = 10000; // 10 seconds timeout
 
-   
+// Add after constants
+async function checkAPIStatus() {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+        const response = await fetch(`${COINGECKO_API_URL}/ping`, {
+            signal: controller.signal,
+            headers: API_HEADERS
+        });
+
+        clearTimeout(timeoutId);
+        return response.ok;
+    } catch (error) {
+        console.error('API Status Check Failed:', error);
+        return false;
+    }
+}
+
 // State management
 let priceAlerts = [];
 let dataCache = null;
 let retryCount = 0;
 let priceRefreshInterval;
 
-// Initialize app
+// Replace the existing initialization
 document.addEventListener('DOMContentLoaded', async () => {
     try {
+        // Check API availability first
+        const apiAvailable = await checkAPIStatus();
+        if (!apiAvailable) {
+            throw new Error('API is not available');
+        }
+
         initializeContainers();
         initializeEventListeners();
         loadSavedAlerts();
-        const data = await fetchShibaData();
+
+        // Initial data fetch with retry logic
+        let attempts = 0;
+        let data = null;
+
+        while (!data && attempts < MAX_RETRIES) {
+            data = await fetchShibaData();
+            if (!data) {
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between retries
+            }
+        }
+
         if (data) {
             // Start refresh interval
             priceRefreshInterval = setInterval(fetchShibaData, API_CACHE_DURATION);
@@ -30,21 +67,65 @@ document.addEventListener('DOMContentLoaded', async () => {
             await fetchChartData('7d');
             
             // Initialize chart controls
-            document.querySelectorAll('.timeframe-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    document.querySelectorAll('.timeframe-btn').forEach(btn => 
-                        btn.classList.remove('active')
-                    );
-                    this.classList.add('active');
-                    fetchChartData(this.getAttribute('data-period'));
-                });
-            });
+            initializeChartControls();
+        } else {
+            throw new Error('Failed to fetch initial data');
         }
     } catch (error) {
-        console.error('Initialization error:', error);
-        handleError(error);
+        handleInitializationError(error);
     }
 });
+
+// Add initialization error handler
+function handleInitializationError(error) {
+    console.error('Initialization error:', error);
+    
+    // Update UI to show error state
+    const elements = {
+        price: 'API Unavailable',
+        'price-mini': 'Error',
+        marketCap: '--',
+        volume: '--',
+        rank: '--',
+        changePercent: '--'
+    };
+
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+            element.classList.add('error');
+        }
+    });
+
+    // Show error message to user
+    const container = document.querySelector('.chart-container');
+    if (container) {
+        container.innerHTML = `
+            <div class="chart-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>CoinGecko API is currently unavailable</p>
+                <p class="error-details">Please try again later</p>
+                <button onclick="location.reload()" class="retry-btn">
+                    Retry
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Add chart controls initialization
+function initializeChartControls() {
+    document.querySelectorAll('.timeframe-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            document.querySelectorAll('.timeframe-btn').forEach(btn => 
+                btn.classList.remove('active')
+            );
+            this.classList.add('active');
+            fetchChartData(this.getAttribute('data-period'));
+        });
+    });
+}
 
 // Core data fetching
 async function fetchShibaData() {
