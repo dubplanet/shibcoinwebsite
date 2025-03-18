@@ -211,6 +211,7 @@ function displayErrorState(message = 'Error loading data') {
 }
 
 // UI Updates
+// Update updatePriceDisplay function to include last updated time
 function updatePriceDisplay(data) {
     const elements = {
         price: { id: 'price', value: formatCryptoPrice(data.price) },
@@ -224,6 +225,23 @@ function updatePriceDisplay(data) {
             element.textContent = value;
         }
     });
+
+    // Update last updated timestamp
+    const lastUpdateElement = document.getElementById('lastUpdate');
+    if (lastUpdateElement) {
+        const timestamp = new Date(data.lastUpdated);
+        const timeString = timestamp.toLocaleTimeString();
+        lastUpdateElement.textContent = `Last updated: ${timeString}`;
+    }
+
+    // Update sync icon
+    const syncIcon = document.querySelector('.fa-sync-alt');
+    if (syncIcon) {
+        syncIcon.classList.remove('updating');
+        // Add brief animation
+        syncIcon.classList.add('updated');
+        setTimeout(() => syncIcon.classList.remove('updated'), 1000);
+    }
 }
 
 // Alert System
@@ -359,6 +377,24 @@ function initializeEventListeners() {
             const type = this.querySelector('[name="alertType"]').value;
             addPriceAlert(price, type);
         });
+    }
+}
+
+// Add this helper function for formatting dates
+function formatLastUpdated(timestamp) {
+    if (!timestamp) return 'Never';
+    
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffSeconds = Math.floor((now - date) / 1000);
+
+    if (diffSeconds < 60) {
+        return 'Just now';
+    } else if (diffSeconds < 3600) {
+        const minutes = Math.floor(diffSeconds / 60);
+        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    } else {
+        return date.toLocaleTimeString();
     }
 }
 
