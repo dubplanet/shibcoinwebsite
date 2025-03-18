@@ -1,4 +1,4 @@
-// Update API constants - remove duplicates and update endpoint
+// If this declaration exists multiple times, you should remove the extras
 const DIA_API_URL = 'https://api.diadata.org/v1';
 const SHIB_SYMBOL = 'SHIB';
 const API_TIMEOUT = 10000;
@@ -52,13 +52,23 @@ function initializeContainers() {
     });
 }
 
-// Update initialization
+// Replace the existing initialization
 document.addEventListener('DOMContentLoaded', async () => {
     try {
+        // Initialize data
         await fetchShibaData();
-        priceRefreshInterval = setInterval(fetchShibaData, API_CACHE_DURATION);
-        initializeContainers();
-        initializeEventListeners();
+        
+        // Set up refresh interval
+        setInterval(fetchShibaData, 60000);
+
+        // Initialize UI components
+        initializeMobileMenu();
+        initializeFAQ();
+        initializeCookieConsent();
+
+        // Initialize alerts if needed
+        loadSavedAlerts();
+
     } catch (error) {
         console.error('Initialization error:', error);
         displayErrorState('Error loading data');
@@ -102,51 +112,38 @@ function handleInitializationError(error) {
 }
 
 // Core data fetching
-// Update fetchShibaData function with proper error handling
+// Update fetchShibaData function
 async function fetchShibaData() {
     const syncIcon = document.querySelector('.fa-sync-alt');
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        // Get both current and volume data
-        const [quoteResponse, volumeResponse] = await Promise.all([
-            fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
-                headers: API_HEADERS
-            }),
-            fetch(`${DIA_API_URL}/volume/${SHIB_SYMBOL}/24h`, {
-                headers: API_HEADERS
-            })
-        ]);
+        // Get current price data using the correct endpoint
+        const response = await fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
+            headers: API_HEADERS
+        });
 
-        if (!quoteResponse.ok || !volumeResponse.ok) {
-            throw new Error(`API Error: Quote ${quoteResponse.status}, Volume ${volumeResponse.status}`);
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
         }
 
-        const quoteData = await quoteResponse.json();
-        const volumeData = await volumeResponse.json();
+        const data = await response.json();
+        console.log('Raw API Response:', data); // Debug log
 
-        console.log('Quote Data:', quoteData);
-        console.log('Volume Data:', volumeData);
-
-        // Validate and process data
-        if (!quoteData?.Price) {
-            throw new Error('Invalid price data received');
+        if (!data) {
+            throw new Error('Invalid data structure received');
         }
 
-        // Calculate values
-        const price = parseFloat(quoteData.Price);
-        const volume24h = volumeData?.Volume || quoteData.VolumeYesterdayUSD || 0;
-        const marketCap = price * (quoteData.CirculatingSupply || 589735030408322);
-
-        // Update cache
+        // Update cache with new data
         dataCache = {
-            price: price,
-            marketCap: marketCap,
-            volume: volume24h,
-            lastUpdated: quoteData.Time
+            price: parseFloat(data.Price) || 0,
+            marketCap: parseFloat(data.MarketCap) || 0,
+            volume: parseFloat(data.VolumeYesterdayUSD) || 0,
+            lastUpdated: data.Time,
+            change24h: calculatePriceChange(data.Price, data.PriceYesterday)
         };
 
-        console.log('Processed Data:', dataCache);
+        console.log('Processed Data:', dataCache); // Debug log
         updatePriceDisplay(dataCache);
         return dataCache;
 
@@ -215,21 +212,35 @@ function displayErrorState(message = 'Error loading data') {
 }
 
 // UI Updates
-// Update updatePriceDisplay function
 function updatePriceDisplay(data) {
     const elements = {
         price: { id: 'price', value: formatCryptoPrice(data.price) },
         priceMini: { id: 'price-mini', value: formatCryptoPrice(data.price) },
         marketCap: { id: 'marketCap', value: formatNumber(data.marketCap) },
-        volume: { id: 'volume', value: formatNumber(data.volume) }
+        volume: { id: 'volume', value: formatNumber(data.volume) },
+        change: { 
+            id: 'changePercent', 
+            value: `${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%`,
+            className: data.change24h >= 0 ? 'up' : 'down'
+        }
     };
 
-    Object.entries(elements).forEach(([key, { id, value }]) => {
+    Object.entries(elements).forEach(([key, { id, value, className }]) => {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = value;
+            if (className) {
+                element.className = className;
+            }
         }
     });
+
+    // Also update mini price change indicator if it exists
+    const changeMini = document.getElementById('change-mini');
+    if (changeMini) {
+        changeMini.textContent = `${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%`;
+        changeMini.className = data.change24h >= 0 ? 'up' : 'down';
+    }
 }
 
 // Alert System
@@ -265,24 +276,25 @@ function updateAlertsList() {
 }
 
 // Utility Functions
-// Update formatNumber function to handle large volumes better
 function formatNumber(num) {
     if (!num || isNaN(num)) return '$0';
     
+    // Use absolute value for formatting but keep sign for display
     const absNum = Math.abs(num);
     let formatted;
     
     if (absNum >= 1e9) {
-        formatted = `$${(absNum / 1e9).toFixed(2)}B`;
+        formatted = `${(absNum / 1e9).toFixed(2)}B`;
     } else if (absNum >= 1e6) {
-        formatted = `$${(absNum / 1e6).toFixed(2)}M`;
+        formatted = `${(absNum / 1e6).toFixed(2)}M`;
     } else if (absNum >= 1e3) {
-        formatted = `$${(absNum / 1e3).toFixed(2)}K`;
+        formatted = `${(absNum / 1e3).toFixed(2)}K`;
     } else {
-        formatted = `$${absNum.toFixed(2)}`;
+        formatted = absNum.toFixed(2);
     }
     
-    return num < 0 ? `-${formatted}` : formatted;
+    // Add dollar sign and handle negative numbers
+    return `$${num < 0 ? '-' : ''}${formatted}`;
 }
 
 function formatCryptoPrice(price) {
