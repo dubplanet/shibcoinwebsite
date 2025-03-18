@@ -255,116 +255,6 @@ body {
     font-weight: 600;
 }
 
-/* Chart Section */
-.chart-section {
-    padding: 20px 0 40px;
-}
-
-.chart-container {
-    background: rgba(30, 30, 40, 0.6);
-    border-radius: var(--border-radius);
-    padding: 20px 15px 25px 10px; /* Added more bottom padding for x-axis labels */
-    margin: 20px 0;
-    height: 400px;
-    border: 1px solid rgba(255, 215, 0, 0.15);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.chart-timeframes {
-    display: flex;
-    gap: 10px;
-}
-
-.timeframe-btn {
-    background: transparent;
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    color: #fff;
-    padding: 5px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    will-change: transform, background-color;
-}
-
-.timeframe-btn.active {
-    background: #ffd700;
-    color: #000;
-    border-color: #ffd700;
-}
-
-.chart-error {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-/* Better visibility for ApexCharts labels */
-.apexcharts-xaxis-label,
-.apexcharts-yaxis-label {
-    fill: #b0b0b0 !important;
-}
-
-/* Highlight the tooltip */
-.apexcharts-tooltip {
-    background: rgba(255, 255, 255, 0.9);
-    color: #000;
-    border-radius: 5px;
-    padding: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Chart Controls */
-.chart-controls {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
-
-.timeframe-btn {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--accent-color);
-    background: transparent;
-    color: var(--accent-color);
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    will-change: transform, background-color;
-    min-width: 60px;
-    text-align: center;
-}
-
-.timeframe-btn:hover {
-    background: rgba(255, 215, 0, 0.1);
-}
-
-.timeframe-btn.active {
-    background: var(--accent-color);
-    color: var(--primary-bg);
-}
-
-/* Accessibility improvements */
-.timeframe-btn:focus {
-    outline: 2px solid var(--accent-color);
-    outline-offset: 2px;
-}
-
-.main-nav a:focus {
-    outline: 2px solid var(--accent-color);
-    outline-offset: 2px;
-}
-
 /* Updated Footer Styles */
 footer {
     background-color: var(--primary-bg);
@@ -710,17 +600,6 @@ footer {
         font-size: 0.9rem;
         margin-right: 0.5rem;
     }
-
-    .chart-controls {
-        justify-content: center;
-        padding: 0.5rem;
-    }
-
-    .timeframe-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-        min-width: 50px;
-    }
 }
 
 /* Move all non-critical styles here */
@@ -738,18 +617,6 @@ footer {
         gap: 0.5rem;
         align-items: center;
         height: 50px;
-    }
-
-    /* Chart adjustments */
-    .chart-controls {
-        justify-content: center;
-        padding: 0.5rem;
-    }
-
-    .timeframe-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-        min-width: 50px;
     }
 
     /* Footer adjustments */
@@ -784,10 +651,6 @@ footer {
     
     .footer-card {
         padding: 20px 15px;
-    }
-
-    .chart-container {
-        padding: 15px 10px;
     }
 
     .price-content #price {

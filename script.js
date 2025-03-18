@@ -8,7 +8,6 @@ const API_HEADERS = {
 };
 
 const QUOTE_ENDPOINT = '/assetQuotation';
-const CHART_ENDPOINT = '/chart';
 const BLOCKCHAIN = 'Ethereum';
 const SHIB_ADDRESS = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE';
 
@@ -45,7 +44,6 @@ let retryCount = 0;
 function initializeContainers() {
     const containers = {
         priceContainer: document.getElementById('price'),
-        chartContainer: document.querySelector('.chart-container'),
         alertsContainer: document.getElementById('alertsList'),
         notificationContainer: document.getElementById('notificationContainer')
     };
@@ -63,14 +61,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Initialize data
         await fetchShibaData();
-        await fetchChartData('7d');
         
         // Set up refresh interval
         setInterval(fetchShibaData, 60000);
 
         // Initialize UI components
         initializeMobileMenu();
-        initializeChartTimeframes();
         initializeFAQ();
         initializeCookieConsent();
 
@@ -119,19 +115,6 @@ function handleInitializationError(error) {
     }
 }
 
-// Add chart controls initialization
-function initializeChartControls() {
-    document.querySelectorAll('.timeframe-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            document.querySelectorAll('.timeframe-btn').forEach(btn => 
-                btn.classList.remove('active')
-            );
-            this.classList.add('active');
-            fetchChartData(this.getAttribute('data-period'));
-        });
-    });
-}
-
 // Core data fetching
 // Update fetchShibaData function
 async function fetchShibaData() {
@@ -175,179 +158,6 @@ async function fetchShibaData() {
     } finally {
         if (syncIcon) syncIcon.classList.remove('updating');
     }
-}
-
-// Add the chart data fetching function
-// Update fetchChartData function
-async function fetchChartData(period = '7d') {
-    try {
-        const endDate = new Date().toISOString();
-        const startDate = getTimeStart(period);
-
-        const response = await fetch(
-            `${DIA_API_URL}/chart/${SHIB_SYMBOL}/USD/${startDate}/${endDate}`, {
-                headers: API_HEADERS
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error(`Chart data fetch failed: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Chart Data:', result); // Debug log
-
-        if (!result.Prices || !Array.isArray(result.Prices)) {
-            throw new Error('Invalid chart data structure');
-        }
-
-        const chartData = result.Prices
-            .filter(point => point && point.Price > 0)
-            .map(point => ({
-                x: new Date(point.Time).getTime(),
-                y: point.Price
-            }))
-            .sort((a, b) => a.x - b.x);
-
-        updateChart(chartData, period);
-        return chartData;
-
-    } catch (error) {
-        console.error('Chart Error:', error);
-        showChartError('Unable to load price history');
-        return null;
-    }
-}
-
-// Helper function for chart timeframes
-// Update getTimeStart function to use proper format
-function getTimeStart(period) {
-    const now = new Date();
-    const timestamp = now.getTime();
-    
-    switch (period) {
-        case '24h':
-            return new Date(timestamp - (24 * 60 * 60 * 1000)).toISOString();
-        case '7d':
-            return new Date(timestamp - (7 * 24 * 60 * 60 * 1000)).toISOString();
-        case '30d':
-            return new Date(timestamp - (30 * 24 * 60 * 60 * 1000)).toISOString();
-        case '90d':
-            return new Date(timestamp - (90 * 24 * 60 * 60 * 1000)).toISOString();
-        default:
-            return new Date(timestamp - (7 * 24 * 60 * 60 * 1000)).toISOString();
-    }
-}
-
-// Add chart update function
-// Add debug logging to help troubleshoot
-function updateChart(priceData, period) {
-    console.log(`Updating chart with ${priceData.length} data points for period: ${period}`);
-    
-    const ctx = document.getElementById('priceChart');
-    if (!ctx) {
-        console.error('Chart canvas not found');
-        return;
-    }
-
-    // Destroy existing chart if it exists
-    if (window.priceChart instanceof Chart) {
-        window.priceChart.destroy();
-    }
-
-    window.priceChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'SHIB Price (USD)',
-                data: priceData,
-                borderColor: '#ffd700',
-                backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 0,
-                pointHitRadius: 20
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            },
-            scales: {
-                x: {
-                    type: 'time',
-                    time: {
-                        unit: getPeriodUnit(period),
-                        displayFormats: {
-                            minute: 'HH:mm',
-                            hour: 'HH:mm',
-                            day: 'MMM d',
-                            week: 'MMM d',
-                            month: 'MMM yyyy'
-                        }
-                    },
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        maxRotation: 0
-                    }
-                },
-                y: {
-                    position: 'right',
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        callback: function(value) {
-                            return '$' + formatCryptoPrice(value);
-                        }
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#ffd700',
-                    bodyColor: '#ffffff',
-                    callbacks: {
-                        label: function(context) {
-                            return 'SHIB: $' + formatCryptoPrice(context.parsed.y);
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-function showChartError(message = 'Unable to load chart data') {
-    const container = document.querySelector('.chart-container');
-    if (container) {
-        container.innerHTML = `
-            <div class="chart-error">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>${message}</p>
-                <button onclick="retryChartLoad()" class="retry-btn">
-                    Try Again
-                </button>
-            </div>
-        `;
-    }
-}
-
-function retryChartLoad() {
-    const activeButton = document.querySelector('.timeframe-btn.active');
-    const period = activeButton ? activeButton.getAttribute('data-period') : '7d';
-    fetchChartData(period);
 }
 
 // Error handling
@@ -526,17 +336,6 @@ function showNotification(message, type = 'info') {
 
     container.appendChild(notification);
     setTimeout(() => notification.remove(), 5000);
-}
-
-// Add helper function for chart time units
-function getPeriodUnit(period) {
-    switch (period) {
-        case '24h': return 'hour';
-        case '7d': return 'day';
-        case '30d': return 'week';
-        case '90d': return 'month';
-        default: return 'day';
-    }
 }
 
 // Helper function to calculate price change

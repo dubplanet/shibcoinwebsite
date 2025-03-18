@@ -4,9 +4,10 @@ const CACHE_URLS = [
     '/index.html',
     '/styles.css',
     '/script.js',
-    'shiba-inu-shib-logo.png',
+    '/assets/images/shiba-inu-shib-logo.png',
     'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
+    // Removed chart.js related files
 ];
 
 self.addEventListener('install', event => {

@@ -1102,22 +1102,6 @@
             </div>
         </section>
 
-        <section class="chart-section">
-            <div class="chart-container">
-                <div class="chart-header">
-                    <h2>Price Chart</h2>
-                    <!-- Update chart timeframes to match DIAdata API capabilities -->
-                    <div class="chart-timeframes">
-                        <button class="timeframe-btn" data-period="24h">24H</button>
-                        <button class="timeframe-btn active" data-period="7d">7D</button>
-                        <button class="timeframe-btn" data-period="30d">30D</button>
-                        <button class="timeframe-btn" data-period="90d">90D</button>
-                    </div>
-                </div>
-                <canvas id="priceChart"></canvas>
-            </div>
-        </section>
-
         <!-- Latest News Section - Add this between chart and FAQ sections -->
         <section class="news-section">
             <div class="news-card">
@@ -1290,8 +1274,6 @@
 <!-- Remove all existing script tags at the bottom and replace with this organized version -->
 
 <!-- Load external dependencies first -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
 <!-- Load our main script -->
 <script src="script.js"></script>
@@ -1307,14 +1289,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Initialize core functionality
         await fetchShibaData();
-        await fetchChartData('7d');
         
         // Set up refresh interval
         setInterval(fetchShibaData, 60000);
 
         // Initialize UI components
         initializeMobileMenu();
-        initializeChartTimeframes();
         initializeFAQ();
         initializeCookieConsent();
 
@@ -1336,18 +1316,6 @@ function initializeMobileMenu() {
             mainNav.classList.toggle('active');
         });
     }
-}
-
-function initializeChartTimeframes() {
-    document.querySelectorAll('.timeframe-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            document.querySelectorAll('.timeframe-btn').forEach(btn => 
-                btn.classList.remove('active')
-            );
-            this.classList.add('active');
-            fetchChartData(this.getAttribute('data-period'));
-        });
-    });
 }
 
 function initializeFAQ() {
