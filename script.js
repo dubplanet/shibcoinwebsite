@@ -1,15 +1,12 @@
 // Global constants
 const DIA_API_URL = 'https://api.diadata.org/v1';
-const SHIB_ADDRESS = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE';
 const BLOCKCHAIN = 'Ethereum';
-const COIN_SYMBOL = 'SHIB'; // DIA uses uppercase symbols
-const API_CACHE_DURATION = 60000; // 1 minute
-const MAX_RETRIES = 3;
+const SHIB_ADDRESS = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE';
+const API_TIMEOUT = 10000;
 const API_HEADERS = {
     'Accept': 'application/json',
     'Cache-Control': 'no-cache'
 };
-const API_TIMEOUT = 10000; // 10 seconds timeout
 
 // Add after constants
 async function checkAPIStatus() {
@@ -134,31 +131,25 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        // Get current price using asset quotation endpoint
-        const priceResponse = await fetch(`${DIA_API_URL}/assetQuotation/${BLOCKCHAIN}/${SHIB_ADDRESS}`, {
+        // Use the correct DIA API endpoint
+        const response = await fetch(`${DIA_API_URL}/assetInfos/${BLOCKCHAIN}/${SHIB_ADDRESS}`, {
             headers: API_HEADERS
         });
-        
-        if (!priceResponse.ok) {
-            throw new Error(`API Error: ${priceResponse.status}`);
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
         }
 
-        const priceData = await priceResponse.json();
-        
-        if (!priceData || !Array.isArray(priceData) || priceData.length === 0) {
-            throw new Error('Invalid price data received');
-        }
+        const data = await response.json();
+        console.log('DIA API Response:', data); // Debug log
 
-        // Get latest price data (first item in array)
-        const latestPrice = priceData[0];
-
-        // Cache the data
+        // Cache the data with proper structure
         dataCache = {
-            price: latestPrice.Price,
-            marketCap: latestPrice.MarketCap || 0,
-            volume: latestPrice.Volume24 || 0,
-            lastUpdated: latestPrice.Time,
-            change24h: latestPrice.PriceChange24h || 0
+            price: data.Price,
+            marketCap: data.CirculatingSupply * data.Price,
+            volume: data.Volume24,
+            lastUpdated: data.LastUpdate,
+            change24h: calculatePriceChange(data.Price, data.PriceYesterday)
         };
 
         // Update UI
@@ -168,6 +159,7 @@ async function fetchShibaData() {
         return dataCache;
 
     } catch (error) {
+        console.error('DIA API Error:', error);
         handleFetchError(error);
         return null;
     }
@@ -181,7 +173,7 @@ async function fetchChartData(period = '7d') {
         const startDate = getTimeStart(period);
 
         const response = await fetch(
-            `${DIA_API_URL}/assetQuotation/${BLOCKCHAIN}/${SHIB_ADDRESS}?starttime=${startDate}&endtime=${endDate}`, {
+            `${DIA_API_URL}/chart/${BLOCKCHAIN}/${SHIB_ADDRESS}?starttime=${startDate}&endtime=${endDate}`, {
                 headers: API_HEADERS
             }
         );
@@ -190,29 +182,27 @@ async function fetchChartData(period = '7d') {
             throw new Error(`Chart data fetch failed: ${response.status}`);
         }
 
-        const data = await response.json();
-        
-        if (!Array.isArray(data)) {
+        const result = await response.json();
+        console.log('Chart Data Response:', result); // Debug log
+
+        if (!result || !result.Data) {
             throw new Error('Invalid chart data structure');
         }
 
-        // Transform data for chart
-        const chartData = data
-            .filter(point => point.Price > 0)
+        const chartData = result.Data
+            .filter(point => point && point.Price > 0)
             .map(point => ({
                 x: new Date(point.Time).getTime(),
                 y: point.Price
             }))
             .sort((a, b) => a.x - b.x);
 
-        if (chartData.length === 0) {
-            throw new Error('No valid price data available');
-        }
-
+        console.log(`Processed ${chartData.length} chart points`); // Debug log
         updateChart(chartData, period);
         return chartData;
+
     } catch (error) {
-        console.error('Chart error:', error);
+        console.error('Chart Error:', error);
         showChartError(`Unable to load SHIB price history: ${error.message}`);
         return null;
     }
@@ -522,5 +512,11 @@ function getPeriodUnit(period) {
         case '90d': return 'month';
         default: return 'day';
     }
+}
+
+// Helper function to calculate price change
+function calculatePriceChange(currentPrice, yesterdayPrice) {
+    if (!currentPrice || !yesterdayPrice) return 0;
+    return ((currentPrice - yesterdayPrice) / yesterdayPrice) * 100;
 }
 
