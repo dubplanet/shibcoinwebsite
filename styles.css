@@ -6,9 +6,10 @@
     --hover-color: #e5c100;
     --text-primary: #ffffff;
     --text-secondary: #aaaaaa;
-    --up-color: #00c853;
-    --down-color: #ff3d00;
+    --up-color: #00ff00;
+    --down-color: #ff0000;
     --border-radius: 12px;
+    --error-color: #ff3b3b;
 }
 
 * {
@@ -260,23 +261,13 @@ body {
 }
 
 .chart-container {
-    background-color: var(--card-bg);
-    border-radius: var(--border-radius);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    padding: 20px 15px 25px 10px; /* Added more bottom padding for x-axis labels */
-    border: 1px solid rgba(255, 215, 0, 0.1);
-    margin-bottom: 30px;
-    min-height: 400px;
-}
-
-/* Add to your existing styles */
-.chart-container {
     background: rgba(30, 30, 40, 0.6);
-    border-radius: 10px;
-    padding: 20px;
+    border-radius: var(--border-radius);
+    padding: 20px 15px 25px 10px; /* Added more bottom padding for x-axis labels */
     margin: 20px 0;
     height: 400px;
     border: 1px solid rgba(255, 215, 0, 0.15);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .chart-header {
@@ -299,6 +290,7 @@ body {
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s ease;
+    will-change: transform, background-color;
 }
 
 .timeframe-btn.active {
@@ -348,6 +340,7 @@ body {
     cursor: pointer;
     font-size: 0.9rem;
     transition: all 0.3s ease;
+    will-change: transform, background-color;
     min-width: 60px;
     text-align: center;
 }
@@ -359,6 +352,17 @@ body {
 .timeframe-btn.active {
     background: var(--accent-color);
     color: var(--primary-bg);
+}
+
+/* Accessibility improvements */
+.timeframe-btn:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.main-nav a:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
 }
 
 /* Updated Footer Styles */
@@ -724,6 +728,37 @@ footer {
     /* Mobile styles */
 }
 
+/* Consolidate mobile styles */
+@media (max-width: 768px) {
+    /* Header adjustments */
+    .header-content {
+        padding: 0.75rem 1rem;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 0.5rem;
+        align-items: center;
+        height: 50px;
+    }
+
+    /* Chart adjustments */
+    .chart-controls {
+        justify-content: center;
+        padding: 0.5rem;
+    }
+
+    .timeframe-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        min-width: 50px;
+    }
+
+    /* Footer adjustments */
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+}
+
 /* Animations */
 @keyframes float {
     0% { transform: translateY(0); }
@@ -770,8 +805,10 @@ footer {
     opacity: 0.8;
 }
 
+/* Optimize animations */
 .updating {
     animation: rotate 1s linear infinite;
+    will-change: transform;
 }
 
 @keyframes rotate {
@@ -780,9 +817,23 @@ footer {
 }
 
 .up {
-    color: #00ff00 !important; /* Bright green */
+    color: var(--up-color) !important;
 }
 
 .down {
-    color: #ff0000 !important; /* Bright red */
+    color: var(--down-color) !important;
+}
+
+.error {
+    color: var(--error-color);
+}
+
+.cached::after {
+    content: ' (cached)';
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+.error {
+    color: #ff3b3b;
 }

@@ -1,5 +1,7 @@
 // Global constants
 const DIA_API_URL = 'https://api.diadata.org/v1';
+const QUOTE_ENDPOINT = '/assetQuotation';
+const CHART_ENDPOINT = '/chart';
 const BLOCKCHAIN = 'Ethereum';
 const SHIB_ADDRESS = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE';
 const API_TIMEOUT = 10000;
@@ -131,9 +133,9 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        // Use the correct DIA API endpoint
-        const response = await fetch(`${DIA_API_URL}/assetInfos/${BLOCKCHAIN}/${SHIB_ADDRESS}`, {
-            headers: API_HEADERS
+        const response = await fetch(`${DIA_API_URL}${QUOTE_ENDPOINT}/${BLOCKCHAIN}/${SHIB_ADDRESS}`, {
+            headers: API_HEADERS,
+            timeout: API_TIMEOUT
         });
 
         if (!response.ok) {
@@ -141,27 +143,29 @@ async function fetchShibaData() {
         }
 
         const data = await response.json();
-        console.log('DIA API Response:', data); // Debug log
+        
+        // Validate data structure
+        if (!data || typeof data.Price === 'undefined') {
+            throw new Error('Invalid data structure received');
+        }
 
-        // Cache the data with proper structure
         dataCache = {
-            price: data.Price,
-            marketCap: data.CirculatingSupply * data.Price,
-            volume: data.Volume24,
-            lastUpdated: data.LastUpdate,
-            change24h: calculatePriceChange(data.Price, data.PriceYesterday)
+            price: parseFloat(data.Price) || 0,
+            marketCap: data.MarketCap || 0,
+            volume: data.Volume24 || 0,
+            lastUpdated: data.Time || new Date().toISOString(),
+            change24h: data.PriceChange24h || 0
         };
 
-        // Update UI
         updatePriceDisplay(dataCache);
-        
-        if (syncIcon) syncIcon.classList.remove('updating');
         return dataCache;
 
     } catch (error) {
         console.error('DIA API Error:', error);
         handleFetchError(error);
         return null;
+    } finally {
+        if (syncIcon) syncIcon.classList.remove('updating');
     }
 }
 
@@ -340,34 +344,21 @@ function retryChartLoad() {
 }
 
 // Error handling
+// Remove duplicate error handlers
+// Remove handleError() function since it's redundant
+// Update handleFetchError
 function handleFetchError(error) {
     const syncIcon = document.querySelector('.fa-sync-alt');
     if (syncIcon) syncIcon.classList.remove('updating');
 
-    // Check if it's a rate limit error
-    if (error.message.includes('429')) {
-        showNotification('API rate limit reached. Please try again later.', 'warning');
-    } else if (error.message.includes('403')) {
-        showNotification('API access denied. Please check credentials.', 'error');
-    } else {
-        showNotification('Unable to fetch price data.', 'error');
-    }
-
-    if (dataCache?.price) {
-        updatePriceFromCache();
-    } else {
-        displayErrorState();
-    }
-}
-
-function handleError() {
-    const syncIcon = document.querySelector('.fa-sync-alt');
-    if (syncIcon) syncIcon.classList.remove('updating');
+    console.error('Fetch error:', error);
     
     if (dataCache?.price) {
         updatePriceFromCache();
+        showNotification('Using cached data - Connection issue', 'warning');
     } else {
-        updateUIForError();
+        displayErrorState('Unable to load price data');
+        showNotification('Failed to fetch price data', 'error');
     }
 }
 
@@ -381,6 +372,24 @@ function updateUIForError() {
     };
 
     Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+            element.classList.add('error');
+        }
+    });
+}
+
+// Add missing displayErrorState function
+function displayErrorState(message = 'Error loading data') {
+    const elements = {
+        price: { id: 'price', value: message },
+        priceMini: { id: 'price-mini', value: 'Error' },
+        marketCap: { id: 'marketCap', value: '--' },
+        volume: { id: 'volume', value: '--' }
+    };
+
+    Object.entries(elements).forEach(([key, { id, value }]) => {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = value;
@@ -518,5 +527,20 @@ function getPeriodUnit(period) {
 function calculatePriceChange(currentPrice, yesterdayPrice) {
     if (!currentPrice || !yesterdayPrice) return 0;
     return ((currentPrice - yesterdayPrice) / yesterdayPrice) * 100;
+}
+
+function updatePriceFromCache() {
+    if (!dataCache) return;
+    
+    updatePriceDisplay({
+        ...dataCache,
+        isCache: true
+    });
+    
+    // Add cache indicator
+    const priceElement = document.getElementById('price');
+    if (priceElement) {
+        priceElement.classList.add('cached');
+    }
 }
 
