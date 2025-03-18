@@ -1,17 +1,16 @@
 // Global constants
 const DIA_API_URL = 'https://api.diadata.org/v1';
-const QUOTE_ENDPOINT = '/assetQuotation';
-const CHART_ENDPOINT = '/chart';
-const BLOCKCHAIN = 'Ethereum';
-const SHIB_ADDRESS = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE';
+const SHIB_SYMBOL = 'SHIB';
 const API_TIMEOUT = 10000;
 const API_HEADERS = {
     'Accept': 'application/json',
     'Cache-Control': 'no-cache'
 };
 
-// Update the constants
-const SHIB_SYMBOL = 'SHIB';
+const QUOTE_ENDPOINT = '/assetQuotation';
+const CHART_ENDPOINT = '/chart';
+const BLOCKCHAIN = 'Ethereum';
+const SHIB_ADDRESS = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE';
 
 // Add missing constants
 const MAX_RETRIES = 3;
@@ -62,42 +61,25 @@ function initializeContainers() {
 // Replace the existing initialization
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Check API availability first
-        const apiAvailable = await checkAPIStatus();
-        if (!apiAvailable) {
-            throw new Error('API is not available');
-        }
+        // Initialize data
+        await fetchShibaData();
+        await fetchChartData('7d');
+        
+        // Set up refresh interval
+        setInterval(fetchShibaData, 60000);
 
-        initializeContainers();
-        initializeEventListeners();
+        // Initialize UI components
+        initializeMobileMenu();
+        initializeChartTimeframes();
+        initializeFAQ();
+        initializeCookieConsent();
+
+        // Initialize alerts if needed
         loadSavedAlerts();
 
-        // Initial data fetch with retry logic
-        let attempts = 0;
-        let data = null;
-
-        while (!data && attempts < MAX_RETRIES) {
-            data = await fetchShibaData();
-            if (!data) {
-                attempts++;
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between retries
-            }
-        }
-
-        if (data) {
-            // Start refresh interval
-            priceRefreshInterval = setInterval(fetchShibaData, API_CACHE_DURATION);
-            
-            // Load initial chart
-            await fetchChartData('7d');
-            
-            // Initialize chart controls
-            initializeChartControls();
-        } else {
-            throw new Error('Failed to fetch initial data');
-        }
     } catch (error) {
-        handleInitializationError(error);
+        console.error('Initialization error:', error);
+        displayErrorState('Error loading data');
     }
 });
 
