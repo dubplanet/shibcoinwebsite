@@ -1,11 +1,12 @@
 // Global constants
-const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
+const COINGECKO_API_URL = '/api/coingecko'; // Use relative path for proxy
 const COIN_ID = 'shiba-inu';
 const API_CACHE_DURATION = 60000; // 1 minute
 const MAX_RETRIES = 3;
 const API_HEADERS = {
     'Accept': 'application/json',
-    'Cache-Control': 'no-cache'
+    'Cache-Control': 'no-cache',
+    'mode': 'cors'
 };
 const API_TIMEOUT = 10000; // 10 seconds timeout
 
@@ -133,7 +134,12 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false`);
+        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false`, {
+            method: 'GET',
+            headers: API_HEADERS,
+            mode: 'cors',
+            credentials: 'omit'
+        });
         
         if (!response.ok) {
             throw new Error(`API Error: ${response.status}`);
@@ -176,10 +182,7 @@ async function fetchShibaData() {
         return data;
 
     } catch (error) {
-        if (syncIcon) syncIcon.classList.remove('updating');
-        document.getElementById('price').textContent = 'Error loading price';
-        document.getElementById('price-mini').textContent = 'Error';
-        return null;
+        handleFetchError(error);
     }
 }
 
@@ -196,7 +199,10 @@ async function fetchChartData(period = '7d') {
 
         const response = await fetch(
             `${COINGECKO_API_URL}/coins/${COIN_ID}/market_chart?vs_currency=usd&days=${days}`, {
-                headers: API_HEADERS
+                method: 'GET',
+                headers: API_HEADERS,
+                mode: 'cors',
+                credentials: 'omit'
             }
         );
 
@@ -211,7 +217,6 @@ async function fetchChartData(period = '7d') {
         updateChart(data.prices, period);
         return data;
     } catch (error) {
-        console.error('Chart fetch error:', error);
         showChartError();
     }
 }
@@ -315,14 +320,14 @@ function updateChart(priceData, period) {
     });
 }
 
-function showChartError() {
+function showChartError(message = 'Unable to load chart data') {
     const container = document.querySelector('.chart-container');
     if (container) {
         container.innerHTML = `
             <div class="chart-error">
                 <i class="fas fa-exclamation-circle"></i>
-                <p>Unable to load chart data</p>
-                <button onclick="fetchChartData('7d')" class="retry-btn">
+                <p>${message}</p>
+                <button onclick="retryChartLoad()" class="retry-btn">
                     Try Again
                 </button>
             </div>
@@ -330,23 +335,36 @@ function showChartError() {
     }
 }
 
+function retryChartLoad() {
+    const activeButton = document.querySelector('.timeframe-btn.active');
+    const period = activeButton ? activeButton.getAttribute('data-period') : '7d';
+    fetchChartData(period);
+}
+
 // Error handling
 function handleFetchError(error) {
     console.error('Fetch error:', error);
     
+    // Check if it's a CORS error
+    if (error.message.includes('CORS') || error.message.includes('cross-origin')) {
+        showNotification('API access restricted. Using cached data if available.', 'warning');
+        
+        if (dataCache?.price) {
+            updatePriceFromCache();
+        } else {
+            displayErrorState('API access restricted');
+        }
+        return null;
+    }
+    
+    // Handle other errors
     if (retryCount < MAX_RETRIES) {
         retryCount++;
         setTimeout(fetchShibaData, 2000);
         return null;
     }
     
-    if (dataCache?.price) {
-        updatePriceFromCache();
-        showNotification('Using cached data', 'warning');
-    } else {
-        displayErrorState();
-        showNotification('Unable to load SHIB data', 'error');
-    }
+    displayErrorState('Unable to load data');
     return null;
 }
 
