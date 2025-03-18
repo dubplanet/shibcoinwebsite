@@ -1,4 +1,4 @@
-// Global constants
+// Global API constants - keep only these declarations
 const DIA_API_URL = 'https://api.diadata.org/v1';
 const SHIB_SYMBOL = 'SHIB';
 const API_TIMEOUT = 10000;
@@ -7,11 +7,7 @@ const API_HEADERS = {
     'Cache-Control': 'no-cache'
 };
 
-const QUOTE_ENDPOINT = '/assetQuotation';
-const BLOCKCHAIN = 'Ethereum';
-const SHIB_ADDRESS = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE';
-
-// Add missing constants
+// Cache and state management constants
 const MAX_RETRIES = 3;
 const API_CACHE_DURATION = 60000; // 1 minute
 let dataCache = null;
