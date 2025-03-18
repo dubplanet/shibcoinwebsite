@@ -1,5 +1,7 @@
 // Global constants
 const DIA_API_URL = 'https://api.diadata.org/v1';
+const SHIB_CONTRACT = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE';
+const BLOCKCHAIN = 'Ethereum';
 const COIN_SYMBOL = 'SHIB'; // DIA uses uppercase symbols
 const API_CACHE_DURATION = 60000; // 1 minute
 const MAX_RETRIES = 3;
@@ -185,7 +187,7 @@ async function fetchChartData(period = '7d') {
         const startDate = getTimeStart(period);
 
         const response = await fetch(
-            `${DIA_API_URL}/chart/SHIB/USD/${startDate}/${endDate}`, {
+            `${DIA_API_URL}/assetQuotation/${BLOCKCHAIN}/${SHIB_CONTRACT}?starttime=${startDate}&endtime=${endDate}`, {
                 headers: API_HEADERS
             }
         );
@@ -194,17 +196,21 @@ async function fetchChartData(period = '7d') {
 
         const data = await response.json();
         
-        // Transform data for chart
-        const chartData = data.Data.map(point => ({
-            timestamp: new Date(point.Time).getTime(),
-            price: point.Price
-        }));
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid chart data structure');
+        }
+
+        // Transform DIA data format for chart
+        const chartData = data.map(point => ({
+            x: new Date(point.Time).getTime(),
+            y: point.Price
+        })).sort((a, b) => a.x - b.x); // Ensure chronological order
 
         updateChart(chartData, period);
         return chartData;
     } catch (error) {
         console.error('Chart error:', error);
-        showChartError();
+        showChartError('Unable to load SHIB price history');
     }
 }
 
@@ -235,17 +241,12 @@ function updateChart(priceData, period) {
         window.priceChart.destroy();
     }
 
-    const chartData = priceData.map(({ timestamp, price }) => ({
-        x: new Date(timestamp),
-        y: price
-    }));
-
     window.priceChart = new Chart(ctx, {
         type: 'line',
         data: {
             datasets: [{
                 label: 'SHIB Price (USD)',
-                data: chartData,
+                data: priceData,
                 borderColor: '#ffd700',
                 backgroundColor: 'rgba(255, 215, 0, 0.1)',
                 borderWidth: 2,
@@ -266,11 +267,13 @@ function updateChart(priceData, period) {
                 x: {
                     type: 'time',
                     time: {
-                        unit: period === '24h' ? 'hour' : 'day',
-                        tooltipFormat: period === '24h' ? 'HH:mm' : 'MMM d',
+                        unit: getPeriodUnit(period),
                         displayFormats: {
+                            minute: 'HH:mm',
                             hour: 'HH:mm',
-                            day: 'MMM d'
+                            day: 'MMM d',
+                            week: 'MMM d',
+                            month: 'MMM yyyy'
                         }
                     },
                     grid: {
@@ -289,33 +292,21 @@ function updateChart(priceData, period) {
                     ticks: {
                         color: 'rgba(255, 255, 255, 0.7)',
                         callback: function(value) {
-                            return '$' + value.toFixed(8);
+                            return '$' + formatCryptoPrice(value);
                         }
                     }
                 }
             },
             plugins: {
-                legend: {
-                    display: false
-                },
                 tooltip: {
                     mode: 'index',
                     intersect: false,
                     backgroundColor: 'rgba(0, 0, 0, 0.8)',
                     titleColor: '#ffd700',
                     bodyColor: '#ffffff',
-                    titleFont: {
-                        size: 14,
-                        weight: 'bold'
-                    },
-                    bodyFont: {
-                        size: 13
-                    },
-                    padding: 12,
-                    displayColors: false,
                     callbacks: {
                         label: function(context) {
-                            return 'SHIB: $' + context.parsed.y.toFixed(8);
+                            return 'SHIB: $' + formatCryptoPrice(context.parsed.y);
                         }
                     }
                 }
@@ -402,18 +393,29 @@ function updatePriceDisplay(data) {
         priceMini: { id: 'price-mini', value: formatCryptoPrice(data.price) },
         marketCap: { id: 'marketCap', value: formatNumber(data.marketCap) },
         volume: { id: 'volume', value: formatNumber(data.volume) },
-        change: { id: 'changePercent', value: `${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%` }
+        change: { 
+            id: 'changePercent', 
+            value: `${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%`,
+            className: data.change24h >= 0 ? 'up' : 'down'
+        }
     };
 
-    Object.entries(elements).forEach(([key, { id, value }]) => {
+    Object.entries(elements).forEach(([key, { id, value, className }]) => {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = value;
-            if (key === 'change') {
-                element.className = data.change24h >= 0 ? 'up' : 'down';
+            if (className) {
+                element.className = className;
             }
         }
     });
+
+    // Also update mini price change indicator if it exists
+    const changeMini = document.getElementById('change-mini');
+    if (changeMini) {
+        changeMini.textContent = `${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%`;
+        changeMini.className = data.change24h >= 0 ? 'up' : 'down';
+    }
 }
 
 // Alert System
@@ -496,5 +498,16 @@ function showNotification(message, type = 'info') {
 
     container.appendChild(notification);
     setTimeout(() => notification.remove(), 5000);
+}
+
+// Add helper function for chart time units
+function getPeriodUnit(period) {
+    switch (period) {
+        case '24h': return 'hour';
+        case '7d': return 'day';
+        case '30d': return 'week';
+        case '90d': return 'month';
+        default: return 'day';
+    }
 }
 

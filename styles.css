@@ -778,3 +778,11 @@ footer {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
+.up {
+    color: #00ff00 !important; /* Bright green */
+}
+
+.down {
+    color: #ff0000 !important; /* Bright red */
+}

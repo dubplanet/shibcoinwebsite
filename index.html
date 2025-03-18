@@ -940,7 +940,7 @@
           "name": "How accurate is the SHIB price data on ShibaInuCoinTracker.com?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "ShibaInuCoinTracker.com provides real-time price data directly from the DIAdata API, which provides accurate cryptocurrency market data. Our data is updated every minute to ensure accuracy."
+            "text": "ShibaInuCoinTracker.com provides real-time price data directly from DIAdata, ensuring accurate and reliable cryptocurrency market data updated every minute."
           }
         },
         {
@@ -1156,7 +1156,7 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>ShibaInuCoinTracker.com provides real-time price data directly from the DIAdata API, which provides accurate cryptocurrency market data. Our data is updated every minute to ensure accuracy and reliability for all users tracking SHIB prices.</p>
+                        <p>ShibaInuCoinTracker.com provides real-time price data directly from DIAdata, ensuring accurate and reliable cryptocurrency market data updated every minute.</p>
                     </div>
                 </div>
                 
@@ -1249,7 +1249,7 @@
                 </div>
                 
                 <div class="footer-bottom">
-                    <p><i class="fas fa-copyright"></i> 2025 ShibaInuCoinTracker.com. Data provided by DIAdata API.</p>
+                    <p><i class="fas fa-copyright"></i> 2025 ShibaInuCoinTracker.com</p>
                 </div>
             </div>
         </div>
@@ -1282,10 +1282,8 @@
             </div>
         </div>
     </div>
-        // 1. First, make sure script.js is loaded before using fetchShibaData
-    <script src="script.js"></script>
+    <!-- Remove these duplicate script tags -->
     <script>
-        // Then initialize
         document.addEventListener('DOMContentLoaded', async () => {
             // Only initialize after script.js is loaded
             if (typeof fetchShibaData === 'function') {
@@ -1404,15 +1402,15 @@ function initializeCookieConsent() {
         }
     });
 </script>
-<!-- Update the initialization script -->
+<!-- Replace with simplified initialization -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize core functionality with DIAdata API
+    // Core functionality
     fetchShibaData();
     fetchChartData('7d');
     setInterval(fetchShibaData, 60000);
 
-    // Initialize other components
+    // Initialize UI components
     initializeMobileMenu();
     initializeChartTimeframes();
     initializeFAQ();
