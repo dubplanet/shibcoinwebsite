@@ -154,27 +154,57 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        const response = await fetch(`${DIA_API_URL}/quotation/${BLOCKCHAIN}/${SHIB_ADDRESS}`, {
-            headers: API_HEADERS
+        // Get current price and supply data
+        const [quoteResponse, supplyResponse] = await Promise.all([
+            fetch(`${DIA_API_URL}/quotation/${BLOCKCHAIN}/${SHIB_ADDRESS}`, {
+                headers: API_HEADERS
+            }),
+            fetch(`${DIA_API_URL}/supply/${BLOCKCHAIN}/${SHIB_ADDRESS}`, {
+                headers: API_HEADERS
+            })
+        ]);
+
+        if (!quoteResponse.ok || !supplyResponse.ok) {
+            throw new Error(`API Error: Quote ${quoteResponse.status}, Supply ${supplyResponse.status}`);
+        }
+
+        const quoteData = await quoteResponse.json();
+        const supplyData = await supplyResponse.json();
+
+        // Get 24h historical data for percentage change
+        const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const historicalResponse = await fetch(
+            `${DIA_API_URL}/chart/${BLOCKCHAIN}/${SHIB_ADDRESS}?starttime=${yesterday}`,
+            { headers: API_HEADERS }
+        );
+
+        if (!historicalResponse.ok) {
+            throw new Error('Failed to fetch historical data');
+        }
+
+        const historicalData = await historicalResponse.json();
+        const oldestPrice = historicalData.Data[0]?.Price || quoteData.Price;
+        
+        // Calculate market cap and 24h change
+        const circulatingSupply = parseFloat(supplyData.CirculatingSupply) || 0;
+        const currentPrice = parseFloat(quoteData.Price) || 0;
+        const marketCap = currentPrice * circulatingSupply;
+        const change24h = ((currentPrice - oldestPrice) / oldestPrice) * 100;
+
+        console.log('Price Data:', {
+            price: currentPrice,
+            marketCap: marketCap,
+            supply: circulatingSupply,
+            change24h: change24h
         });
 
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        // Validate data structure
-        if (!data || typeof data.Price === 'undefined') {
-            throw new Error('Invalid data structure received');
-        }
-
+        // Update cache with new data
         dataCache = {
-            price: parseFloat(data.Price) || 0,
-            marketCap: data.MarketCap || 0,
-            volume: data.Volume24 || 0,
-            lastUpdated: data.Time || new Date().toISOString(),
-            change24h: calculatePriceChange(data.Price, data.PriceYesterday)
+            price: currentPrice,
+            marketCap: marketCap,
+            volume: parseFloat(quoteData.Volume24) || 0,
+            lastUpdated: quoteData.Time,
+            change24h: change24h
         };
 
         updatePriceDisplay(dataCache);
@@ -483,32 +513,41 @@ function updateAlertsList() {
 }
 
 // Utility Functions
-function formatCryptoPrice(price) {
-    if (!price && price !== 0) return '0.00000000';
+function formatNumber(num) {
+    if (!num || isNaN(num)) return '$0';
     
-    if (price < 0.00001) {
-        return price.toFixed(10);
-    } else if (price < 0.0001) {
-        return price.toFixed(8);
-    } else if (price < 0.01) {
-        return price.toFixed(6);
-    } else if (price < 1) {
-        return price.toFixed(4);
+    // Use absolute value for formatting but keep sign for display
+    const absNum = Math.abs(num);
+    let formatted;
+    
+    if (absNum >= 1e9) {
+        formatted = `${(absNum / 1e9).toFixed(2)}B`;
+    } else if (absNum >= 1e6) {
+        formatted = `${(absNum / 1e6).toFixed(2)}M`;
+    } else if (absNum >= 1e3) {
+        formatted = `${(absNum / 1e3).toFixed(2)}K`;
+    } else {
+        formatted = absNum.toFixed(2);
     }
-    return price.toFixed(2); // Add missing return statement
+    
+    // Add dollar sign and handle negative numbers
+    return `$${num < 0 ? '-' : ''}${formatted}`;
 }
 
-function formatNumber(num) {
-    if (!num) return '$0';
+function formatCryptoPrice(price) {
+    if (!price || isNaN(price)) return '0.00000000';
     
-    if (num >= 1e9) {
-        return `$${(num / 1e9).toFixed(2)}B`;
-    } else if (num >= 1e6) {
-        return `$${(num / 1e6).toFixed(2)}M`;
-    } else if (num >= 1e3) {
-        return `$${(num / 1e3).toFixed(2)}K`;
+    const absPrice = Math.abs(price);
+    if (absPrice < 0.00001) {
+        return price.toFixed(10);
+    } else if (absPrice < 0.0001) {
+        return price.toFixed(8);
+    } else if (absPrice < 0.01) {
+        return price.toFixed(6);
+    } else if (absPrice < 1) {
+        return price.toFixed(4);
     }
-    return `$${num.toFixed(2)}`;
+    return price.toFixed(2);
 }
 
 // Cleanup
