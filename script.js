@@ -108,32 +108,47 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        const response = await fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
-            headers: API_HEADERS,
-            timeout: API_TIMEOUT
-        });
+        // Fetch both price and supply data in parallel
+        const [quoteResponse, supplyResponse] = await Promise.all([
+            fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
+                headers: API_HEADERS
+            }),
+            fetch(`${DIA_API_URL}/supply/${SHIB_SYMBOL}`, {
+                headers: API_HEADERS
+            })
+        ]);
 
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
+        if (!quoteResponse.ok || !supplyResponse.ok) {
+            throw new Error(`API Error: Quote ${quoteResponse.status}, Supply ${supplyResponse.status}`);
         }
 
-        const data = await response.json();
-        console.log('API Response:', data); // Debug log
+        const quoteData = await quoteResponse.json();
+        const supplyData = await supplyResponse.json();
 
-        // Validate data structure
-        if (!data || typeof data.Price === 'undefined') {
+        // Debug log
+        console.log('Quote Data:', quoteData);
+        console.log('Supply Data:', supplyData);
+
+        // Validate data
+        if (!quoteData?.Price || !supplyData?.CirculatingSupply) {
             throw new Error('Invalid data structure received');
         }
 
-        // Update cache with new data
+        // Calculate market cap
+        const price = parseFloat(quoteData.Price);
+        const circulatingSupply = parseFloat(supplyData.CirculatingSupply);
+        const marketCap = price * circulatingSupply;
+
+        // Update cache
         dataCache = {
-            price: parseFloat(data.Price) || 0,
-            marketCap: parseFloat(data.Volume24) * parseFloat(data.Price) || 0, // Estimate market cap
-            volume: parseFloat(data.Volume24) || 0,
-            lastUpdated: data.Time,
-            change24h: calculatePriceChange(data.Price, data.PriceYesterday)
+            price: price,
+            marketCap: marketCap,
+            volume: parseFloat(quoteData.Volume24) || 0,
+            lastUpdated: quoteData.Time,
+            change24h: calculatePriceChange(price, quoteData.PriceYesterday)
         };
 
+        console.log('Processed Data:', dataCache); // Debug log
         updatePriceDisplay(dataCache);
         return dataCache;
 
