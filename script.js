@@ -3,6 +3,10 @@ const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
 const COIN_ID = 'shiba-inu';
 const API_CACHE_DURATION = 60000; // 1 minute
 const MAX_RETRIES = 3;
+const API_HEADERS = {
+    'Accept': 'application/json',
+    'Cache-Control': 'no-cache'
+};
 
 // State management
 let priceAlerts = [];
@@ -16,7 +20,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         initializeContainers();
         initializeEventListeners();
         loadSavedAlerts();
-        await startDataRefresh();
+        const data = await fetchShibaData();
+        if (data) {
+            // Start refresh interval
+            priceRefreshInterval = setInterval(fetchShibaData, API_CACHE_DURATION);
+            
+            // Load initial chart
+            await fetchChartData('7d');
+            
+            // Initialize chart controls
+            document.querySelectorAll('.timeframe-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('.timeframe-btn').forEach(btn => 
+                        btn.classList.remove('active')
+                    );
+                    this.classList.add('active');
+                    fetchChartData(this.getAttribute('data-period'));
+                });
+            });
+        }
     } catch (error) {
         console.error('Initialization error:', error);
         handleError(error);
@@ -29,20 +51,138 @@ async function fetchShibaData() {
         const syncIcon = document.querySelector('.fa-sync-alt');
         if (syncIcon) syncIcon.classList.add('updating');
 
-        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false`);
-        
-        if (!response.ok) throw new Error();
+        // Add timeout protection
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=true`, {
+            signal: controller.signal,
+            headers: API_HEADERS
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
         const data = await response.json();
-        updatePriceDisplay(data);
-        updateDataCache(data);
         
+        // Validate required data
+        if (!data?.market_data?.current_price?.usd) {
+            throw new Error('Invalid data structure');
+        }
+
+        // Cache the data
+        dataCache = {
+            price: data.market_data.current_price.usd,
+            marketCap: data.market_data.market_cap.usd,
+            volume: data.market_data.total_volume.usd,
+            rank: data.market_cap_rank,
+            change24h: data.market_data.price_change_percentage_24h,
+            lastUpdated: new Date().toISOString()
+        };
+
+        // Update UI
+        updatePriceDisplay(data);
+
+        // Hide loading indicator
         if (syncIcon) syncIcon.classList.remove('updating');
+
         return data;
-    } catch {
-        handleError();
+    } catch (error) {
+        handleFetchError(error);
         return null;
     }
+}
+
+// Add the chart data fetching function
+async function fetchChartData(period = '7d') {
+    try {
+        const days = {
+            '24h': 1,
+            '7d': 7,
+            '30d': 30,
+            '90d': 90,
+            '1y': 365
+        }[period] || 7;
+
+        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}/market_chart?vs_currency=usd&days=${days}&interval=hourly`, {
+            headers: API_HEADERS
+        });
+
+        if (!response.ok) throw new Error(`Chart API Error: ${response.status}`);
+
+        const data = await response.json();
+        
+        if (!data?.prices || !Array.isArray(data.prices)) {
+            throw new Error('Invalid chart data structure');
+        }
+
+        updateChart(data.prices, period);
+        return data;
+    } catch (error) {
+        console.error('Chart fetch error:', error);
+        showChartError();
+    }
+}
+
+// Add chart update function
+function updateChart(priceData, period) {
+    const ctx = document.getElementById('priceChart');
+    if (!ctx) return;
+
+    // Destroy existing chart if it exists
+    if (window.priceChart) {
+        window.priceChart.destroy();
+    }
+
+    const chartData = priceData.map(([timestamp, price]) => ({
+        x: new Date(timestamp),
+        y: price
+    }));
+
+    window.priceChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'SHIB Price (USD)',
+                data: chartData,
+                borderColor: '#ffd700',
+                backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: period === '24h' ? 'hour' : 'day'
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
 }
 
 // Error handling
