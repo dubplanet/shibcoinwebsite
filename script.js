@@ -10,6 +10,9 @@ const API_HEADERS = {
 };
 const API_TIMEOUT = 10000; // 10 seconds timeout
 
+// Update the API URL to use proxy
+const API_URL = '/api/proxy';  // Points to your proxy endpoint
+
 // Add after constants
 async function checkAPIStatus() {
     try {
@@ -129,27 +132,30 @@ function initializeChartControls() {
 }
 
 // Core data fetching
+// Update fetchShibaData function
 async function fetchShibaData() {
     const syncIcon = document.querySelector('.fa-sync-alt');
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        const response = await fetch(`${CMC_API_URL}/cryptocurrency/quotes/latest?id=${COIN_ID}&convert=USD`, {
+        const response = await fetch(API_URL, {
             method: 'GET',
-            headers: API_HEADERS
+            headers: {
+                'Accept': 'application/json'
+            }
         });
         
         if (!response.ok) {
-            throw new Error(`CMC API Error: ${response.status}`);
+            throw new Error(`API Error: ${response.status}`);
         }
 
         const result = await response.json();
         
-        if (!result.data || !result.data[COIN_ID]) {
-            throw new Error('Invalid CMC API response structure');
+        if (!result.data || !result.data['5994']) {
+            throw new Error('Invalid API response structure');
         }
 
-        const data = result.data[COIN_ID];
+        const data = result.data['5994'];
         
         // Cache the data
         dataCache = {
@@ -343,29 +349,33 @@ function retryChartLoad() {
 
 // Error handling
 function handleFetchError(error) {
-    console.error('Fetch error:', error);
-    
-    // Check if it's a CORS error
-    if (error.message.includes('CORS') || error.message.includes('cross-origin')) {
-        showNotification('API access restricted. Using cached data if available.', 'warning');
-        
-        if (dataCache?.price) {
-            updatePriceFromCache();
-        } else {
-            displayErrorState('API access restricted');
-        }
-        return null;
+    const syncIcon = document.querySelector('.fa-sync-alt');
+    if (syncIcon) syncIcon.classList.remove('updating');
+
+    // Update UI elements with error state
+    const elements = {
+        price: document.getElementById('price'),
+        priceMini: document.getElementById('price-mini'),
+        marketCap: document.getElementById('marketCap'),
+        volume: document.getElementById('volume'),
+        rank: document.getElementById('rank'),
+        changePercent: document.getElementById('changePercent')
+    };
+
+    if (dataCache?.price) {
+        // Use cached data if available
+        updatePriceFromCache();
+        showNotification('Using cached data - Connection issue', 'warning');
+    } else {
+        // Show error state
+        Object.values(elements).forEach(el => {
+            if (el) {
+                el.textContent = 'Error';
+                el.classList.add('error');
+            }
+        });
+        showNotification('Unable to load price data', 'error');
     }
-    
-    // Handle other errors
-    if (retryCount < MAX_RETRIES) {
-        retryCount++;
-        setTimeout(fetchShibaData, 2000);
-        return null;
-    }
-    
-    displayErrorState('Unable to load data');
-    return null;
 }
 
 function handleError() {
