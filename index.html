@@ -1396,5 +1396,47 @@ function initializeCookieConsent() {
     // existing code...
 }
 </script>
+
+<script>
+// Direct FAQ implementation
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Direct FAQ initialization");
+    
+    const faqItems = document.querySelectorAll('.faq-item');
+    console.log("Found " + faqItems.length + " FAQ items");
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        const answer = item.querySelector('.faq-answer');
+        
+        // Set initial state explicitly
+        if (answer) {
+            console.log("Setting initial height for FAQ answer");
+            answer.style.height = '0px';
+            answer.style.overflow = 'hidden';
+            answer.style.transition = 'height 0.3s ease';
+            answer.style.padding = '0 1rem';
+        }
+        
+        if (question && answer) {
+            question.addEventListener('click', function() {
+                console.log("FAQ question clicked");
+                
+                // Toggle current item
+                const isActive = item.classList.contains('active');
+                item.classList.toggle('active');
+                
+                // Set height based on content
+                if (!isActive) {
+                    console.log("Opening FAQ, height:", answer.scrollHeight);
+                    answer.style.height = answer.scrollHeight + 'px';
+                } else {
+                    answer.style.height = '0px';
+                }
+            });
+        }
+    });
+});
+</script>
 </body>
 </html>
