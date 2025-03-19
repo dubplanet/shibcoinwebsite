@@ -213,18 +213,27 @@ function displayErrorState(message = 'Error loading data') {
 // UI Updates
 // Update updatePriceDisplay function to include last updated time
 function updatePriceDisplay(data) {
-    const elements = {
-        price: { id: 'price', value: formatCryptoPrice(data.price) },
-        priceMini: { id: 'price-mini', value: formatCryptoPrice(data.price) },
-        volume: { id: 'volume', value: formatNumber(data.volume) }
-    };
+    // Update price
+    const priceElement = document.getElementById('price');
+    if (priceElement) {
+        priceElement.textContent = formatCryptoPrice(data.price);
+    }
 
-    Object.entries(elements).forEach(([key, { id, value }]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = value;
-        }
-    });
+    // Update price change percentage
+    const changeElement = document.getElementById('changePercent');
+    if (changeElement) {
+        const change = data.change24h;
+        changeElement.textContent = `(${change >= 0 ? '+' : ''}${change.toFixed(2)}%)`;
+        changeElement.className = change >= 0 ? 'up' : 'down';
+    }
+
+    // Update volume change percentage
+    const volumeChangeElement = document.getElementById('volumeChangePercent');
+    if (volumeChangeElement) {
+        const volumeChange = data.volumeChange24h;
+        volumeChangeElement.textContent = `Vol ${volumeChange >= 0 ? '+' : ''}${volumeChange.toFixed(2)}%`;
+        volumeChangeElement.className = volumeChange >= 0 ? 'up' : 'down';
+    }
 
     // Update last updated timestamp
     const lastUpdateElement = document.getElementById('lastUpdate');

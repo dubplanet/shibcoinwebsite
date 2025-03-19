@@ -883,6 +883,29 @@
                 font-size: 1.1rem;
             }
         }
+
+        .price-change {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        #changePercent, #volumeChangePercent {
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .up {
+            color: #00ff00;
+        }
+
+        .down {
+            color: #ff0000;
+        }
     </style>
 
     <!-- Structured Data -->
@@ -1065,8 +1088,8 @@
                         <span id="price">$0.00000000</span>
                     </div>
                     <div class="price-change">
-                        <span id="priceChange">$0.00000000</span>
                         <span id="changePercent">(0.00%)</span>
+                        <span id="volumeChangePercent">(0.00%)</span>
                     </div>
                 </div>
             </div>
