@@ -1079,7 +1079,7 @@
         <!-- Navigation -->
         <nav class="main-nav">
             <ul>
-                <li><a href="index.html" class="active"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
                 <li><a href="blog.html"><i class="fas fa-newspaper"></i> News</a></li>
             </ul>
         </nav>
@@ -1399,7 +1399,8 @@ function initializeMobileMenu() {
             menuToggle.classList.toggle('active');
             mainNav.classList.toggle('active');
             overlay.classList.toggle('active');
-            body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden'; // Lock scrolling
+            body.classList.toggle('menu-open'); // Add blur effect to the body
+            body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden';
         });
 
         // Close menu when clicking overlay
@@ -1429,6 +1430,7 @@ function closeMenu(menuToggle, mainNav, overlay, body) {
     menuToggle.classList.remove('active');
     mainNav.classList.remove('active');
     overlay.classList.remove('active');
+    body.classList.remove('menu-open'); // Remove blur effect
     body.style.overflow = ''; // Unlock scrolling
 }
 
