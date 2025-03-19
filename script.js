@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         initializeFAQ();
         initializeCookieConsent();
 
-        // Initialize alerts if needed
+        // Initialize alerts
         loadSavedAlerts();
 
     } catch (error) {
@@ -118,39 +118,28 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        // Fetch both quote and volume data
-        const [quoteResponse, volumeResponse] = await Promise.all([
-            fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
-                headers: API_HEADERS
-            }),
-            fetch(`${DIA_API_URL}/volume/${SHIB_SYMBOL}/24h`, {
-                headers: API_HEADERS
-            })
-        ]);
+        // Only fetch quote data since volume endpoint is not available
+        const quoteResponse = await fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
+            headers: API_HEADERS
+        });
 
-        if (!quoteResponse.ok || !volumeResponse.ok) {
+        if (!quoteResponse.ok) {
             throw new Error(`API Error: ${quoteResponse.status}`);
         }
 
         const quoteData = await quoteResponse.json();
-        const volumeData = await volumeResponse.json();
-
         console.log('Quote Data:', quoteData);
-        console.log('Volume Data:', volumeData);
 
         // Calculate values
         const currentPrice = parseFloat(quoteData.Price) || 0;
         const yesterdayPrice = parseFloat(quoteData.PriceYesterday) || currentPrice;
-        const volume24h = parseFloat(volumeData?.Volume) || 0;
         const change24h = calculatePriceChange(currentPrice, yesterdayPrice);
 
         // Update cache with validated data
         dataCache = {
             price: currentPrice,
-            volume: volume24h,
             lastUpdated: quoteData.Time || new Date().toISOString(),
-            change24h: change24h,
-            volumeChange24h: change24h // Using price change as volume change
+            change24h: change24h
         };
 
         console.log('Processed Data:', dataCache);
@@ -409,6 +398,20 @@ function formatLastUpdated(timestamp) {
         return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
     } else {
         return date.toLocaleTimeString();
+    }
+}
+
+// Add the missing loadSavedAlerts function
+function loadSavedAlerts() {
+    try {
+        const saved = localStorage.getItem('priceAlerts');
+        if (saved) {
+            priceAlerts = JSON.parse(saved);
+            updateAlertsList();
+        }
+    } catch (error) {
+        console.error('Failed to load saved alerts:', error);
+        priceAlerts = [];
     }
 }
 
