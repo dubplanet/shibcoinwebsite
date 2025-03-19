@@ -415,17 +415,28 @@ function initializeFAQ() {
     
     faqItems.forEach(item => {
         const question = item.querySelector('.faq-question');
+        const answer = item.querySelector('.faq-answer');
         
         question.addEventListener('click', () => {
             // Close other open items
             faqItems.forEach(otherItem => {
                 if (otherItem !== item && otherItem.classList.contains('active')) {
                     otherItem.classList.remove('active');
+                    const otherAnswer = otherItem.querySelector('.faq-answer');
+                    otherAnswer.style.maxHeight = '0';
                 }
             });
             
             // Toggle current item
+            const isOpen = item.classList.contains('active');
             item.classList.toggle('active');
+            
+            // Animate answer height
+            if (!isOpen) {
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+            } else {
+                answer.style.maxHeight = '0';
+            }
         });
     });
 }
