@@ -826,5 +826,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create the flowing indicator element
+    const nav = document.querySelector('.main-nav ul');
+    const indicator = document.createElement('div');
+    indicator.className = 'nav-indicator';
+    nav.appendChild(indicator);
+    
+    // Function to position the indicator
+    function positionIndicator() {
+        const activeLink = document.querySelector('.main-nav a.active');
+        if (activeLink) {
+            const rect = activeLink.getBoundingClientRect();
+            const navRect = nav.getBoundingClientRect();
+            
+            indicator.style.width = `${rect.width}px`;
+            indicator.style.left = `${rect.left - navRect.left}px`;
+        }
+    }
+    
+    // Position indicator on load
+    setTimeout(positionIndicator, 100);
+    
+    // Update indicator position on window resize
+    window.addEventListener('resize', positionIndicator);
+    
+    // Animate indicator on hover
+    const links = document.querySelectorAll('.main-nav a');
+    links.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            const rect = this.getBoundingClientRect();
+            const navRect = nav.getBoundingClientRect();
+            
+            indicator.style.width = `${rect.width}px`;
+            indicator.style.left = `${rect.left - navRect.left}px`;
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            positionIndicator();
+        });
+    });
+});
+</script>
 </body>
 </html>
