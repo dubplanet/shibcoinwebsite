@@ -63,7 +63,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Initialize UI components
         initializeMobileMenu();
-        initializeFAQ();
         initializeCookieConsent();
 
     } catch (error) {
@@ -408,48 +407,5 @@ function loadSavedAlerts() {
         console.error('Failed to load saved alerts:', error);
         priceAlerts = [];
     }
-}
-
-function initializeFAQ() {
-    const faqItems = document.querySelectorAll('.faq-item');
-    console.log('Initializing FAQ with', faqItems.length, 'items');
-    
-    faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question');
-        const answer = item.querySelector('.faq-answer');
-        
-        // Set initial state explicitly
-        if (answer) {
-            answer.style.height = '0px';
-            answer.style.overflow = 'hidden';
-        }
-        
-        if (question && answer) {
-            question.addEventListener('click', function(e) {
-                console.log('FAQ question clicked!');
-                
-                // Close all other open FAQs
-                faqItems.forEach(otherItem => {
-                    if (otherItem !== item && otherItem.classList.contains('active')) {
-                        otherItem.classList.remove('active');
-                        const otherAnswer = otherItem.querySelector('.faq-answer');
-                        if (otherAnswer) otherAnswer.style.height = '0px';
-                    }
-                });
-                
-                // Toggle current FAQ - THIS WAS MISSING
-                const isActive = item.classList.contains('active');
-                item.classList.toggle('active');
-                
-                // Set content height or collapse - THIS WAS MISSING
-                if (!isActive) {
-                    console.log('Opening FAQ, height:', answer.scrollHeight);
-                    answer.style.height = answer.scrollHeight + 'px';
-                } else {
-                    answer.style.height = '0px';
-                }
-            });
-        }
-    });
 }
 

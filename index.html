@@ -1004,40 +1004,6 @@
     }
     </script>
 
-    <!-- FAQ structured data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What is Shiba Inu (SHIB) cryptocurrency?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Shiba Inu (SHIB) is a decentralized cryptocurrency created in August 2020 as an Ethereum-based alternative to Dogecoin. It's nicknamed the 'Dogecoin killer' and features a Shiba Inu dog as its mascot."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How accurate is the SHIB price data on ShibaInuCoinTracker.com?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "ShibaInuCoinTracker.com provides real-time price data directly from DIAdata, ensuring accurate and reliable cryptocurrency market data updated every minute."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How can I buy Shiba Inu (SHIB)?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "You can purchase SHIB on popular cryptocurrency exchanges like Binance, Coinbase, Kraken, and KuCoin. You'll need to create an account, verify your identity, deposit funds, and then place an order to buy SHIB."
-          }
-        }
-      ]
-    }
-    </script>
-
     <!-- Critical CSS inline -->
     <style>
         /* Only include critical above-the-fold styles here */
@@ -1178,87 +1144,6 @@
             </div>
         </section>
 
-        <section class="faq-section">
-        <div class="faq-card">
-            <div class="faq-header">
-                <h2>Frequently Asked Questions</h2>
-            </div>
-            <div class="faq-content">
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>What is Shiba Inu (SHIB) cryptocurrency?</h3>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Shiba Inu (SHIB) is a decentralized cryptocurrency created in August 2020 as an Ethereum-based alternative to Dogecoin. It's nicknamed the 'Dogecoin killer' and features a Shiba Inu dog as its mascot. SHIB is an ERC-20 token that operates on the Ethereum blockchain.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>How accurate is the SHIB price data on site?</h3>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>ShibaInuCoinTracker.com provides real-time price data directly from DIAdata, ensuring accurate and reliable cryptocurrency market data updated every minute.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>How can I buy Shiba Inu (SHIB)?</h3>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>You can purchase SHIB on popular cryptocurrency exchanges like Binance, Coinbase, Kraken, and KuCoin. You'll need to create an account, verify your identity, deposit funds, and then place an order to buy SHIB. Always research the best exchange options based on your location and preferred payment methods.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>What factors influence SHIB's price?</h3>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>SHIB's price is influenced by several factors including overall market sentiment, Bitcoin's price movement, development progress within the Shiba Inu ecosystem, token burns, social media attention (especially from influential figures), exchange listings, and broader economic trends affecting the cryptocurrency market.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>What is the relationship between SHIB and other tokens like LEASH and BONE?</h3>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>SHIB, LEASH, and BONE are all part of the Shiba Inu ecosystem. While SHIB is the primary token, LEASH (originally created as a rebase token) and BONE (governance token) serve different purposes within the ecosystem. BONE allows holders to vote on proposals in the community's governance system, while LEASH has a significantly lower supply and different tokenomics.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>Is this website affiliated with the official Shiba Inu team?</h3>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>No, ShibaInuCoinTracker.com is not affiliated with the official Shiba Inu development team. We are an independent price tracking service dedicated to providing accurate and timely information about SHIB cryptocurrency to enthusiasts and investors.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>What is Shiba Inu?</h3>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Your answer text here</p>
-                    </div>
-                </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
 <!-- Add these containers just before the footer -->
 <div id="notificationContainer" class="notification-container"></div>
 <div id="alertsList" class="alerts-list"></div>
@@ -1392,51 +1277,6 @@ function initializeMobileMenu() {
 function initializeCookieConsent() {
     // existing code...
 }
-</script>
-
-<script>
-(function() {
-    console.log("Applying FAQ height fix");
-
-    // Direct DOM access with no dependencies
-    const faqItems = document.querySelectorAll('.faq-item');
-    console.log("Found", faqItems.length, "FAQ items");
-
-    // First hide all answers with inline styles
-    document.querySelectorAll('.faq-answer').forEach(function(answer) {
-        answer.style.height = '0';
-        answer.style.overflow = 'hidden';
-    });
-
-    // Add click handlers with height manipulation
-    document.querySelectorAll('.faq-question').forEach(function(question) {
-        question.addEventListener('click', function() {
-            console.log("FAQ clicked");
-            const parentItem = this.parentElement;
-            const answer = parentItem.querySelector('.faq-answer');
-            
-            // Close other items
-            document.querySelectorAll('.faq-item').forEach(function(item) {
-                if (item !== parentItem && item.classList.contains('active')) {
-                    item.classList.remove('active');
-                    const itemAnswer = item.querySelector('.faq-answer');
-                    if (itemAnswer) itemAnswer.style.height = '0';
-                }
-            });
-            
-            // Toggle current item
-            const isActive = parentItem.classList.contains('active');
-            
-            if (isActive) {
-                parentItem.classList.remove('active');
-                answer.style.height = '0';
-            } else {
-                parentItem.classList.add('active');
-                answer.style.height = answer.scrollHeight + 'px';
-            }
-        });
-    });
-})();
 </script>
 </body>
 </html>
