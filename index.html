@@ -1181,7 +1181,7 @@
         <section class="faq-section">
         <div class="faq-card">
             <div class="faq-header">
-                <h2></i>Frequently Asked Questions</h2>
+                <h2>Frequently Asked Questions</h2>
             </div>
             <div class="faq-content">
                 <div class="faq-item">
@@ -1367,7 +1367,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Initialize UI components
         initializeMobileMenu();
-        initializeFAQ();
+        initializeFAQ(); // This now calls the fixed version from script.js
         initializeCookieConsent();
 
     } catch (error) {
@@ -1390,32 +1390,10 @@ function initializeMobileMenu() {
     }
 }
 
-function initializeFAQ() {
-    document.querySelectorAll('.faq-question').forEach(question => {
-        question.addEventListener('click', function() {
-            const parent = this.parentElement;
-            const answer = this.nextElementSibling;
-            parent.classList.toggle('active');
-            answer.style.height = parent.classList.contains('active') ? 
-                `${answer.scrollHeight}px` : '0';
-        });
-    });
-}
+// REMOVE THE initializeFAQ FUNCTION FROM HERE
 
 function initializeCookieConsent() {
-    const cookieConsent = document.getElementById('cookieConsent');
-    const cookieAccept = document.getElementById('cookieAccept');
-    
-    if (!localStorage.getItem('cookieConsent')) {
-        setTimeout(() => cookieConsent.classList.add('active'), 1000);
-    }
-    
-    cookieAccept?.addEventListener('click', () => {
-        localStorage.setItem('cookieConsent', 'accepted');
-        cookieConsent.classList.remove('active');
-        cookieConsent.classList.add('closing');
-        setTimeout(() => cookieConsent.style.display = 'none', 500);
-    });
+    // existing code...
 }
 </script>
 </body>

@@ -418,9 +418,9 @@ function initializeFAQ() {
     faqItems.forEach(item => {
         const answer = item.querySelector('.faq-answer');
         if (answer) {
+            // Set initial height
             answer.style.height = '0px';
             answer.style.overflow = 'hidden';
-            // Ensure transition is applied
             answer.style.transition = 'height 0.3s ease';
         }
     });
@@ -432,12 +432,14 @@ function initializeFAQ() {
             const faqItem = this.parentElement;
             const answer = faqItem.querySelector('.faq-answer');
             
+            if (!answer) return;
+            
             // First close all other open questions
             faqItems.forEach(item => {
                 if (item !== faqItem && item.classList.contains('active')) {
                     item.classList.remove('active');
-                    const openAnswer = item.querySelector('.faq-answer');
-                    if (openAnswer) openAnswer.style.height = '0px';
+                    const otherAnswer = item.querySelector('.faq-answer');
+                    if (otherAnswer) otherAnswer.style.height = '0px';
                 }
             });
             
