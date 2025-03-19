@@ -1396,43 +1396,43 @@ function initializeCookieConsent() {
 
 <script>
 (function() {
-    console.log("Applying ultra-simple FAQ fix");
+    console.log("Applying FAQ height fix");
 
     // Direct DOM access with no dependencies
     const faqItems = document.querySelectorAll('.faq-item');
     console.log("Found", faqItems.length, "FAQ items");
 
-    // First hide all answers with inline styles (overrides any CSS)
+    // First hide all answers with inline styles
     document.querySelectorAll('.faq-answer').forEach(function(answer) {
-        answer.style.display = 'none';
+        answer.style.height = '0';
+        answer.style.overflow = 'hidden';
     });
 
-    // Add click handlers with direct style manipulation
+    // Add click handlers with height manipulation
     document.querySelectorAll('.faq-question').forEach(function(question) {
         question.addEventListener('click', function() {
             console.log("FAQ clicked");
             const parentItem = this.parentElement;
             const answer = parentItem.querySelector('.faq-answer');
             
-            // Toggle arrow for all items
+            // Close other items
             document.querySelectorAll('.faq-item').forEach(function(item) {
                 if (item !== parentItem && item.classList.contains('active')) {
                     item.classList.remove('active');
                     const itemAnswer = item.querySelector('.faq-answer');
-                    if (itemAnswer) itemAnswer.style.display = 'none';
+                    if (itemAnswer) itemAnswer.style.height = '0';
                 }
             });
             
-            // Check if currently active
+            // Toggle current item
             const isActive = parentItem.classList.contains('active');
             
-            // Toggle current item state
             if (isActive) {
                 parentItem.classList.remove('active');
-                answer.style.display = 'none';
+                answer.style.height = '0';
             } else {
                 parentItem.classList.add('active');
-                answer.style.display = 'block';
+                answer.style.height = answer.scrollHeight + 'px';
             }
         });
     });
