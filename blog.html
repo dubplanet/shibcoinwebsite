@@ -776,6 +776,14 @@
         font-size: 1.1rem;
         padding: 0.8rem 1.2rem;
         width: 100%;
+        color: #ffffff;
+        text-decoration: none;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+    
+    .main-nav a:hover {
+        background: rgba(255, 215, 0, 0.2);
+        color: #ffd700;
     }
     
     /* Overlay for when menu is open */
@@ -879,6 +887,32 @@
     z-index: 1001; /* Ensure the overlay is above the hero section */
 }
 </style>
+<style>
+/* Enhance overlay visuals */
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4); /* Make the overlay less dark */
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.menu-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Add a subtle blur effect to the background when the menu is open */
+body.menu-open {
+    filter: blur(4px);
+    transition: filter 0.3s ease;
+}
+</style>
 </head>
 <body>
     <!-- Update header section -->
@@ -891,14 +925,14 @@
                     <span>SHIB Tracker</span>
                 </a>
             </div>
-            
-            <!-- Hamburger Menu Button (Mobile Only) -->
+
+            <!-- Hamburger Menu Button -->
             <button id="menuToggle" class="menu-toggle">
                 <span></span>
                 <span></span>
                 <span></span>
             </button>
-            
+
             <!-- Navigation -->
             <nav class="main-nav">
                 <ul>
@@ -912,7 +946,7 @@
     <div class="hero-section">
         <div class="container">
             <div class="hero-content">
-                <h1>SHIBA INU<span class="accent"> NEWS & UPDATES</span></h1>
+                <h1>SHIBA INU <span class="accent"> NEWS & UPDATES</span></h1>
                 <p>Stay informed with the latest SHIB news, market analysis, and ecosystem updates</p>
                 <!-- Add last updated section -->
                 <div class="updated">
@@ -1002,63 +1036,57 @@ function initializeMobileMenu() {
     const menuToggle = document.getElementById('menuToggle');
     const mainNav = document.querySelector('.main-nav');
     const body = document.body;
-    
+
     // Create overlay element
     const overlay = document.createElement('div');
     overlay.className = 'menu-overlay';
     body.appendChild(overlay);
-    
+
     // Toggle menu when hamburger is clicked
     if (menuToggle && mainNav) {
         menuToggle.addEventListener('click', () => {
             menuToggle.classList.toggle('active');
             mainNav.classList.toggle('active');
             overlay.classList.toggle('active');
+            body.classList.toggle('menu-open'); // Add blur effect to the body
             body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden';
         });
-        
+
         // Close menu when clicking overlay
         overlay.addEventListener('click', () => {
-            menuToggle.classList.remove('active');
-            mainNav.classList.remove('active');
-            overlay.classList.remove('active');
-            body.style.overflow = '';
+            closeMenu(menuToggle, mainNav, overlay, body);
         });
-        
+
         // Close menu when clicking menu items
         const menuItems = mainNav.querySelectorAll('a');
         menuItems.forEach(item => {
             item.addEventListener('click', () => {
-                menuToggle.classList.remove('active');
-                mainNav.classList.remove('active');
-                overlay.classList.remove('active');
-                body.style.overflow = '';
+                closeMenu(menuToggle, mainNav, overlay, body);
             });
         });
-        
+
         // Close menu on resize if screen becomes larger
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768 && mainNav.classList.contains('active')) {
-                menuToggle.classList.remove('active');
-                mainNav.classList.remove('active');
-                overlay.classList.remove('active');
-                body.style.overflow = '';
+                closeMenu(menuToggle, mainNav, overlay, body);
             }
         });
     }
 }
 
-// Make sure to call initializeMobileMenu() when the page loads
+// Helper function to close the menu
+function closeMenu(menuToggle, mainNav, overlay, body) {
+    menuToggle.classList.remove('active');
+    mainNav.classList.remove('active');
+    overlay.classList.remove('active');
+    body.classList.remove('menu-open'); // Remove blur effect
+    body.style.overflow = '';
+}
+
+// Initialize the mobile menu
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        // Initialize mobile menu (only call this once)
         initializeMobileMenu();
-        
-        // Set static last updated time
-        const lastUpdateElement = document.getElementById('lastUpdate');
-        if (lastUpdateElement) {
-            lastUpdateElement.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
-        }
     } catch (error) {
         console.error('Initialization error:', error);
     }
