@@ -1290,3 +1290,11 @@ body.menu-open {
     filter: blur(2px);
     transition: filter 0.3s ease;
 }
+
+.main-nav {
+    z-index: 1002; /* Ensure the mobile menu is above the overlay */
+}
+
+.menu-overlay {
+    z-index: 1001; /* Ensure the overlay is below the menu */
+}

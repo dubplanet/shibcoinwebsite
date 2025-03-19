@@ -72,14 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        initializeMobileMenu();
-    } catch (error) {
-        console.error('Initialization error:', error);
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
     const priceElement = document.getElementById('price-mini');
     if (priceElement) {
         // Example: Set the price value dynamically
