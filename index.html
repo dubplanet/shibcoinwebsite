@@ -1438,5 +1438,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<script>
+// SUPER SIMPLE FAQ TOGGLE
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.faq-question').forEach(function(question) {
+        question.onclick = function() {
+            // Toggle active class on parent
+            this.parentElement.classList.toggle('active');
+        };
+    });
+});
+</script>
 </body>
 </html>
