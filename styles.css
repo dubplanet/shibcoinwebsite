@@ -1122,3 +1122,32 @@ footer {
 .faq-item.active .fa-chevron-down {
     transform: rotate(180deg);
 }
+
+/* Essential FAQ styles */
+.faq-answer {
+    overflow: hidden;
+    height: 0;
+    transition: height 0.3s ease-in-out;
+}
+
+.faq-question {
+    cursor: pointer;
+    position: relative;
+}
+
+.faq-question h3 {
+    margin: 0;
+    padding: 1rem 2rem 1rem 1rem;
+}
+
+.faq-question .fa-chevron-down {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+}
+
+.faq-item.active .fa-chevron-down {
+    transform: translateY(-50%) rotate(180deg);
+}

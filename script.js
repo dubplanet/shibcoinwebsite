@@ -414,20 +414,14 @@ function initializeFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
     console.log('Initializing FAQ with', faqItems.length, 'items');
     
-    // Set initial state for all answers
     faqItems.forEach(item => {
-        const answer = item.querySelector('.faq-answer');
-        if (answer) {
-            // Set initial height
-            answer.style.height = '0px';
-            answer.style.overflow = 'hidden';
-            answer.style.transition = 'height 0.3s ease';
-        }
-        
-        // Add click event listener to each question
         const question = item.querySelector('.faq-question');
-        if (question) {
-            question.addEventListener('click', () => {
+        const answer = item.querySelector('.faq-answer');
+        
+        if (question && answer) {
+            question.addEventListener('click', function(e) {
+                console.log('FAQ question clicked!'); // Add this debug line
+                
                 // Close all other open FAQs
                 faqItems.forEach(otherItem => {
                     if (otherItem !== item && otherItem.classList.contains('active')) {
@@ -443,6 +437,7 @@ function initializeFAQ() {
                 
                 // Set content height or collapse
                 if (!isActive) {
+                    console.log('Opening FAQ, height:', answer.scrollHeight); // Add this debug line
                     answer.style.height = answer.scrollHeight + 'px';
                 } else {
                     answer.style.height = '0px';

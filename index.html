@@ -1396,5 +1396,30 @@ function initializeCookieConsent() {
     // existing code...
 }
 </script>
+
+<script>
+    // Direct FAQ test
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Testing FAQ functionality directly");
+        
+        document.querySelectorAll('.faq-question').forEach(function(question) {
+            question.addEventListener('click', function() {
+                console.log("FAQ clicked directly");
+                const item = this.parentElement;
+                const answer = item.querySelector('.faq-answer');
+                
+                // Toggle active class
+                item.classList.toggle('active');
+                
+                // Expand or collapse
+                if(item.classList.contains('active')) {
+                    answer.style.height = answer.scrollHeight + 'px';
+                } else {
+                    answer.style.height = '0px';
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
