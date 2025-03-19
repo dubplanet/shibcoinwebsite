@@ -908,10 +908,10 @@
 }
 
 /* Add a subtle blur effect to the background when the menu is open */
-body.menu-open {
+/* Removed the blur effect and transition */
     /* filter: blur(4px); */
     /* transition: filter 0.3s ease; */
-}
+
 </style>
 </head>
 <body>
@@ -1048,8 +1048,7 @@ function initializeMobileMenu() {
             menuToggle.classList.toggle('active');
             mainNav.classList.toggle('active');
             overlay.classList.toggle('active');
-            body.classList.toggle('menu-open'); // Add blur effect to the body
-            body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden';
+            body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden'; // Lock scrolling
         });
 
         // Close menu when clicking overlay
@@ -1079,8 +1078,7 @@ function closeMenu(menuToggle, mainNav, overlay, body) {
     menuToggle.classList.remove('active');
     mainNav.classList.remove('active');
     overlay.classList.remove('active');
-    body.classList.remove('menu-open'); // Remove blur effect
-    body.style.overflow = '';
+    body.style.overflow = ''; // Unlock scrolling
 }
 
 // Initialize the mobile menu
