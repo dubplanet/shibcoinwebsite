@@ -55,7 +55,7 @@ function initializeContainers() {
 // Replace the existing initialization
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Initialize data
+        // Initialize price data
         await fetchShibaData();
         
         // Set up refresh interval
@@ -65,9 +65,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         initializeMobileMenu();
         initializeFAQ();
         initializeCookieConsent();
-
-        // Initialize alerts
-        loadSavedAlerts();
 
     } catch (error) {
         console.error('Initialization error:', error);
@@ -118,28 +115,30 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        // Only fetch quote data since volume endpoint is not available
-        const quoteResponse = await fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
+        // Only fetch quote data
+        const response = await fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
             headers: API_HEADERS
         });
 
-        if (!quoteResponse.ok) {
-            throw new Error(`API Error: ${quoteResponse.status}`);
+        const data = await response.json();
+        console.log('API Response:', data);
+
+        // Check if data structure is valid
+        if (!data || !data.Price) {
+            throw new Error('Invalid data structure received');
         }
 
-        const quoteData = await quoteResponse.json();
-        console.log('Quote Data:', quoteData);
-
         // Calculate values
-        const currentPrice = parseFloat(quoteData.Price) || 0;
-        const yesterdayPrice = parseFloat(quoteData.PriceYesterday) || currentPrice;
+        const currentPrice = parseFloat(data.Price) || 0;
+        const yesterdayPrice = parseFloat(data.PriceYesterday) || currentPrice;
         const change24h = calculatePriceChange(currentPrice, yesterdayPrice);
 
         // Update cache with validated data
         dataCache = {
             price: currentPrice,
-            lastUpdated: quoteData.Time || new Date().toISOString(),
-            change24h: change24h
+            lastUpdated: data.Time || new Date().toISOString(),
+            change24h: change24h,
+            volume: parseFloat(data.VolumeYesterdayUSD) || 0
         };
 
         console.log('Processed Data:', dataCache);
@@ -160,17 +159,13 @@ async function fetchShibaData() {
 // Remove handleError() function since it's redundant
 // Update handleFetchError
 function handleFetchError(error) {
-    const syncIcon = document.querySelector('.fa-sync-alt');
-    if (syncIcon) syncIcon.classList.remove('updating');
-
     console.error('Fetch error:', error);
     
     if (dataCache?.price) {
         updatePriceFromCache();
-        showNotification('Using cached data - Connection issue', 'warning');
+        showNotification('Using cached data', 'warning');
     } else {
         displayErrorState('Unable to load price data');
-        showNotification('Failed to fetch price data', 'error');
     }
 }
 
