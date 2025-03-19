@@ -1069,10 +1069,12 @@
             </a>
         </div>
 
-        <!-- Current Value (Mini Price) -->
-        <div class="mini-price">
-            <span id="price-mini">Loading...</span>
-        </div>
+        <!-- Hamburger Menu Button -->
+        <button id="menuToggle" class="menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
         <!-- Navigation -->
         <nav class="main-nav">
@@ -1384,18 +1386,60 @@ document.addEventListener('DOMContentLoaded', async () => {
 function initializeMobileMenu() {
     const menuToggle = document.getElementById('menuToggle');
     const mainNav = document.querySelector('.main-nav');
-    
+    const body = document.body;
+
+    // Create overlay element
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+    body.appendChild(overlay);
+
+    // Toggle menu when hamburger is clicked
     if (menuToggle && mainNav) {
         menuToggle.addEventListener('click', () => {
             menuToggle.classList.toggle('active');
             mainNav.classList.toggle('active');
+            overlay.classList.toggle('active');
+            body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden'; // Lock scrolling
+        });
+
+        // Close menu when clicking overlay
+        overlay.addEventListener('click', () => {
+            closeMenu(menuToggle, mainNav, overlay, body);
+        });
+
+        // Close menu when clicking menu items
+        const menuItems = mainNav.querySelectorAll('a');
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                closeMenu(menuToggle, mainNav, overlay, body);
+            });
+        });
+
+        // Close menu on resize if screen becomes larger
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768 && mainNav.classList.contains('active')) {
+                closeMenu(menuToggle, mainNav, overlay, body);
+            }
         });
     }
 }
 
-function initializeCookieConsent() {
-    // existing code...
+// Helper function to close the menu
+function closeMenu(menuToggle, mainNav, overlay, body) {
+    menuToggle.classList.remove('active');
+    mainNav.classList.remove('active');
+    overlay.classList.remove('active');
+    body.style.overflow = ''; // Unlock scrolling
 }
+
+// Initialize the mobile menu
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        initializeMobileMenu();
+    } catch (error) {
+        console.error('Initialization error:', error);
+    }
+});
 </script>
 
 <!-- Add this script at the bottom of your HTML file, before the closing body tag -->
