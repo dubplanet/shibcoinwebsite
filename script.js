@@ -418,9 +418,15 @@ function initializeFAQ() {
         const question = item.querySelector('.faq-question');
         const answer = item.querySelector('.faq-answer');
         
+        // Set initial state explicitly
+        if (answer) {
+            answer.style.height = '0px';
+            answer.style.overflow = 'hidden';
+        }
+        
         if (question && answer) {
             question.addEventListener('click', function(e) {
-                console.log('FAQ question clicked!'); // Add this debug line
+                console.log('FAQ question clicked!');
                 
                 // Close all other open FAQs
                 faqItems.forEach(otherItem => {
@@ -431,13 +437,13 @@ function initializeFAQ() {
                     }
                 });
                 
-                // Toggle current FAQ
+                // Toggle current FAQ - THIS WAS MISSING
                 const isActive = item.classList.contains('active');
                 item.classList.toggle('active');
                 
-                // Set content height or collapse
+                // Set content height or collapse - THIS WAS MISSING
                 if (!isActive) {
-                    console.log('Opening FAQ, height:', answer.scrollHeight); // Add this debug line
+                    console.log('Opening FAQ, height:', answer.scrollHeight);
                     answer.style.height = answer.scrollHeight + 'px';
                 } else {
                     answer.style.height = '0px';
