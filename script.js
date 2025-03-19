@@ -417,27 +417,33 @@ function initializeFAQ() {
         const question = item.querySelector('.faq-question');
         const answer = item.querySelector('.faq-answer');
         
-        question.addEventListener('click', () => {
-            // Close other open items
-            faqItems.forEach(otherItem => {
-                if (otherItem !== item && otherItem.classList.contains('active')) {
-                    otherItem.classList.remove('active');
-                    const otherAnswer = otherItem.querySelector('.faq-answer');
-                    otherAnswer.style.maxHeight = '0';
+        if (question && answer) {
+            // Initially set height to 0
+            answer.style.height = '0';
+            answer.style.overflow = 'hidden';
+            
+            question.addEventListener('click', () => {
+                // Close other open FAQs
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item && otherItem.classList.contains('active')) {
+                        const otherAnswer = otherItem.querySelector('.faq-answer');
+                        otherItem.classList.remove('active');
+                        otherAnswer.style.height = '0';
+                    }
+                });
+
+                // Toggle current FAQ
+                const isOpen = item.classList.contains('active');
+                item.classList.toggle('active');
+                
+                // Set height based on content
+                if (!isOpen) {
+                    answer.style.height = answer.scrollHeight + 'px';
+                } else {
+                    answer.style.height = '0';
                 }
             });
-            
-            // Toggle current item
-            const isOpen = item.classList.contains('active');
-            item.classList.toggle('active');
-            
-            // Animate answer height
-            if (!isOpen) {
-                answer.style.maxHeight = answer.scrollHeight + 'px';
-            } else {
-                answer.style.maxHeight = '0';
-            }
-        });
+        }
     });
 }
 

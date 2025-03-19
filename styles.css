@@ -421,77 +421,69 @@ footer {
 
 /* FAQ Section Styling */
 .faq-section {
-    padding: 40px 0;
+    padding: 2rem 0;
     max-width: 800px;
     margin: 0 auto;
 }
 
 .faq-card {
-    background-color: var(--card-bg);
+    background: var(--card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    padding: 25px;
+    padding: 2rem;
     border: 1px solid rgba(255, 215, 0, 0.15);
-    margin-bottom: 30px;
-}
-
-/* FAQ Styles */
-.faq-section {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 0 1rem;
 }
 
 .faq-item {
-    background: rgba(30, 30, 40, 0.6);
-    border-radius: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 1rem;
-    overflow: hidden;
 }
 
 .faq-question {
-    padding: 1.2rem;
+    padding: 1rem;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    transition: background-color 0.3s ease;
 }
 
 .faq-question h3 {
     margin: 0;
     font-size: 1.1rem;
-    font-weight: 500;
     color: var(--text-primary);
-}
-
-.faq-question i {
-    color: var(--accent-color);
-    transition: transform 0.3s ease;
+    flex: 1;
+    padding-right: 1rem;
 }
 
 .faq-answer {
-    max-height: 0;
+    transition: height 0.3s ease-out;
+    height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-in-out;
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.faq-item.active .faq-answer {
-    max-height: 500px; /* Large enough to fit content */
-}
-
-.faq-item.active .faq-question i {
-    transform: rotate(180deg);
 }
 
 .faq-answer p {
-    padding: 1.2rem;
-    margin: 0;
+    padding: 1rem;
     color: var(--text-secondary);
     line-height: 1.6;
+}
+
+.fa-chevron-down {
+    transition: transform 0.3s ease;
+    color: var(--accent-color);
+}
+
+.faq-item.active .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .faq-card {
+        padding: 1rem;
+    }
+
+    .faq-question h3 {
+        font-size: 1rem;
+    }
 }
 
 /* FAQ Section Styling */
@@ -566,13 +558,6 @@ footer {
     border-radius: var(--border-radius);
     padding: 2rem;
     border: 1px solid rgba(255, 215, 0, 0.15);
-}
-
-.faq-header h2 {
-    color: var(--accent-color);
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-    text-align: center;
 }
 
 .faq-item {
