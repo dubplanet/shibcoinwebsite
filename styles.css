@@ -137,10 +137,12 @@ body {
 .updated {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     font-size: 0.9rem;
     color: var(--text-secondary);
-    margin-top: 1rem;
+    margin: 1rem auto;
+    text-align: center;
 }
 
 .fa-sync-alt {
@@ -865,5 +867,93 @@ footer {
 
     .stat-value {
         font-size: 1.2rem;
+    }
+}
+
+/* Price display mobile optimization */
+@media (max-width: 768px) {
+    .price-section {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .price-card, .stat-box {
+        margin: 0;
+        padding: 8px 12px;
+        flex: 1;
+        min-width: auto;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
+
+    .stat-value {
+        font-size: 0.9rem;
+    }
+
+    #price {
+        font-size: 1rem;
+    }
+
+    .currency {
+        font-size: 0.7rem;
+    }
+
+    .mini-price {
+        padding: 4px 8px;
+    }
+
+    #price-mini {
+        font-size: 0.8rem;
+    }
+
+    .price-header h2 {
+        font-size: 0.9rem;
+    }
+
+    .updated {
+        font-size: 0.7rem;
+    }
+
+    .header-content {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+}
+
+/* Additional tweaks for very small screens */
+@media (max-width: 380px) {
+    .price-section {
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .stat-value {
+        font-size: 0.8rem;
+    }
+
+    #price {
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+    .updated {
+        font-size: 0.8rem;
+        margin: 0.75rem auto;
+    }
+}
+
+@media (max-width: 380px) {
+    .updated {
+        font-size: 0.7rem;
+        margin: 0.5rem auto;
     }
 }
