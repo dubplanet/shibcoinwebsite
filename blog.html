@@ -678,6 +678,126 @@
         }
     }
 </style>
+<style>
+/* Mobile Menu Styles */
+.menu-toggle {
+    display: none; /* Hidden by default */
+    background: transparent;
+    border: none;
+    width: 40px;
+    height: 40px;
+    position: relative;
+    cursor: pointer;
+    z-index: 1010;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: #ffffff;
+    position: absolute;
+    left: 8px;
+    transition: all 0.3s ease;
+}
+
+.menu-toggle span:nth-child(1) {
+    top: 14px;
+}
+
+.menu-toggle span:nth-child(2) {
+    top: 20px;
+}
+
+.menu-toggle span:nth-child(3) {
+    top: 26px;
+}
+
+.menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg);
+    top: 20px;
+    background: #ffd700;
+}
+
+.menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+    background: #ffd700;
+}
+
+.menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg);
+    top: 20px;
+    background: #ffd700;
+}
+
+/* Mobile Menu Adjustments */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+        position: absolute;
+        right: 20px;
+        top: 15px;
+    }
+    
+    .header-content {
+        grid-template-columns: 1fr;
+        position: relative;
+    }
+    
+    .main-nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background: rgba(15, 15, 25, 0.98);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        padding: 80px 20px 30px;
+        transition: right 0.3s ease;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+        overflow-y: auto;
+    }
+    
+    .main-nav.active {
+        right: 0;
+    }
+    
+    .main-nav ul {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: flex-start;
+    }
+    
+    .main-nav a {
+        font-size: 1.1rem;
+        padding: 0.8rem 1.2rem;
+        width: 100%;
+    }
+    
+    /* Overlay for when menu is open */
+    .menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+</style>
 </head>
 <body>
     <!-- Update header section -->
@@ -690,6 +810,13 @@
                     <span>SHIB Tracker</span>
                 </a>
             </div>
+            
+            <!-- Hamburger Menu Button (Mobile Only) -->
+            <button id="menuToggle" class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             
             <!-- Navigation -->
             <nav class="main-nav">
@@ -809,9 +936,68 @@
     });
     </script>
     <script>
+function initializeMobileMenu() {
+    const menuToggle = document.getElementById('menuToggle');
+    const mainNav = document.querySelector('.main-nav');
+    const body = document.body;
+    
+    // Create overlay element
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+    body.appendChild(overlay);
+    
+    // Toggle menu when hamburger is clicked
+    if (menuToggle && mainNav) {
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mainNav.classList.toggle('active');
+            overlay.classList.toggle('active');
+            body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden';
+        });
+        
+        // Close menu when clicking overlay
+        overlay.addEventListener('click', () => {
+            menuToggle.classList.remove('active');
+            mainNav.classList.remove('active');
+            overlay.classList.remove('active');
+            body.style.overflow = '';
+        });
+        
+        // Close menu when clicking menu items
+        const menuItems = mainNav.querySelectorAll('a');
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                mainNav.classList.remove('active');
+                overlay.classList.remove('active');
+                body.style.overflow = '';
+            });
+        });
+        
+        // Close menu on resize if screen becomes larger
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768 && mainNav.classList.contains('active')) {
+                menuToggle.classList.remove('active');
+                mainNav.classList.remove('active');
+                overlay.classList.remove('active');
+                body.style.overflow = '';
+            }
+        });
+    }
+}
+
+// Make sure to call initializeMobileMenu() when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Your existing code
+    
+    // Initialize mobile menu
+    initializeMobileMenu();
+});
+</script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        // Initialize UI components
+        // Initialize mobile menu
         initializeMobileMenu();
         
         // Set static last updated time
