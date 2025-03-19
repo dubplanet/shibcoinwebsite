@@ -816,9 +816,21 @@
     }
 
     .hero-section {
-        margin-top: 80px; /* Increased margin to prevent overlap */
+        margin-top: 80px; /* Ensure enough space below the fixed header */
+        background: linear-gradient(to bottom, rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 0.85));
+        padding: 4rem 0 2rem;
+        text-align: center;
         position: relative;
-        z-index: 1; /* Lower than header z-index */
+        border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+        perspective: 1000px;
+        z-index: 1; /* Ensure it doesn't overlap the header */
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            margin-top: 70px; /* Adjust for mobile */
+            padding: 3rem 0 1.5rem;
+        }
     }
 
     /* Make sure header content is accessible */
@@ -837,6 +849,35 @@
             z-index: 1002; /* Higher than overlay */
         }
     }
+</style>
+<style>
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(20, 20, 30, 0.95);
+    z-index: 1000; /* Ensure it stays above other elements */
+    backdrop-filter: blur(10px);
+}
+
+.header-content {
+    position: relative;
+    z-index: 1001; /* Ensure header content is above other elements */
+}
+</style>
+<style>
+.menu-toggle {
+    z-index: 1010; /* Ensure the hamburger menu is above everything */
+}
+
+.main-nav {
+    z-index: 1002; /* Ensure the mobile menu is above the hero section */
+}
+
+.menu-overlay {
+    z-index: 1001; /* Ensure the overlay is above the hero section */
+}
 </style>
 </head>
 <body>
@@ -868,7 +909,6 @@
         </div>
     </header>
 
-    <!-- Hero section -->
     <div class="hero-section">
         <div class="container">
             <div class="hero-content">

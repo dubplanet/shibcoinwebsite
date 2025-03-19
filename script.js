@@ -71,6 +71,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        initializeMobileMenu();
+    } catch (error) {
+        console.error('Initialization error:', error);
+    }
+});
+
 // Add initialization error handler
 function handleInitializationError(error) {
     console.error('Initialization error:', error);
