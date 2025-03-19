@@ -818,7 +818,7 @@ footer {
 
 .stat-label {
     display: block;
-    color: var(--text-secondary);
+    color: var (--text-secondary);
     font-size: 1.1rem;
     margin-bottom: 1rem;
     text-transform: uppercase;
@@ -956,5 +956,83 @@ footer {
     .updated {
         font-size: 0.7rem;
         margin: 0.5rem auto;
+    }
+}
+
+/* Mobile Header Styles */
+@media (max-width: 768px) {
+    .header-content {
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+        padding: 0.75rem 1rem;
+        align-items: center;
+    }
+
+    .mini-price {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 8px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        margin-right: 10px;
+    }
+
+    #price-mini, .currency {
+        font-size: 0.85rem;
+        line-height: 1;
+    }
+
+    /* Price Section Mobile Layout */
+    .price-section {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .price-card, .stat-box {
+        width: 100%;
+        margin: 0;
+        padding: 1.25rem;
+    }
+
+    /* Ensure boxes have consistent styling */
+    .price-card, .stat-box {
+        background: rgba(30, 30, 40, 0.6);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 215, 0, 0.15);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Price content alignment */
+    .price-content {
+        text-align: center;
+    }
+
+    .current-price {
+        margin-bottom: 0.5rem;
+    }
+
+    #price {
+        font-size: 1.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Logo adjustments */
+    .logo img {
+        height: 28px;
+    }
+
+    .logo span {
+        font-size: 0.9rem;
     }
 }
