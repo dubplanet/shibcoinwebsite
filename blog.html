@@ -798,6 +798,46 @@
     }
 }
 </style>
+<style>
+    /* Fixed header and hero section positioning */
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .site-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(20, 20, 30, 0.95);
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-section {
+        margin-top: 80px; /* Increased margin to prevent overlap */
+        position: relative;
+        z-index: 1; /* Lower than header z-index */
+    }
+
+    /* Make sure header content is accessible */
+    .header-content {
+        position: relative;
+        z-index: 1001; /* Higher than other elements */
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            margin-top: 70px; /* Adjust for mobile */
+        }
+        
+        /* Fix mobile menu positioning */
+        .main-nav {
+            z-index: 1002; /* Higher than overlay */
+        }
+    }
+</style>
 </head>
 <body>
     <!-- Update header section -->
@@ -918,24 +958,6 @@
     <script src="blog.js"></script>
     <script src="script.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            // Initialize UI components
-            initializeMobileMenu();
-            
-            // Update last updated time
-            const lastUpdateElement = document.getElementById('lastUpdate');
-            if (lastUpdateElement) {
-                lastUpdateElement.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
-            }
-
-        } catch (error) {
-            console.error('Initialization error:', error);
-            displayErrorState('Error loading data');
-        }
-    });
-    </script>
-    <script>
 function initializeMobileMenu() {
     const menuToggle = document.getElementById('menuToggle');
     const mainNav = document.querySelector('.main-nav');
@@ -988,16 +1010,8 @@ function initializeMobileMenu() {
 
 // Make sure to call initializeMobileMenu() when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    // Your existing code
-    
-    // Initialize mobile menu
-    initializeMobileMenu();
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
     try {
-        // Initialize mobile menu
+        // Initialize mobile menu (only call this once)
         initializeMobileMenu();
         
         // Set static last updated time
