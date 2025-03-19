@@ -1367,7 +1367,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Initialize UI components
         initializeMobileMenu();
-        initializeFAQ(); // This now calls the fixed version from script.js
         initializeCookieConsent();
 
     } catch (error) {
@@ -1390,63 +1389,43 @@ function initializeMobileMenu() {
     }
 }
 
-// REMOVE THE initializeFAQ FUNCTION FROM HERE
-
 function initializeCookieConsent() {
     // existing code...
 }
 </script>
 
 <script>
-// Direct FAQ implementation
+// DEFINITIVE FAQ SOLUTION
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("Direct FAQ initialization");
-    
-    const faqItems = document.querySelectorAll('.faq-item');
-    console.log("Found " + faqItems.length + " FAQ items");
-    
-    faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question');
-        const answer = item.querySelector('.faq-answer');
-        
-        // Set initial state explicitly
-        if (answer) {
-            console.log("Setting initial height for FAQ answer");
-            answer.style.height = '0px';
-            answer.style.overflow = 'hidden';
-            answer.style.transition = 'height 0.3s ease';
-            answer.style.padding = '0 1rem';
+    // Use display toggle instead of height for simpler implementation
+    const faqStyles = document.createElement('style');
+    faqStyles.innerHTML = `
+        .faq-answer {
+            display: none;
+            padding: 0 1rem 1rem 1rem;
         }
-        
-        if (question && answer) {
-            question.addEventListener('click', function() {
-                console.log("FAQ question clicked");
-                
-                // Toggle current item
-                const isActive = item.classList.contains('active');
-                item.classList.toggle('active');
-                
-                // Set height based on content
-                if (!isActive) {
-                    console.log("Opening FAQ, height:", answer.scrollHeight);
-                    answer.style.height = answer.scrollHeight + 'px';
-                } else {
-                    answer.style.height = '0px';
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+    `;
+    document.head.appendChild(faqStyles);
+    
+    // Add click handlers to all FAQ questions
+    document.querySelectorAll('.faq-question').forEach(question => {
+        question.addEventListener('click', function() {
+            // Get parent item
+            const item = this.parentElement;
+            
+            // Close all other items
+            document.querySelectorAll('.faq-item.active').forEach(activeItem => {
+                if (activeItem !== item) {
+                    activeItem.classList.remove('active');
                 }
             });
-        }
-    });
-});
-</script>
-
-<script>
-// SUPER SIMPLE FAQ TOGGLE
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.faq-question').forEach(function(question) {
-        question.onclick = function() {
-            // Toggle active class on parent
-            this.parentElement.classList.toggle('active');
-        };
+            
+            // Toggle current item
+            item.classList.toggle('active');
+        });
     });
 });
 </script>
