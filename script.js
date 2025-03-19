@@ -417,3 +417,57 @@ function loadSavedAlerts() {
     }
 }
 
+function initializeMobileMenu() {
+    const menuToggle = document.getElementById('menuToggle');
+    const mainNav = document.querySelector('.main-nav');
+    const body = document.body;
+
+    // Debug logging
+    console.log('Menu toggle:', menuToggle);
+    console.log('Main nav:', mainNav);
+
+    // Create overlay element
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+    body.appendChild(overlay);
+
+    if (menuToggle && mainNav) {
+        // Toggle menu when hamburger is clicked
+        menuToggle.addEventListener('click', () => {
+            console.log('Menu clicked');
+            menuToggle.classList.toggle('active');
+            mainNav.classList.toggle('active');
+            overlay.classList.toggle('active');
+            body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden';
+        });
+
+        // Close menu when clicking overlay
+        overlay.addEventListener('click', () => {
+            closeMenu(menuToggle, mainNav, overlay, body);
+        });
+
+        // Close menu when clicking menu items
+        const menuItems = mainNav.querySelectorAll('a');
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                closeMenu(menuToggle, mainNav, overlay, body);
+            });
+        });
+
+        // Close menu on resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768 && mainNav.classList.contains('active')) {
+                closeMenu(menuToggle, mainNav, overlay, body);
+            }
+        });
+    }
+}
+
+// Add missing closeMenu function
+function closeMenu(menuToggle, mainNav, overlay, body) {
+    menuToggle.classList.remove('active');
+    mainNav.classList.remove('active');
+    overlay.classList.remove('active');
+    body.style.overflow = '';
+}
+

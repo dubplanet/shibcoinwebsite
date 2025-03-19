@@ -1298,3 +1298,47 @@ body.menu-open {
 .menu-overlay {
     z-index: 1001; /* Ensure the overlay is below the menu */
 }
+
+/* Mobile Menu Styles */
+@media (max-width: 768px) {
+    .main-nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background: rgba(15, 15, 25, 0.98);
+        backdrop-filter: blur(10px);
+        z-index: 1002;
+        padding: 80px 20px 30px;
+        transition: all 0.3s ease;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .main-nav.active {
+        right: 0;
+    }
+
+    .main-nav ul {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .main-nav ul li a {
+        color: #ffffff;
+        font-size: 1.1rem;
+        padding: 0.8rem 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .main-nav ul li a:hover {
+        color: #ffd700;
+        background: rgba(255, 215, 0, 0.1);
+        border-radius: 4px;
+    }
+}
