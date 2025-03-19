@@ -101,11 +101,12 @@ body {
 .mini-price {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0.5rem;
+    font-size: 0.9rem;
 }
 
 #price-mini {
-    font-weight: 600;
+    color: #ffd700;
 }
 
 .positive, .change-positive {
