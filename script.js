@@ -411,31 +411,41 @@ function loadSavedAlerts() {
 }
 
 function initializeFAQ() {
-    const faqQuestions = document.querySelectorAll('.faq-question');
-
-    faqQuestions.forEach(question => {
-        question.addEventListener('click', () => {
-            const faqItem = question.closest('.faq-item');
-            const faqAnswer = faqItem.querySelector('.faq-answer');
-            const isCurrentlyActive = faqItem.classList.contains('active');
-
-            // Close all other FAQ items
-            document.querySelectorAll('.faq-item').forEach(item => {
-                if (item !== faqItem) {
-                    item.classList.remove('active');
-                    item.querySelector('.faq-answer').style.maxHeight = null;
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        const answer = item.querySelector('.faq-answer');
+        
+        if (question && answer) {
+            // Set initial state
+            answer.style.height = '0px';
+            
+            question.addEventListener('click', () => {
+                // Toggle active class
+                const isActive = item.classList.contains('active');
+                
+                // Close all other FAQ items
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item && otherItem.classList.contains('active')) {
+                        otherItem.classList.remove('active');
+                        const otherAnswer = otherItem.querySelector('.faq-answer');
+                        otherAnswer.style.height = '0px';
+                    }
+                });
+                
+                // Toggle current item
+                item.classList.toggle('active');
+                
+                // Calculate and set height
+                if (!isActive) {
+                    const contentHeight = answer.scrollHeight;
+                    answer.style.height = contentHeight + 'px';
+                } else {
+                    answer.style.height = '0px';
                 }
             });
-
-            // Toggle the clicked FAQ item
-            faqItem.classList.toggle('active');
-
-            if (isCurrentlyActive) {
-                faqAnswer.style.maxHeight = null;
-            } else {
-                faqAnswer.style.maxHeight = faqAnswer.scrollHeight + 'px';
-            }
-        });
+        }
     });
 }
 
