@@ -1430,5 +1430,42 @@ function initializeCookieConsent() {
     });
 })();
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Select all FAQ items
+    const faqItems = document.querySelectorAll('.faq-item');
+
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        const answer = item.querySelector('.faq-answer');
+
+        // Set initial height to 0
+        answer.style.height = '0px';
+
+        question.addEventListener('click', function () {
+            // Close all other open FAQs
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item && otherItem.classList.contains('active')) {
+                    otherItem.classList.remove('active');
+                    const otherAnswer = otherItem.querySelector('.faq-answer');
+                    otherAnswer.style.height = '0px';
+                }
+            });
+
+            // Toggle the clicked FAQ
+            const isActive = item.classList.contains('active');
+            item.classList.toggle('active');
+
+            // Adjust height for the answer
+            if (isActive) {
+                answer.style.height = '0px';
+            } else {
+                answer.style.height = `${answer.scrollHeight}px`;
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>

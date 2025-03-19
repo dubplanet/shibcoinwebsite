@@ -892,3 +892,31 @@ footer {
         font-size: 0.9rem;
     }
 }
+
+/* FAQ Section Styles */
+.faq-answer {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.3s ease;
+    padding: 0 1rem;
+}
+
+.faq-answer p {
+    margin: 0;
+    padding: 1rem 0;
+    opacity: 0.8;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.faq-item.active .faq-answer {
+    height: auto; /* Allow height to expand */
+}
+
+.faq-item .fa-chevron-down {
+    transition: transform 0.3s ease;
+}
+
+.faq-item.active .fa-chevron-down {
+    transform: rotate(180deg);
+}
