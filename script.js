@@ -411,28 +411,43 @@ function loadSavedAlerts() {
 }
 
 function initializeFAQ() {
-    document.querySelectorAll('.faq-item').forEach(item => {
-        const question = item.querySelector('.faq-question');
+    const faqItems = document.querySelectorAll('.faq-item');
+    console.log('Initializing FAQ with', faqItems.length, 'items');
+    
+    // Set initial state for all answers
+    faqItems.forEach(item => {
         const answer = item.querySelector('.faq-answer');
-        
-        // Set initial state
-        answer.style.height = '0px';
-        answer.style.overflow = 'hidden';
-        
-        question.addEventListener('click', () => {
-            // Close all other items
-            document.querySelectorAll('.faq-item.active').forEach(openItem => {
-                if (openItem !== item) {
-                    openItem.classList.remove('active');
-                    openItem.querySelector('.faq-answer').style.height = '0px';
+        if (answer) {
+            answer.style.height = '0px';
+            answer.style.overflow = 'hidden';
+            // Ensure transition is applied
+            answer.style.transition = 'height 0.3s ease';
+        }
+    });
+    
+    // Add click event listeners
+    document.querySelectorAll('.faq-question').forEach(question => {
+        question.addEventListener('click', function() {
+            console.log('FAQ question clicked');
+            const faqItem = this.parentElement;
+            const answer = faqItem.querySelector('.faq-answer');
+            
+            // First close all other open questions
+            faqItems.forEach(item => {
+                if (item !== faqItem && item.classList.contains('active')) {
+                    item.classList.remove('active');
+                    const openAnswer = item.querySelector('.faq-answer');
+                    if (openAnswer) openAnswer.style.height = '0px';
                 }
             });
             
-            // Toggle current item
-            item.classList.toggle('active');
+            // Then toggle the clicked one
+            const isActive = faqItem.classList.contains('active');
+            faqItem.classList.toggle('active');
             
-            // Set height or collapse
-            if (item.classList.contains('active')) {
+            // Update height based on new state
+            if (!isActive) {
+                console.log('Opening FAQ answer, height:', answer.scrollHeight);
                 answer.style.height = answer.scrollHeight + 'px';
             } else {
                 answer.style.height = '0px';

@@ -1112,3 +1112,13 @@ footer {
         font-size: 1rem;
     }
 }
+
+/* FAQ fixes */
+.faq-answer {
+    transition: height 0.3s ease;
+    overflow: hidden;
+}
+
+.faq-item.active .fa-chevron-down {
+    transform: rotate(180deg);
+}
