@@ -118,37 +118,42 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        const response = await fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
-            headers: API_HEADERS
-        });
+        // Fetch both quote and volume data
+        const [quoteResponse, volumeResponse] = await Promise.all([
+            fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
+                headers: API_HEADERS
+            }),
+            fetch(`${DIA_API_URL}/volume/${SHIB_SYMBOL}/24h`, {
+                headers: API_HEADERS
+            })
+        ]);
 
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
+        if (!quoteResponse.ok || !volumeResponse.ok) {
+            throw new Error(`API Error: ${quoteResponse.status}`);
         }
 
-        const data = await response.json();
-        console.log('Raw API Response:', data); // Debug log
+        const quoteData = await quoteResponse.json();
+        const volumeData = await volumeResponse.json();
 
-        // Validate and process data
-        if (!data || typeof data.Price === 'undefined') {
-            throw new Error('Invalid data structure received');
-        }
+        console.log('Quote Data:', quoteData);
+        console.log('Volume Data:', volumeData);
 
-        // Calculate changes
-        const currentPrice = parseFloat(data.Price) || 0;
-        const yesterdayPrice = parseFloat(data.PriceYesterday) || currentPrice;
+        // Calculate values
+        const currentPrice = parseFloat(quoteData.Price) || 0;
+        const yesterdayPrice = parseFloat(quoteData.PriceYesterday) || currentPrice;
+        const volume24h = parseFloat(volumeData?.Volume) || 0;
         const change24h = calculatePriceChange(currentPrice, yesterdayPrice);
 
         // Update cache with validated data
         dataCache = {
             price: currentPrice,
-            volume: parseFloat(data.VolumeYesterdayUSD) || 0,
-            lastUpdated: data.Time || new Date().toISOString(),
+            volume: volume24h,
+            lastUpdated: quoteData.Time || new Date().toISOString(),
             change24h: change24h,
-            volumeChange24h: 0 // Initialize to 0 if not available
+            volumeChange24h: change24h // Using price change as volume change
         };
 
-        console.log('Processed Data:', dataCache); // Debug log
+        console.log('Processed Data:', dataCache);
         updatePriceDisplay(dataCache);
         return dataCache;
 
@@ -218,48 +223,38 @@ function displayErrorState(message = 'Error loading data') {
 // UI Updates
 // Update updatePriceDisplay function to include last updated time
 function updatePriceDisplay(data) {
-    // Validate input data
     if (!data) {
         console.error('No data provided to updatePriceDisplay');
         displayErrorState();
         return;
     }
 
-    // Update price with validation
-    const priceElement = document.getElementById('price');
-    if (priceElement) {
-        priceElement.textContent = formatCryptoPrice(data.price);
-    }
+    // Update main price display
+    const elements = {
+        price: { id: 'price', value: formatCryptoPrice(data.price) },
+        priceMini: { id: 'price-mini', value: formatCryptoPrice(data.price) },
+        volume: { id: 'volume', value: formatNumber(data.volume) },
+        changePercent: { 
+            id: 'changePercent', 
+            value: `(${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%)`,
+            className: data.change24h >= 0 ? 'up' : 'down'
+        }
+    };
 
-    // Update price change percentage with validation
-    const changeElement = document.getElementById('changePercent');
-    if (changeElement && typeof data.change24h !== 'undefined') {
-        const change = parseFloat(data.change24h) || 0;
-        changeElement.textContent = `(${change >= 0 ? '+' : ''}${change.toFixed(2)}%)`;
-        changeElement.className = change >= 0 ? 'up' : 'down';
-    }
+    Object.entries(elements).forEach(([key, { id, value, className }]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+            if (className) {
+                element.className = className;
+            }
+        }
+    });
 
-    // Update volume change percentage with validation
-    const volumeChangeElement = document.getElementById('volumeChangePercent');
-    if (volumeChangeElement && typeof data.volumeChange24h !== 'undefined') {
-        const volumeChange = parseFloat(data.volumeChange24h) || 0;
-        volumeChangeElement.textContent = `Vol (${volumeChange >= 0 ? '+' : ''}${volumeChange.toFixed(2)}%)`;
-        volumeChangeElement.className = volumeChange >= 0 ? 'up' : 'down';
-    }
-
-    // Update last updated timestamp
+    // Update last updated time
     const lastUpdateElement = document.getElementById('lastUpdate');
-    if (lastUpdateElement && data.lastUpdated) {
-        const timestamp = new Date(data.lastUpdated);
-        lastUpdateElement.textContent = `Last updated: ${formatLastUpdated(timestamp)}`;
-    }
-
-    // Update sync icon
-    const syncIcon = document.querySelector('.fa-sync-alt');
-    if (syncIcon) {
-        syncIcon.classList.remove('updating');
-        syncIcon.classList.add('updated');
-        setTimeout(() => syncIcon.classList.remove('updated'), 1000);
+    if (lastUpdateElement) {
+        lastUpdateElement.textContent = `Last updated: ${formatLastUpdated(data.lastUpdated)}`;
     }
 }
 
