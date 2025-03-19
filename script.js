@@ -118,7 +118,6 @@ async function fetchShibaData() {
     if (syncIcon) syncIcon.classList.add('updating');
 
     try {
-        // Get current price data using the correct endpoint
         const response = await fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
             headers: API_HEADERS
         });
@@ -130,17 +129,23 @@ async function fetchShibaData() {
         const data = await response.json();
         console.log('Raw API Response:', data); // Debug log
 
-        if (!data) {
+        // Validate and process data
+        if (!data || typeof data.Price === 'undefined') {
             throw new Error('Invalid data structure received');
         }
 
-        // Update cache with new data
+        // Calculate changes
+        const currentPrice = parseFloat(data.Price) || 0;
+        const yesterdayPrice = parseFloat(data.PriceYesterday) || currentPrice;
+        const change24h = calculatePriceChange(currentPrice, yesterdayPrice);
+
+        // Update cache with validated data
         dataCache = {
-            price: parseFloat(data.Price) || 0,
-            marketCap: parseFloat(data.MarketCap) || 0,
+            price: currentPrice,
             volume: parseFloat(data.VolumeYesterdayUSD) || 0,
-            lastUpdated: data.Time,
-            change24h: calculatePriceChange(data.Price, data.PriceYesterday)
+            lastUpdated: data.Time || new Date().toISOString(),
+            change24h: change24h,
+            volumeChange24h: 0 // Initialize to 0 if not available
         };
 
         console.log('Processed Data:', dataCache); // Debug log
@@ -213,41 +218,46 @@ function displayErrorState(message = 'Error loading data') {
 // UI Updates
 // Update updatePriceDisplay function to include last updated time
 function updatePriceDisplay(data) {
-    // Update price
+    // Validate input data
+    if (!data) {
+        console.error('No data provided to updatePriceDisplay');
+        displayErrorState();
+        return;
+    }
+
+    // Update price with validation
     const priceElement = document.getElementById('price');
     if (priceElement) {
         priceElement.textContent = formatCryptoPrice(data.price);
     }
 
-    // Update price change percentage
+    // Update price change percentage with validation
     const changeElement = document.getElementById('changePercent');
-    if (changeElement) {
-        const change = data.change24h;
+    if (changeElement && typeof data.change24h !== 'undefined') {
+        const change = parseFloat(data.change24h) || 0;
         changeElement.textContent = `(${change >= 0 ? '+' : ''}${change.toFixed(2)}%)`;
         changeElement.className = change >= 0 ? 'up' : 'down';
     }
 
-    // Update volume change percentage
+    // Update volume change percentage with validation
     const volumeChangeElement = document.getElementById('volumeChangePercent');
-    if (volumeChangeElement) {
-        const volumeChange = data.volumeChange24h;
-        volumeChangeElement.textContent = `Vol ${volumeChange >= 0 ? '+' : ''}${volumeChange.toFixed(2)}%`;
+    if (volumeChangeElement && typeof data.volumeChange24h !== 'undefined') {
+        const volumeChange = parseFloat(data.volumeChange24h) || 0;
+        volumeChangeElement.textContent = `Vol (${volumeChange >= 0 ? '+' : ''}${volumeChange.toFixed(2)}%)`;
         volumeChangeElement.className = volumeChange >= 0 ? 'up' : 'down';
     }
 
     // Update last updated timestamp
     const lastUpdateElement = document.getElementById('lastUpdate');
-    if (lastUpdateElement) {
+    if (lastUpdateElement && data.lastUpdated) {
         const timestamp = new Date(data.lastUpdated);
-        const timeString = timestamp.toLocaleTimeString();
-        lastUpdateElement.textContent = `Last updated: ${timeString}`;
+        lastUpdateElement.textContent = `Last updated: ${formatLastUpdated(timestamp)}`;
     }
 
     // Update sync icon
     const syncIcon = document.querySelector('.fa-sync-alt');
     if (syncIcon) {
         syncIcon.classList.remove('updating');
-        // Add brief animation
         syncIcon.classList.add('updated');
         setTimeout(() => syncIcon.classList.remove('updated'), 1000);
     }
