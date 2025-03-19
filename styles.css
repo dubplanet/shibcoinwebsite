@@ -10,6 +10,7 @@
     --down-color: #ff0000;
     --border-radius: 12px;
     --error-color: #ff3b3b;
+    font-family: 'Poppins', sans-serif;
 }
 
 * {
