@@ -79,6 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const priceElement = document.getElementById('price-mini');
+    if (priceElement) {
+        // Example: Set the price value dynamically
+        priceElement.textContent = '$0.00001234'; // Replace with actual price logic
+    }
+});
+
 // Add initialization error handler
 function handleInitializationError(error) {
     console.error('Initialization error:', error);
