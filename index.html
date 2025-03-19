@@ -1388,10 +1388,6 @@ function initializeMobileMenu() {
     const mainNav = document.querySelector('.main-nav');
     const body = document.body;
 
-    // Debug logging
-    console.log('Menu toggle:', menuToggle);
-    console.log('Main nav:', mainNav);
-
     // Create overlay element
     const overlay = document.createElement('div');
     overlay.className = 'menu-overlay';
@@ -1399,16 +1395,25 @@ function initializeMobileMenu() {
 
     if (menuToggle && mainNav) {
         // Toggle menu when hamburger is clicked
-        menuToggle.addEventListener('click', () => {
-            console.log('Menu clicked');
+        menuToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
             menuToggle.classList.toggle('active');
             mainNav.classList.toggle('active');
             overlay.classList.toggle('active');
             body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden';
+
+            // Add animation delay to menu items
+            const menuItems = mainNav.querySelectorAll('li');
+            menuItems.forEach((item, index) => {
+                item.style.transitionDelay = `${index * 0.1}s`;
+            });
         });
 
         // Close menu when clicking overlay
-        overlay.addEventListener('click', () => {
+        overlay.addEventListener('click', (e) => {
+            e.preventDefault();
             closeMenu(menuToggle, mainNav, overlay, body);
         });
 
@@ -1420,21 +1425,26 @@ function initializeMobileMenu() {
             });
         });
 
-        // Close menu on resize
+        // Handle resize events
         window.addEventListener('resize', () => {
-            if (window.innerWidth > 768 && mainNav.classList.contains('active')) {
+            if (window.innerWidth > 768) {
                 closeMenu(menuToggle, mainNav, overlay, body);
             }
         });
     }
 }
 
-// Helper function to close the menu
 function closeMenu(menuToggle, mainNav, overlay, body) {
     menuToggle.classList.remove('active');
     mainNav.classList.remove('active');
     overlay.classList.remove('active');
     body.style.overflow = '';
+    
+    // Reset transition delays
+    const menuItems = mainNav.querySelectorAll('li');
+    menuItems.forEach(item => {
+        item.style.transitionDelay = '0s';
+    });
 }
 
 // Initialize the mobile menu
