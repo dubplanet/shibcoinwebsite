@@ -443,7 +443,9 @@
         }
     </style>
     <style>
-    /* Price display styles */
+    /* Remove price display styles */
+    /* Delete or comment out these styles */
+    /*
     .mini-price {
         background: rgba(30, 30, 40, 0.6);
         padding: 0.5rem 1rem;
@@ -464,17 +466,7 @@
         color: rgba(255, 255, 255, 0.7);
         font-size: 0.9rem;
     }
-
-    /* Mobile adjustments */
-    @media (max-width: 768px) {
-        .mini-price {
-            padding: 0.4rem 0.8rem;
-        }
-
-        #price-mini {
-            font-size: 0.9rem;
-        }
-    }
+    */
 </style>
 <style>
     /* Hero section styles */
@@ -568,6 +560,7 @@
 </style>
 </head>
 <body>
+    <!-- Update header section -->
     <header class="site-header">
         <div class="header-content">
             <!-- Logo -->
@@ -585,22 +578,20 @@
                     <li><a href="blog.html" class="active"><i class="fas fa-newspaper"></i> News</a></li>
                 </ul>
             </nav>
-            
-            <!-- Price display -->
-            <div class="mini-price">
-                <span id="price-mini">Loading...</span>
-                <span class="currency">USD</span>
-            </div>
         </div>
     </header>
 
+    <!-- Hero section -->
     <div class="hero-section">
         <div class="container">
             <div class="hero-content">
                 <h1>SHIBA INU<span class="accent"> NEWS & UPDATES</span></h1>
                 <p>Stay informed with the latest SHIB news, market analysis, and ecosystem updates</p>
+                <!-- Add last updated section -->
                 <div class="updated">
-            </div>
+                    <i class="fas fa-sync-alt"></i>
+                    <span id="lastUpdate">Last updated: Loading...</span>
+                </div>
             </div>
         </div>
     </div>
@@ -613,7 +604,6 @@
                     <i class="fas fa-search"></i>
                     <input type="text" id="searchInput" placeholder="Search articles...">
                 </div>
-                
                 <div class="blog-filters">
                     <button class="filter-btn active" data-filter="all">All</button>
                     <button class="filter-btn" data-filter="news">News</button>
@@ -621,13 +611,11 @@
                     <button class="filter-btn" data-filter="updates">Updates</button>
                 </div>
             </div>
-            
             <div id="blogContent">
                 <div class="loader">
                     <div class="spinner"></div>
                 </div>
             </div>
-            
             <div class="pagination" id="pagination">
                 <!-- Pagination will be added dynamically -->
             </div>
@@ -650,7 +638,6 @@
                             <p>Real-time Shiba Inu cryptocurrency price tracking and market data analytics. Not financial advice.</p>
                         </div>
                     </div>
-                    
                     <div class="footer-section">
                         <div class="footer-icon">
                             <i class="fas fa-link"></i>
@@ -664,7 +651,6 @@
                             </ul>
                         </div>
                     </div>
-                    
                     <div class="footer-section">
                         <div class="footer-icon">
                             <i class="fas fa-shield-alt"></i>
@@ -678,7 +664,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="footer-bottom">
                     <p><i class="fas fa-copyright"></i> 2025 ShibaInuCoinTracker.com. Data provided by CoinGecko API.</p>
                 </div>
@@ -691,12 +676,6 @@
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
         try {
-            // Initialize price data
-            await fetchShibaData();
-            
-            // Set up price refresh interval
-            setInterval(fetchShibaData, 60000);
-
             // Initialize UI components
             initializeMobileMenu();
             
@@ -712,5 +691,21 @@
         }
     });
     </script>
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        // Initialize UI components
+        initializeMobileMenu();
+        
+        // Set static last updated time
+        const lastUpdateElement = document.getElementById('lastUpdate');
+        if (lastUpdateElement) {
+            lastUpdateElement.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+        }
+    } catch (error) {
+        console.error('Initialization error:', error);
+    }
+});
+</script>
 </body>
 </html>
