@@ -1206,11 +1206,6 @@ footer {
         top: 15px;
     }
     
-    .header-content {
-        grid-template-columns: 1fr auto;
-        position: relative;
-    }
-    
     .main-nav {
         position: fixed;
         top: 0;
@@ -1241,6 +1236,14 @@ footer {
         font-size: 1.1rem;
         padding: 0.8rem 1.2rem;
         width: 100%;
+        color: #ffffff;
+        text-decoration: none;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+    
+    .main-nav a:hover {
+        background: rgba(255, 215, 0, 0.2);
+        color: #ffd700;
     }
     
     /* Overlay for when menu is open */
