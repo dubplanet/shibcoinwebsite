@@ -442,6 +442,52 @@
             }
         }
     </style>
+    <style>
+    /* Price display styles */
+    .mini-price {
+        background: rgba(30, 30, 40, 0.6);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        border: 1px solid rgba(255, 215, 0, 0.15);
+    }
+
+    .price-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    #price-mini {
+        color: #ffd700;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .currency {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+    }
+
+    /* Update header layout */
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+        .mini-price {
+            padding: 0.4rem 0.8rem;
+        }
+
+        #price-mini {
+            font-size: 1rem;
+        }
+    }
+</style>
 </head>
 <body>
     <header class="site-header">
@@ -462,10 +508,12 @@
                 </ul>
             </nav>
             
-            <!-- Price display -->
+            <!-- Add price display to header -->
             <div class="mini-price">
-                <span id="price-mini">Loading...</span>
-                <span class="currency">USD</span>
+                <div class="price-wrapper">
+                    <span id="price-mini">Loading...</span>
+                    <span class="currency">USD</span>
+                </div>
             </div>
         </div>
     </header>
@@ -484,30 +532,6 @@
     </div>
 
     <div class="container">
-        <section class="price-section">
-            <div class="price-card">
-                <div class="price-header">
-                    <h2>SHIB/USD</h2>
-                    <div class="timeframe">
-                        <span>24h</span>
-                    </div>
-                </div>
-                <div class="price-content">
-                    <div class="current-price">
-                        <span id="price">$0.00000000</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Volume stats -->
-            <div class="price-stats">
-                <div class="stat-box">
-                    <span class="stat-label">24h Volume</span>
-                    <span class="stat-value" id="volume">Loading...</span>
-                </div>
-            </div>
-        </section>
-
         <!-- Blog content starts here -->
         <section class="blog-section">
             <div class="blog-controls">
@@ -593,15 +617,20 @@
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
         try {
-            // Initialize data
+            // Initialize price data
             await fetchShibaData();
             
-            // Set up refresh interval
+            // Set up price refresh interval
             setInterval(fetchShibaData, 60000);
 
             // Initialize UI components
             initializeMobileMenu();
-            initializeCookieConsent();
+            
+            // Update last updated time
+            const lastUpdateElement = document.getElementById('lastUpdate');
+            if (lastUpdateElement) {
+                lastUpdateElement.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+            }
 
         } catch (error) {
             console.error('Initialization error:', error);
