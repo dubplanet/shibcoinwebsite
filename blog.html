@@ -1005,26 +1005,26 @@
     }
 </style>
 <style>
-    /* Center-aligned header navigation */
+    /* Center-aligned header navigation - Updated */
     .header-content {
         display: grid;
-        grid-template-columns: auto 1fr auto;
+        grid-template-columns: 1fr;  /* Changed from auto 1fr auto to 1fr */
         align-items: center;
         max-width: 1200px;
         margin: 0 auto;
         padding: 1rem 2rem;
-        gap: 2rem;
     }
 
-    /* Logo positioning */
+    /* Remove logo styles */
     .logo {
-        grid-column: 1;
+        display: none;  /* Hide the logo */
     }
 
-    /* Center navigation */
+    /* Center navigation - Updated */
     .main-nav {
-        grid-column: 2;
+        grid-column: 1;  /* Changed from 2 to 1 */
         justify-self: center;
+        width: 100%;
     }
 
     .main-nav ul {
@@ -1048,16 +1048,17 @@
         transition: all 0.3s ease;
     }
 
-    /* Mobile menu button positioning */
+    /* Mobile menu button positioning - Updated */
     .menu-toggle {
-        grid-column: 3;
+        position: absolute;
+        right: 1rem;
         display: none;
     }
 
     /* Mobile adjustments */
     @media (max-width: 768px) {
         .header-content {
-            grid-template-columns: 1fr auto;
+            grid-template-columns: 1fr;
             padding: 1rem;
         }
 
@@ -1074,7 +1075,6 @@
             background: rgba(20, 20, 30, 0.95);
             padding: 2rem;
             transition: right 0.3s ease;
-            grid-column: auto;
         }
 
         .main-nav.active {
@@ -1093,21 +1093,12 @@
     <!-- Update header section -->
     <header class="site-header">
     <div class="header-content">
-        <!-- Logo -->
-        <div class="logo">
-            <a href="index.html">
-                <img src="shiba-inu-shib-logo.png" alt="Shiba Inu Coin Logo">
-                <span>SHIB Tracker</span>
-            </a>
-        </div>
-        
         <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation menu">
             <span></span>
             <span></span>
             <span></span>
         </button>
 
-        <!-- Navigation -->
         <nav class="main-nav">
             <ul>
                 <li><a href="index.html" class="home-link"><i class="fas fa-home"></i> Home</a></li>
