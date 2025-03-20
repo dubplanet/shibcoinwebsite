@@ -42,7 +42,8 @@
 
 /* Navigation Menu */
 .main-nav {
-    display: block;
+    display: flex;
+    align-items: center;
     position: relative;
     z-index: 1000;
     transition: transform 0.3s ease-in-out;
@@ -58,19 +59,12 @@
     list-style: none;
 }
 
-.main-nav li {
-    display: flex;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-}
-
 .main-nav a {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 0.5rem 1rem;
-    color: #fff;
+    color: var(--text-light);
     text-decoration: none;
     font-size: 1rem;
     transition: color 0.3s ease;
@@ -114,26 +108,28 @@
 @media (max-width: 768px) {
     .menu-toggle {
         display: flex;
+        top: 50%;
+        transform: translateY(-50%);
         margin: 0;
         padding: 15px;
-        position: relative;
-        right: 0;
+        position: absolute;
+        right: 1rem;
     }
 
     .main-nav {
         display: none;
         position: fixed;
-        top: 70px; /* Adjust based on header height */
+        top: 50px; /* Match header height */
         right: -300px; /* Start off-screen */
-        background: rgba(30, 30, 40, 0.95);
+        background: var(--rich-black);
         width: 100%;
         max-width: 300px;
-        height: calc(100vh - 70px);
+        height: calc(100vh - 50px);
         box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-        padding: 2rem;
+        padding: 1rem;
         overflow-y: auto;
         transform: translateX(300px);
-        transition: transform 0.3s ease-in-out;
+        transition: right 0.3s ease;
     }
 
     .main-nav.active {
@@ -182,25 +178,25 @@ html {
     scroll-behavior: smooth;
 }
 
-/* Update header positioning */
+/* Header and Navigation Positioning */
 .site-header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
+    background: var(--rich-black);
     z-index: 1000;
-    background: rgba(30, 30, 40, 0.95);
-    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 107, 0, 0.1);
 }
 
 /* Update header content layout */
 .header-content {
     display: flex;
-    justify-content: space-between;
+    justify-content: center; /* Center the navigation */
     align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0; /* Remove padding */
+    margin: 0;
+    height: 50px; /* Fixed height */
 }
 
 /* Adjust main content spacing */
