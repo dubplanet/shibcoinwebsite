@@ -1,8 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
-    initializeMobileMenu();
-});
-
-function initializeMobileMenu() {
+document.addEventListener('DOMContentLoaded', function () {
     const menuToggle = document.getElementById('menuToggle');
     const mainNav = document.querySelector('.main-nav');
     const body = document.body;
@@ -13,12 +9,6 @@ function initializeMobileMenu() {
     body.appendChild(overlay);
 
     if (menuToggle && mainNav) {
-        // Add animation delay to menu items
-        const menuItems = mainNav.querySelectorAll('li');
-        menuItems.forEach((item, index) => {
-            item.style.setProperty('--item-index', index);
-        });
-
         // Toggle menu when hamburger is clicked
         menuToggle.addEventListener('click', () => {
             menuToggle.classList.toggle('active');
@@ -39,19 +29,12 @@ function initializeMobileMenu() {
                 closeMenu(menuToggle, mainNav, overlay, body);
             });
         });
-
-        // Close menu on resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768 && mainNav.classList.contains('active')) {
-                closeMenu(menuToggle, mainNav, overlay, body);
-            }
-        });
     }
-}
 
-function closeMenu(menuToggle, mainNav, overlay, body) {
-    menuToggle.classList.remove('active');
-    mainNav.classList.remove('active');
-    overlay.classList.remove('active');
-    body.style.overflow = '';
-}
+    function closeMenu(menuToggle, mainNav, overlay, body) {
+        menuToggle.classList.remove('active');
+        mainNav.classList.remove('active');
+        overlay.classList.remove('active');
+        body.style.overflow = '';
+    }
+});
