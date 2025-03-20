@@ -920,33 +920,33 @@
 <body>
     <!-- Update header section -->
     <header class="site-header">
-        <div class="header-content">
-            <!-- Logo -->
-            <div class="logo">
-                <a href="index.html">
-                    <img src="shiba-inu-shib-logo.png" alt="Shiba Inu Coin Logo">
-                    <span>SHIB Tracker</span>
-                </a>
-            </div>
-
-            <!-- Hamburger Menu Button -->
-            <button id="menuToggle" class="menu-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-
-            <!-- Navigation -->
-            <nav class="main-nav">
-                <ul>
-                    <li><a href="index.html" class="home-link"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="blog.html" class="news-link"><i class="fas fa-newspaper"></i> News</a></li>
-                    <li><a href="disclaimer.html" class="disclaimer-link"><i class="fas fa-exclamation-circle"></i> Disclaimer</a></li>
-                    <li><a href="privacy.html" class="privacy-link"><i class="fas fa-user-shield"></i> Privacy</a></li>
-                </ul>
-            </nav>
+    <div class="header-content">
+        <!-- Logo -->
+        <div class="logo">
+            <a href="index.html">
+                <img src="shiba-inu-shib-logo.png" alt="Shiba Inu Coin Logo">
+                <span>SHIB Tracker</span>
+            </a>
         </div>
-    </header>
+
+        <!-- Hamburger Menu Button -->
+        <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <!-- Navigation -->
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html" class="home-link"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="blog.html" class="news-link active"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="disclaimer.html" class="disclaimer-link"><i class="fas fa-exclamation-circle"></i> Disclaimer</a></li>
+                <li><a href="privacy.html" class="privacy-link"><i class="fas fa-user-shield"></i> Privacy</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
 
     <div class="hero-section">
         <div class="container">
@@ -1039,7 +1039,6 @@
     <script defer src="js/mobile-menu.js"></script>
     <!-- Unified Mobile Menu JS -->
     <script src="mobile-menu.js"></script>
-    <script src="mobile-menu.js"></script>
     <script>
 function initializeMobileMenu() {
     const menuToggle = document.getElementById('menuToggle');
@@ -1098,6 +1097,54 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Initialization error:', error);
     }
 });
+</script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const menuToggle = document.getElementById('menuToggle');
+        const mainNav = document.querySelector('.main-nav');
+        const body = document.body;
+
+        // Create overlay element
+        const overlay = document.createElement('div');
+        overlay.className = 'menu-overlay';
+        body.appendChild(overlay);
+
+        // Toggle menu
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mainNav.classList.toggle('active');
+            overlay.classList.toggle('active');
+            body.style.overflow = mainNav.classList.contains('active') ? 'hidden' : '';
+        });
+
+        // Close menu when clicking overlay
+        overlay.addEventListener('click', () => {
+            menuToggle.classList.remove('active');
+            mainNav.classList.remove('active');
+            overlay.classList.remove('active');
+            body.style.overflow = '';
+        });
+
+        // Handle menu item clicks
+        mainNav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                mainNav.classList.remove('active');
+                overlay.classList.remove('active');
+                body.style.overflow = '';
+            });
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768 && mainNav.classList.contains('active')) {
+                menuToggle.classList.remove('active');
+                mainNav.classList.remove('active');
+                overlay.classList.remove('active');
+                body.style.overflow = '';
+            }
+        });
+    });
 </script>
 </body>
 </html>
