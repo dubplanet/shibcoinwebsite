@@ -453,31 +453,25 @@
         </div>
     </div>
 
-    <div class="container">
-        <!-- Blog content starts here -->
-        <section class="blog-section">
-            <div class="blog-controls">
-                <div class="blog-search">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search articles...">
-                </div>
-                <div class="blog-filters">
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="news">News</button>
-                    <button class="filter-btn" data-filter="analysis">Analysis</button>
-                    <button class="filter-btn" data-filter="updates">Updates</button>
-                </div>
+    <main class="blog-section">
+        <div class="container">
+            <div class="news-grid">
+                <!-- News Item Template -->
+                <article class="news-card">
+                    <div class="news-image">
+                        <img src="path/to/news-image.jpg" alt="News Title">
+                    </div>
+                    <div class="news-content">
+                        <h2>News Title</h2>
+                        <p class="news-date">March 20, 2025</p>
+                        <p class="news-excerpt">News content preview text...</p>
+                        <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                <!-- More news items... -->
             </div>
-            <div id="blogContent">
-                <div class="loader">
-                    <div class="spinner"></div>
-                </div>
-            </div>
-            <div class="pagination" id="pagination">
-                <!-- Pagination will be added dynamically -->
-            </div>
-        </section>
-    </div>
+        </div>
+    </main>
 
     <footer>
         <div class="container">
@@ -527,5 +521,6 @@
     </footer>
 
     <script src="mobile-menu.js"></script>
+    <script src="blog.js"></script>
 </body>
 </html>

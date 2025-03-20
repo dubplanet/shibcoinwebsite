@@ -13,6 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const pagination = document.getElementById('pagination');
     const searchInput = document.getElementById('searchInput');
     const filterButtons = document.querySelectorAll('.filter-btn');
+    const newsGrid = document.querySelector('.news-grid');
+    
+    // Show loading state
+    newsGrid.innerHTML = '<div class="loading">Loading news...</div>';
+    
+    // Fetch and display news
+    fetchNews()
+        .catch(error => {
+            console.error('Error loading news:', error);
+            newsGrid.innerHTML = '<div class="error">Failed to load news. Please try again later.</div>';
+        });
     
     // Fetch articles from cryptocurrency news API
     async function fetchArticles() {
