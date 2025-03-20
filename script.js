@@ -1,90 +1,44 @@
-const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
-const COIN_ID = 'shiba-inu';
+const DIADATA_API_URL = 'https://api.diadata.org/v1';
+const COIN_SYMBOL = 'SHIB-USD'; // Symbol for Shiba Inu in DIAdata
 
 // Chart data global variable
 let priceHistoryData = [];
 
 async function fetchShibaData() {
     try {
-        console.log('Fetching data from CoinGecko...');
+        console.log('Fetching data from DIAdata...');
         
-        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=true`);
-    
+        // Fetch SHIB price data from DIAdata
+        const response = await fetch(`${DIADATA_API_URL}/assetPrices/${COIN_SYMBOL}`);
+        
         if (!response.ok) {
             throw new Error(`API response error: ${response.status}`);
         }
         
         const data = await response.json();
         
-        if (!data) {
+        if (!data || typeof data.price === 'undefined') {
             throw new Error('Invalid data structure received from API');
         }
         
-        // Update price with null check
-        const price = data.market_data?.current_price?.usd || 0;
-        if(document.getElementById('price')) {
+        // Update price
+        const price = data.price || 0;
+        if (document.getElementById('price')) {
             document.getElementById('price').textContent = `$${price.toFixed(8)}`;
         }
         
-        if(document.getElementById('price-mini')) {
+        if (document.getElementById('price-mini')) {
             document.getElementById('price-mini').textContent = `$${price.toFixed(8)}`;
         }
         
-        // Update price change with null checks
-        const changePercent = data.market_data?.price_change_percentage_24h || 0;
-        const isPositive = changePercent >= 0;
-        const priceChange = data.market_data?.price_change_24h || 0;
-
-        if(document.getElementById('priceChange')) {
-            document.getElementById('priceChange').textContent = `${isPositive ? '+' : ''}$${priceChange.toFixed(8)}`;
-            document.getElementById('priceChange').className = isPositive ? 'positive' : 'negative';
-        }
-        
-        if(document.getElementById('changePercent')) {
-            document.getElementById('changePercent').textContent = `(${isPositive ? '+' : ''}${changePercent.toFixed(2)}%)`;
-            document.getElementById('changePercent').className = isPositive ? 'positive' : 'negative';
-        }
-        
-        if(document.getElementById('change-mini')) {
-            document.getElementById('change-mini').textContent = `${isPositive ? '+' : ''}${changePercent.toFixed(2)}%`;
-            document.getElementById('change-mini').className = isPositive ? 'positive' : 'negative';
-            document.getElementById('change-mini').innerHTML = `<i class="fas fa-caret-${isPositive ? 'up' : 'down'}"></i> ${document.getElementById('change-mini').textContent}`;
-        }
-
-        // Update market stats with null checks
-        const volume = data.market_data?.total_volume?.usd || 0;
-        const marketCap = data.market_data?.market_cap?.usd || 0;
-        const marketCapRank = data.market_cap_rank || 'N/A';
-        
-        if(document.getElementById('volume')) {
-            document.getElementById('volume').textContent = `$${formatNumber(volume)}`;
-        }
-        
-        if(document.getElementById('marketCap')) {
-            document.getElementById('marketCap').textContent = `$${formatNumber(marketCap)}`;
-        }
-        
-        if(document.getElementById('rank')) {
-            document.getElementById('rank').textContent = `#${marketCapRank}`;
-        }
-        
         // Update last updated time
-        if(document.getElementById('lastUpdate')) {
+        if (document.getElementById('lastUpdate')) {
             const lastUpdated = new Date();
             document.getElementById('lastUpdate').textContent = `Last updated: ${lastUpdated.toLocaleTimeString()}`;
         }
-        
-        // Store sparkline data for chart if available
-        if (data.market_data?.sparkline_7d?.price) {
-            priceHistoryData = data.market_data.sparkline_7d.price;
-            updateChart('7d');
-        } else {
-            fetchChartData('7d');
-        }
-
     } catch (error) {
         console.error('Fetch Error Details:', error);
-        handleError();  
+        handleError();
     }
 }
 
@@ -97,7 +51,7 @@ async function fetchChartData(period = '7d') {
             '1y': 365
         };
         
-        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}/market_chart?vs_currency=usd&days=${days[period]}`);
+        const response = await fetch(`${_URL}/coins/${COIN_ID}/market_chart?vs_currency=usd&days=${days[period]}`);
         
         if (!response.ok) {
             throw new Error(`Chart data API error: ${response.status}`);
@@ -325,14 +279,13 @@ function getTickAmount(period) {
 }
 
 function handleError() {
-    if (document.getElementById('price')) document.getElementById('price').textContent = 'Error loading data';
-    if (document.getElementById('priceChange')) document.getElementById('priceChange').textContent = '...';
-    if (document.getElementById('changePercent')) document.getElementById('changePercent').textContent = '...';
-    if (document.getElementById('volume')) document.getElementById('volume').textContent = '...';
-    if (document.getElementById('marketCap')) document.getElementById('marketCap').textContent = '...';
-    if (document.getElementById('rank')) document.getElementById('rank').textContent = '...';
-    if (document.getElementById('price-mini')) document.getElementById('price-mini').textContent = 'Error';
-    if (document.getElementById('change-mini')) document.getElementById('change-mini').textContent = '...';
+    const elementsToUpdate = [
+        'price', 'priceChange', 'changePercent', 'volume', 'marketCap', 'rank', 'price-mini', 'change-mini'
+    ];
+    elementsToUpdate.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = 'Error';
+    });
 }
 
 function formatNumber(num) {
