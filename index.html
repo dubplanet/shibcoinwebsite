@@ -967,6 +967,87 @@
                 justify-self: end;
             }
         }
+
+        /* Mobile Menu Styles */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+                position: absolute;
+                right: 20px;
+                top: 15px;
+                z-index: 1010;
+                background: transparent;
+                border: none;
+                width: 40px;
+                height: 40px;
+                cursor: pointer;
+            }
+
+            .menu-toggle span {
+                display: block;
+                width: 24px;
+                height: 2px;
+                background: #ffd700;
+                position: absolute;
+                left: 8px;
+                transition: all 0.3s ease;
+            }
+
+            .menu-toggle span:nth-child(1) { top: 14px; }
+            .menu-toggle span:nth-child(2) { top: 20px; }
+            .menu-toggle span:nth-child(3) { top: 26px; }
+
+            .menu-toggle.active span:nth-child(1) {
+                transform: rotate(45deg);
+                top: 20px;
+            }
+
+            .menu-toggle.active span:nth-child(2) {
+                opacity: 0;
+            }
+
+            .menu-toggle.active span:nth-child(3) {
+                transform: rotate(-45deg);
+                top: 20px;
+            }
+
+            .main-nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                background: rgba(15, 15, 25, 0.98);
+                backdrop-filter: blur(10px);
+                z-index: 1002;
+                padding: 80px 20px 30px;
+                transition: all 0.3s ease;
+            }
+
+            .main-nav.active {
+                right: 0;
+            }
+
+            .menu-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(3px);
+                z-index: 1001;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .menu-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
     </style>
 
     <!-- Structured Data -->
@@ -1396,7 +1477,6 @@ function initializeMobileMenu() {
     body.appendChild(overlay);
 
     if (menuToggle && mainNav) {
-        // Toggle menu when hamburger is clicked
         menuToggle.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -1406,20 +1486,17 @@ function initializeMobileMenu() {
             overlay.classList.toggle('active');
             body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden';
 
-            // Add animation delay to menu items
             const menuItems = mainNav.querySelectorAll('li');
             menuItems.forEach((item, index) => {
                 item.style.transitionDelay = `${index * 0.1}s`;
             });
         });
 
-        // Close menu when clicking overlay
         overlay.addEventListener('click', (e) => {
             e.preventDefault();
             closeMenu(menuToggle, mainNav, overlay, body);
         });
 
-        // Close menu when clicking menu items
         const menuItems = mainNav.querySelectorAll('a');
         menuItems.forEach(item => {
             item.addEventListener('click', () => {
@@ -1427,7 +1504,6 @@ function initializeMobileMenu() {
             });
         });
 
-        // Handle resize events
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
                 closeMenu(menuToggle, mainNav, overlay, body);
@@ -1442,7 +1518,6 @@ function closeMenu(menuToggle, mainNav, overlay, body) {
     overlay.classList.remove('active');
     body.style.overflow = '';
     
-    // Reset transition delays
     const menuItems = mainNav.querySelectorAll('li');
     menuItems.forEach(item => {
         item.style.transitionDelay = '0s';
@@ -1454,7 +1529,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         initializeMobileMenu();
     } catch (error) {
-        console.error('Initialization error:', error);
+        console.error('Mobile menu initialization error:', error);
     }
 });
 
