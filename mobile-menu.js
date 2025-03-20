@@ -39,3 +39,13 @@ document.addEventListener('DOMContentLoaded', function () {
         body.style.overflow = '';
     }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const menuToggle = document.getElementById('menuToggle');
+    const mainNav = document.querySelector('.main-nav');
+
+    menuToggle.addEventListener('click', () => {
+        mainNav.classList.toggle('active'); // Toggle the 'active' class
+        menuToggle.classList.toggle('open'); // Toggle the 'open' class for animation
+    });
+});
