@@ -1706,3 +1706,50 @@ body.menu-open {
         background: rgba(255, 215, 0, 0.1);
     }
 }
+
+/* Center the navigation menu */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+}
+
+.main-nav {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* Center the menu items */
+}
+
+.main-nav ul {
+    display: flex;
+    gap: 2rem; /* Add spacing between menu items */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav ul li {
+    display: inline-block;
+}
+
+.main-nav ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: color 0.3s ease, background 0.3s ease;
+    border-radius: 4px;
+}
+
+.main-nav ul li a:hover {
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.main-nav ul li a.active {
+    color: #ffd700;
+    font-weight: 600;
+    background: rgba(255, 215, 0, 0.1);
+}
