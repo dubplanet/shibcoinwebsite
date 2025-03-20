@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (menuToggle && mainNav) {
         // Toggle menu when hamburger is clicked
         menuToggle.addEventListener('click', () => {
-            menuToggle.classList.toggle('active');
-            mainNav.classList.toggle('active');
+            menuToggle.classList.toggle('open'); // Toggle the 'open' class for animation
+            mainNav.classList.toggle('active'); // Toggle the 'active' class
             overlay.classList.toggle('active');
             body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden';
         });
@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function closeMenu(menuToggle, mainNav, overlay, body) {
+        menuToggle.classList.remove('open'); // Remove the 'open' class for animation
         menuToggle.classList.remove('active');
         mainNav.classList.remove('active');
         overlay.classList.remove('active');

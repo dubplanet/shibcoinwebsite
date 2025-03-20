@@ -1,473 +1,350 @@
-// If this declaration exists multiple times, you should remove the extras
-const DIA_API_URL = 'https://api.diadata.org/v1';
-const SHIB_SYMBOL = 'SHIB';
-const API_TIMEOUT = 10000;
-const API_HEADERS = {
-    'Accept': 'application/json',
-    'Cache-Control': 'no-cache'
-};
+const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
+const COIN_ID = 'shiba-inu';
 
-// Cache and state management constants
-const MAX_RETRIES = 3;
-const API_CACHE_DURATION = 60000; // 1 minute
-let dataCache = null;
-let priceRefreshInterval = null;
+// Chart data global variable
+let priceHistoryData = [];
 
-// Add after constants
-async function checkAPIStatus() {
+async function fetchShibaData() {
     try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+        console.log('Fetching data from CoinGecko...');
+        
+        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=true`);
+    
+        if (!response.ok) {
+            throw new Error(`API response error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data) {
+            throw new Error('Invalid data structure received from API');
+        }
+        
+        // Update price with null check
+        const price = data.market_data?.current_price?.usd || 0;
+        if(document.getElementById('price')) {
+            document.getElementById('price').textContent = `$${price.toFixed(8)}`;
+        }
+        
+        if(document.getElementById('price-mini')) {
+            document.getElementById('price-mini').textContent = `$${price.toFixed(8)}`;
+        }
+        
+        // Update price change with null checks
+        const changePercent = data.market_data?.price_change_percentage_24h || 0;
+        const isPositive = changePercent >= 0;
+        const priceChange = data.market_data?.price_change_24h || 0;
 
-        const response = await fetch(`${DIA_API_URL}/quotation/SHIB`, {
-            signal: controller.signal,
-            headers: API_HEADERS
-        });
+        if(document.getElementById('priceChange')) {
+            document.getElementById('priceChange').textContent = `${isPositive ? '+' : ''}$${priceChange.toFixed(8)}`;
+            document.getElementById('priceChange').className = isPositive ? 'positive' : 'negative';
+        }
+        
+        if(document.getElementById('changePercent')) {
+            document.getElementById('changePercent').textContent = `(${isPositive ? '+' : ''}${changePercent.toFixed(2)}%)`;
+            document.getElementById('changePercent').className = isPositive ? 'positive' : 'negative';
+        }
+        
+        if(document.getElementById('change-mini')) {
+            document.getElementById('change-mini').textContent = `${isPositive ? '+' : ''}${changePercent.toFixed(2)}%`;
+            document.getElementById('change-mini').className = isPositive ? 'positive' : 'negative';
+            document.getElementById('change-mini').innerHTML = `<i class="fas fa-caret-${isPositive ? 'up' : 'down'}"></i> ${document.getElementById('change-mini').textContent}`;
+        }
 
-        clearTimeout(timeoutId);
-        return response.ok;
+        // Update market stats with null checks
+        const volume = data.market_data?.total_volume?.usd || 0;
+        const marketCap = data.market_data?.market_cap?.usd || 0;
+        const marketCapRank = data.market_cap_rank || 'N/A';
+        
+        if(document.getElementById('volume')) {
+            document.getElementById('volume').textContent = `$${formatNumber(volume)}`;
+        }
+        
+        if(document.getElementById('marketCap')) {
+            document.getElementById('marketCap').textContent = `$${formatNumber(marketCap)}`;
+        }
+        
+        if(document.getElementById('rank')) {
+            document.getElementById('rank').textContent = `#${marketCapRank}`;
+        }
+        
+        // Update last updated time
+        if(document.getElementById('lastUpdate')) {
+            const lastUpdated = new Date();
+            document.getElementById('lastUpdate').textContent = `Last updated: ${lastUpdated.toLocaleTimeString()}`;
+        }
+        
+        // Store sparkline data for chart if available
+        if (data.market_data?.sparkline_7d?.price) {
+            priceHistoryData = data.market_data.sparkline_7d.price;
+            updateChart('7d');
+        } else {
+            fetchChartData('7d');
+        }
+
     } catch (error) {
-        console.error('DIA API Status Check Failed:', error);
-        return false;
+        console.error('Fetch Error Details:', error);
+        handleError();  
     }
 }
 
-// State management
-let priceAlerts = [];
-let retryCount = 0;
+async function fetchChartData(period = '7d') {
+    try {
+        const days = {
+            '1d': 1,
+            '7d': 7,
+            '30d': 30,
+            '1y': 365
+        };
+        
+        const response = await fetch(`${COINGECKO_API_URL}/coins/${COIN_ID}/market_chart?vs_currency=usd&days=${days[period]}`);
+        
+        if (!response.ok) {
+            throw new Error(`Chart data API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data && data.prices) {
+            const chartData = data.prices.map(item => ({
+                x: item[0],
+                y: item[1]
+            }));
+            
+            updateChart(period, chartData);
+        }
+    } catch (error) {
+        console.error('Chart Data Error:', error);
+    }
+}
 
-// Initialize containers function
-function initializeContainers() {
-    const containers = {
-        priceContainer: document.getElementById('price'),
-        alertsContainer: document.getElementById('alertsList'),
-        notificationContainer: document.getElementById('notificationContainer')
+function updateChart(period, data = null) {
+    const chartElement = document.getElementById('priceChart');
+    
+    if (!chartElement) return;
+    
+    let chartData = data;
+    
+    if (!chartData && period === '7d' && priceHistoryData.length > 0) {
+        // Use sparkline data if available for 7d
+        const now = new Date();
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        chartData = priceHistoryData.map((price, index) => {
+            const timestamp = sevenDaysAgo.getTime() + (index * (7 * 24 * 60 * 60 * 1000) / priceHistoryData.length);
+            return {
+                x: timestamp,
+                y: price
+            };
+        });
+    }
+    
+    if (!chartData) {
+        chartElement.innerHTML = '<p>Chart data not available</p>';
+        return;
+    }
+    
+    // Get min and max for better visualization
+    const prices = chartData.map(item => item.y);
+    const minPrice = Math.min(...prices) * 0.99; // 1% lower than minimum
+    const maxPrice = Math.max(...prices) * 1.01; // 1% higher than maximum
+    
+    // Create date formatter based on period
+    let dateFormat = 'MMM dd';
+    if (period === '1d') {
+        dateFormat = 'HH:mm';
+    } else if (period === '1y') {
+        dateFormat = 'MMM yyyy';
+    }
+    
+    const options = {
+        series: [{
+            name: 'SHIB Price',
+            data: chartData
+        }],
+        chart: {
+            type: 'area',
+            height: 300,
+            foreColor: '#b0b0b0',
+            toolbar: {
+                show: false
+            },
+            animations: {
+                enabled: true,
+                easing: 'easeinout',
+                speed: 800
+            },
+            background: 'transparent',
+            fontFamily: 'Poppins, sans-serif'
+        },
+        colors: ['#ffd700'],
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.7,
+                opacityTo: 0.3,
+                stops: [0, 90, 100]
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 2
+        },
+        grid: {
+            borderColor: '#333333',
+            strokeDashArray: 3,
+            xaxis: {
+                lines: {
+                    show: false
+                }
+            },
+            padding: {
+                bottom: 10
+            }
+        },
+        markers: {
+            size: 0,
+            hover: {
+                size: 5
+            }
+        },
+        xaxis: {
+            type: 'datetime',
+            labels: {
+                datetimeUTC: false,
+                format: dateFormat,
+                style: {
+                    fontSize: '12px',
+                    fontFamily: 'Poppins, sans-serif'
+                },
+                offsetY: 5,
+                rotate: 0,
+                // Limit the number of labels to prevent overcrowding
+                tickAmount: getTickAmount(period)
+            },
+            axisBorder: {
+                show: true,
+                color: '#444'
+            },
+            crosshairs: {
+                show: true
+            },
+            tooltip: {
+                enabled: true
+            }
+        },
+        yaxis: {
+            min: minPrice,
+            max: maxPrice,
+            labels: {
+                formatter: function(value) {
+                    if (value < 0.000001) {
+                        return '$' + value.toExponential(2);
+                    }
+                    return '$' + value.toFixed(8);
+                },
+                style: {
+                    fontSize: '12px'
+                }
+            },
+            axisBorder: {
+                show: true,
+                color: '#444'
+            }
+        },
+        tooltip: {
+            theme: 'dark',
+            x: {
+                format: 'MMM dd, yyyy HH:mm'
+            },
+            y: {
+                formatter: function(value) {
+                    return '$' + value.toFixed(8);
+                }
+            },
+            marker: {
+                show: true
+            }
+        },
+        responsive: [{
+            breakpoint: 768,
+            options: {
+                chart: {
+                    height: 250
+                },
+                xaxis: {
+                    labels: {
+                        style: {
+                            fontSize: '10px'
+                        },
+                        tickAmount: Math.min(getTickAmount(period), 5)
+                    }
+                }
+            }
+        }, {
+            breakpoint: 480,
+            options: {
+                chart: {
+                    height: 200
+                },
+                xaxis: {
+                    labels: {
+                        style: {
+                            fontSize: '8px'
+                        },
+                        rotate: -45,
+                        offsetY: 10,
+                        tickAmount: Math.min(getTickAmount(period), 4)
+                    }
+                }
+            }
+        }]
     };
 
-    // Validate required containers
-    Object.entries(containers).forEach(([key, element]) => {
-        if (!element) {
-            console.error(`Required container ${key} not found`);
-        }
-    });
+    // Clear previous chart if any
+    chartElement.innerHTML = '';
+    
+    // Create new chart
+    const chart = new ApexCharts(chartElement, options);
+    chart.render();
 }
 
-// Replace the existing initialization
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        // Initialize price data
-        await fetchShibaData();
-        
-        // Set up refresh interval
-        setInterval(fetchShibaData, 60000);
-
-        // Initialize UI components
-        initializeMobileMenu();
-        initializeCookieConsent();
-
-    } catch (error) {
-        console.error('Initialization error:', error);
-        displayErrorState('Error loading data');
+// Helper function to determine optimal number of date labels
+function getTickAmount(period) {
+    switch (period) {
+        case '1d': return 6;
+        case '7d': return 7;
+        case '30d': return 10;
+        case '1y': return 12;
+        default: return 7;
     }
-});
+}
+
+function handleError() {
+    if (document.getElementById('price')) document.getElementById('price').textContent = 'Error loading data';
+    if (document.getElementById('priceChange')) document.getElementById('priceChange').textContent = '...';
+    if (document.getElementById('changePercent')) document.getElementById('changePercent').textContent = '...';
+    if (document.getElementById('volume')) document.getElementById('volume').textContent = '...';
+    if (document.getElementById('marketCap')) document.getElementById('marketCap').textContent = '...';
+    if (document.getElementById('rank')) document.getElementById('rank').textContent = '...';
+    if (document.getElementById('price-mini')) document.getElementById('price-mini').textContent = 'Error';
+    if (document.getElementById('change-mini')) document.getElementById('change-mini').textContent = '...';
+}
+
+function formatNumber(num) {
+    if (!num || isNaN(num)) return '0.00';
+    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+    return num.toFixed(2);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-    const priceElement = document.getElementById('price-mini');
-    if (priceElement) {
-        // Example: Set the price value dynamically
-        priceElement.textContent = '$0.00001234'; // Replace with actual price logic
-    }
+    fetchShibaData();
+    setInterval(fetchShibaData, 60000); // Update price data every minute
 });
-
-// Add initialization error handler
-function handleInitializationError(error) {
-    console.error('Initialization error:', error);
-    
-    const elements = {
-        price: 'API Unavailable',
-        'price-mini': 'Error',
-        marketCap: '--',
-        volume: '--',
-        changePercent: '--'
-    };
-
-    Object.entries(elements).forEach(([id, value]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = value;
-            element.classList.add('error');
-        }
-    });
-
-    // Show error message to user
-    const container = document.querySelector('.chart-container');
-    if (container) {
-        container.innerHTML = `
-            <div class="chart-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>API is currently unavailable</p>
-                <p class="error-details">Please try again later</p>
-                <button onclick="location.reload()" class="retry-btn">
-                    Retry
-                </button>
-            </div>
-        `;
-    }
-}
-
-// Core data fetching
-// Update fetchShibaData function
-async function fetchShibaData() {
-    const syncIcon = document.querySelector('.fa-sync-alt');
-    if (syncIcon) syncIcon.classList.add('updating');
-
-    try {
-        // Only fetch quote data
-        const response = await fetch(`${DIA_API_URL}/quotation/${SHIB_SYMBOL}`, {
-            headers: API_HEADERS
-        });
-
-        const data = await response.json();
-        console.log('API Response:', data);
-
-        // Check if data structure is valid
-        if (!data || !data.Price) {
-            throw new Error('Invalid data structure received');
-        }
-
-        // Calculate values
-        const currentPrice = parseFloat(data.Price) || 0;
-        const yesterdayPrice = parseFloat(data.PriceYesterday) || currentPrice;
-        const change24h = calculatePriceChange(currentPrice, yesterdayPrice);
-
-        // Update cache with validated data
-        dataCache = {
-            price: currentPrice,
-            lastUpdated: data.Time || new Date().toISOString(),
-            change24h: change24h,
-            volume: parseFloat(data.VolumeYesterdayUSD) || 0
-        };
-
-        console.log('Processed Data:', dataCache);
-        updatePriceDisplay(dataCache);
-        return dataCache;
-
-    } catch (error) {
-        console.error('DIA API Error:', error);
-        handleFetchError(error);
-        return null;
-    } finally {
-        if (syncIcon) syncIcon.classList.remove('updating');
-    }
-}
-
-// Error handling
-// Remove duplicate error handlers
-// Remove handleError() function since it's redundant
-// Update handleFetchError
-function handleFetchError(error) {
-    console.error('Fetch error:', error);
-    
-    if (dataCache?.price) {
-        updatePriceFromCache();
-        showNotification('Using cached data', 'warning');
-    } else {
-        displayErrorState('Unable to load price data');
-    }
-}
-
-function updateUIForError() {
-    const elements = {
-        price: 'Error',
-        'price-mini': 'Error',
-        marketCap: '--',
-        volume: '--',
-        changePercent: '--'
-    };
-
-    Object.entries(elements).forEach(([id, value]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = value;
-            element.classList.add('error');
-        }
-    });
-}
-
-// Add missing displayErrorState function
-function displayErrorState(message = 'Error loading data') {
-    const elements = {
-        price: { id: 'price', value: message },
-        priceMini: { id: 'price-mini', value: 'Error' },
-        volume: { id: 'volume', value: '--' }
-    };
-
-    Object.entries(elements).forEach(([key, { id, value }]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = value;
-            element.classList.add('error');
-        }
-    });
-}
-
-// UI Updates
-// Update updatePriceDisplay function to include last updated time
-function updatePriceDisplay(data) {
-    if (!data) {
-        console.error('No data provided to updatePriceDisplay');
-        displayErrorState();
-        return;
-    }
-
-    // Update main price display
-    const elements = {
-        price: { id: 'price', value: formatCryptoPrice(data.price) },
-        priceMini: { id: 'price-mini', value: formatCryptoPrice(data.price) },
-        volume: { id: 'volume', value: formatNumber(data.volume) },
-        changePercent: { 
-            id: 'changePercent', 
-            value: `(${data.change24h >= 0 ? '+' : ''}${data.change24h.toFixed(2)}%)`,
-            className: data.change24h >= 0 ? 'up' : 'down'
-        }
-    };
-
-    Object.entries(elements).forEach(([key, { id, value, className }]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = value;
-            if (className) {
-                element.className = className;
-            }
-        }
-    });
-
-    // Update last updated time
-    const lastUpdateElement = document.getElementById('lastUpdate');
-    if (lastUpdateElement) {
-        lastUpdateElement.textContent = `Last updated: ${formatLastUpdated(data.lastUpdated)}`;
-    }
-}
-
-// Alert System
-function updateAlertsList() {
-    const alertsList = document.getElementById('alertsList');
-    if (!alertsList) return;
-
-    if (priceAlerts.length === 0) {
-        alertsList.innerHTML = '<div class="empty-alert-message">No alerts set</div>';
-        return;
-    }
-
-    const sortedAlerts = [...priceAlerts].sort((a, b) => 
-        a.type === b.type ? (a.type === 'above' ? a.price - b.price : b.price - a.price) : (a.type === 'above' ? -1 : 1)
-    );
-
-    alertsList.innerHTML = sortedAlerts.map(alert => `
-        <div class="alert-item" data-id="${alert.id}">
-            <div class="alert-condition">
-                <span class="direction">${alert.type === 'above' ? '↗' : '↘'}</span>
-                <span>${alert.type === 'above' ? 'Above' : 'Below'} $${formatCryptoPrice(alert.price)}</span>
-            </div>
-            <button class="delete-alert" data-id="${alert.id}">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        </div>
-    `).join('');
-
-    // Add delete handlers
-    alertsList.querySelectorAll('.delete-alert').forEach(button => {
-        button.onclick = () => deleteAlert(parseInt(button.dataset.id));
-    });
-}
-
-// Utility Functions
-function formatNumber(num) {
-    if (!num || isNaN(num)) return '$0';
-    
-    // Use absolute value for formatting but keep sign for display
-    const absNum = Math.abs(num);
-    let formatted;
-    
-    if (absNum >= 1e9) {
-        formatted = `${(absNum / 1e9).toFixed(2)}B`;
-    } else if (absNum >= 1e6) {
-        formatted = `${(absNum / 1e6).toFixed(2)}M`;
-    } else if (absNum >= 1e3) {
-        formatted = `${(absNum / 1e3).toFixed(2)}K`;
-    } else {
-        formatted = absNum.toFixed(2);
-    }
-    
-    // Add dollar sign and handle negative numbers
-    return `$${num < 0 ? '-' : ''}${formatted}`;
-}
-
-function formatCryptoPrice(price) {
-    if (!price || isNaN(price)) return '0.00000000';
-    
-    const absPrice = Math.abs(price);
-    if (absPrice < 0.00001) {
-        return price.toFixed(10);
-    } else if (absPrice < 0.0001) {
-        return price.toFixed(8);
-    } else if (absPrice < 0.01) {
-        return price.toFixed(6);
-    } else if (absPrice < 1) {
-        return price.toFixed(4);
-    }
-    return price.toFixed(2);
-}
-
-// Cleanup
-window.addEventListener('beforeunload', () => {
-    clearInterval(priceRefreshInterval);
-});
-
-function showNotification(message, type = 'info') {
-    const container = document.getElementById('notificationContainer');
-    if (!container) return;
-
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <div class="notification-content">
-            <div class="notification-message">${message}</div>
-        </div>
-    `;
-
-    container.appendChild(notification);
-    setTimeout(() => notification.remove(), 5000);
-}
-
-// Helper function to calculate price change
-function calculatePriceChange(currentPrice, yesterdayPrice) {
-    if (!currentPrice || !yesterdayPrice) return 0;
-    return ((currentPrice - yesterdayPrice) / yesterdayPrice) * 100;
-}
-
-function updatePriceFromCache() {
-    if (!dataCache) return;
-    
-    updatePriceDisplay({
-        ...dataCache,
-        isCache: true
-    });
-    
-    // Add cache indicator
-    const priceElement = document.getElementById('price');
-    if (priceElement) {
-        priceElement.classList.add('cached');
-    }
-}
-
-function initializeEventListeners() {
-    // Chart timeframe buttons
-    document.querySelectorAll('.timeframe-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            document.querySelectorAll('.timeframe-btn').forEach(btn => 
-                btn.classList.remove('active')
-            );
-            this.classList.add('active');
-            fetchChartData(this.getAttribute('data-period'));
-        });
-    });
-
-    // Alert form
-    const alertForm = document.getElementById('alertForm');
-    if (alertForm) {
-        alertForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const price = parseFloat(this.querySelector('[name="alertPrice"]').value);
-            const type = this.querySelector('[name="alertType"]').value;
-            addPriceAlert(price, type);
-        });
-    }
-}
-
-// Add this helper function for formatting dates
-function formatLastUpdated(timestamp) {
-    if (!timestamp) return 'Never';
-    
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffSeconds = Math.floor((now - date) / 1000);
-
-    if (diffSeconds < 60) {
-        return 'Just now';
-    } else if (diffSeconds < 3600) {
-        const minutes = Math.floor(diffSeconds / 60);
-        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    } else {
-        return date.toLocaleTimeString();
-    }
-}
-
-// Add the missing loadSavedAlerts function
-function loadSavedAlerts() {
-    try {
-        const saved = localStorage.getItem('priceAlerts');
-        if (saved) {
-            priceAlerts = JSON.parse(saved);
-            updateAlertsList();
-        }
-    } catch (error) {
-        console.error('Failed to load saved alerts:', error);
-        priceAlerts = [];
-    }
-}
-
-function initializeMobileMenu() {
-    const menuToggle = document.getElementById('menuToggle');
-    const mainNav = document.querySelector('.main-nav');
-    const body = document.body;
-
-    // Debug logging
-    console.log('Menu toggle:', menuToggle);
-    console.log('Main nav:', mainNav);
-
-    // Create overlay element
-    const overlay = document.createElement('div');
-    overlay.className = 'menu-overlay';
-    body.appendChild(overlay);
-
-    if (menuToggle && mainNav) {
-        // Toggle menu when hamburger is clicked
-        menuToggle.addEventListener('click', () => {
-            console.log('Menu clicked');
-            menuToggle.classList.toggle('active');
-            mainNav.classList.toggle('active');
-            overlay.classList.toggle('active');
-            body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden';
-        });
-
-        // Close menu when clicking overlay
-        overlay.addEventListener('click', () => {
-            closeMenu(menuToggle, mainNav, overlay, body);
-        });
-
-        // Close menu when clicking menu items
-        const menuItems = mainNav.querySelectorAll('a');
-        menuItems.forEach(item => {
-            item.addEventListener('click', () => {
-                closeMenu(menuToggle, mainNav, overlay, body);
-            });
-        });
-
-        // Close menu on resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768 && mainNav.classList.contains('active')) {
-                closeMenu(menuToggle, mainNav, overlay, body);
-            }
-        });
-    }
-}
-
-// Add missing closeMenu function
-function closeMenu(menuToggle, mainNav, overlay, body) {
-    menuToggle.classList.remove('active');
-    mainNav.classList.remove('active');
-    overlay.classList.remove('active');
-    body.style.overflow = '';
-}
 

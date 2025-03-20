@@ -1146,90 +1146,105 @@ footer {
 
 /* Hamburger Menu Styles */
 .menu-toggle {
-    display: flex;
-    position: absolute;
-    right: 20px;
-    top: 15px;
-    z-index: 1010;
-    background: transparent;
-    border: none;
-    width: 40px;
-    height: 40px;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 20px;
     cursor: pointer;
+    z-index: 1001;
 }
 
 .menu-toggle span {
     display: block;
-    width: 24px;
-    height: 2px;
-    background: #ffd700;
-    position: absolute;
-    left: 8px;
+    height: 3px;
+    background: #fff;
+    border-radius: 2px;
     transition: all 0.3s ease;
 }
 
-.menu-toggle span:nth-child(1) { top: 14px; }
-.menu-toggle span:nth-child(2) { top: 20px; }
-.menu-toggle span:nth-child(3) { top: 26px; }
-
-.menu-toggle.active span:nth-child(1) {
-    transform: rotate(45deg);
-    top: 20px;
+.menu-toggle.open span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
 }
 
-.menu-toggle.active span:nth-child(2) {
+.menu-toggle.open span:nth-child(2) {
     opacity: 0;
 }
 
-.menu-toggle.active span:nth-child(3) {
-    transform: rotate(-45deg);
-    top: 20px;
+.menu-toggle.open span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
 }
 
 .main-nav {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 80%;
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: rgba(30, 30, 40, 0.95);
+    width: 100%;
     max-width: 300px;
-    height: 100vh;
-    background: rgba(15, 15, 25, 0.98);
-    backdrop-filter: blur(10px);
-    z-index: 1002;
-    padding: 80px 20px 30px;
-    transition: all 0.3s ease;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    z-index: 1000;
+    padding: 1rem;
 }
 
 .main-nav.active {
-    right: 0;
+    display: block;
 }
 
-.menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(3px);
-    z-index: 1001;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+.main-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
-.menu-overlay.active {
-    opacity: 1;
-    visibility: visible;
+.main-nav li {
+    margin-bottom: 1rem;
 }
 
-/* Mobile Menu Adjustments */
+.main-nav li:last-child {
+    margin-bottom: 0;
+}
+
+.main-nav a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.3s ease;
+}
+
+.main-nav a:hover {
+    color: #ffd700;
+}
+
+/* Show the hamburger menu button on smaller screens */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+    }
+
+    .main-nav {
+        display: none; /* Hidden by default */
+    }
+}
+
+/* Mobile Menu Styles */
 @media (max-width: 768px) {
     .menu-toggle {
         display: flex;
         position: absolute;
         right: 20px;
         top: 15px;
+        z-index: 1010;
+        background: transparent;
+        border: none;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
     }
     
     .main-nav {
