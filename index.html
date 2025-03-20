@@ -54,6 +54,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/mobile-menu.css">
+    <!-- Unified Mobile Menu CSS -->
+    <link rel="stylesheet" href="mobile-menu.css">
 
     <!-- Custom styles for SHIB price displays -->
     <style>
@@ -1162,8 +1164,10 @@
         <!-- Navigation -->
         <nav class="main-nav">
             <ul>
-                <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="blog.html"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="index.html" class="home-link active"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="blog.html" class="news-link"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="disclaimer.html" class="disclaimer-link"><i class="fas fa-exclamation-circle"></i> Disclaimer</a></li>
+                <li><a href="privacy.html" class="privacy-link"><i class="fas fa-user-shield"></i> Privacy</a></li>
             </ul>
         </nav>
     </div>
@@ -1568,6 +1572,9 @@ function initializeCookieConsent() {
     });
 })();
 </script>
+
+<!-- Unified Mobile Menu JS -->
+<script src="mobile-menu.js"></script>
 
 </body>
 </html>

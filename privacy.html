@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -25,6 +25,8 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Unified Mobile Menu CSS -->
+    <link rel="stylesheet" href="mobile-menu.css">
     
     <style>
         .privacy-section {
@@ -136,17 +138,28 @@
     
     <header class="site-header">
         <div class="header-content">
+            <!-- Logo -->
             <div class="logo">
                 <a href="index.html">
                     <img src="shiba-inu-shib-logo.png" alt="Shiba Inu Coin Logo">
                     <span>SHIB Tracker</span>
                 </a>
             </div>
+
+            <!-- Hamburger Menu Button -->
+            <button id="menuToggle" class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <!-- Navigation -->
             <nav class="main-nav">
                 <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="disclaimer.html">Disclaimer</a></li>
-                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="index.html" class="home-link"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="blog.html" class="news-link"><i class="fas fa-newspaper"></i> News</a></li>
+                    <li><a href="disclaimer.html" class="disclaimer-link"><i class="fas fa-exclamation-circle"></i> Disclaimer</a></li>
+                    <li><a href="privacy.html" class="privacy-link"><i class="fas fa-user-shield"></i> Privacy</a></li>
                 </ul>
             </nav>
         </div>
@@ -288,5 +301,8 @@
             </div>
         </div>
     </footer>
+    
+    <!-- Unified Mobile Menu JS -->
+    <script src="mobile-menu.js"></script>
 </body>
 </html>

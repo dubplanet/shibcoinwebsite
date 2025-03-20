@@ -1,3 +1,7 @@
+document.addEventListener('DOMContentLoaded', function() {
+    initializeMobileMenu();
+});
+
 function initializeMobileMenu() {
     const menuToggle = document.getElementById('menuToggle');
     const mainNav = document.querySelector('.main-nav');
@@ -51,12 +55,3 @@ function closeMenu(menuToggle, mainNav, overlay, body) {
     overlay.classList.remove('active');
     body.style.overflow = '';
 }
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    try {
-        initializeMobileMenu();
-    } catch (error) {
-        console.error('Mobile menu initialization error:', error);
-    }
-});
