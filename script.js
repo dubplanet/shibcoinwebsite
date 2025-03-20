@@ -93,7 +93,12 @@ function formatNumber(num) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Add animation classes to elements
+    document.querySelectorAll('.card').forEach((card, index) => {
+        card.style.setProperty('--index', index);
+        card.classList.add('fade-in');
+    });
+    
     fetchShibaData();
     setInterval(fetchShibaData, 60000); // Update price data every minute
 });
- 

@@ -1,103 +1,109 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+const DIADATA_API_URL = 'https://api.diadata.org/v1';
+const SHIB_CONTRACT = '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE';
+const BLOCKCHAIN = 'Ethereum';
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
-    
-    <!-- Primary Meta Tags -->
-    <title>Shiba Inu (SHIB) Live Price Tracker | Real-Time Charts & Analytics</title>
-    <meta name="description" content="Track Shiba Inu (SHIB) cryptocurrency with real-time price updates using DIAdata API...">
-    <meta name="keywords" content="Shiba Inu price, SHIB tracker, SHIB live price, cryptocurrency tracker, Shiba Inu chart, SHIB market cap, SHIB analytics, Shiba coin tracker">
-    <meta name="author" content="ShibaInuCoinTracker">
-    <meta name="robots" content="index, follow, max-image-preview:large">
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://shibainucointracker.com/">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://shibainucointracker.com/">
-    <meta property="og:title" content="SHIB Live Tracker | Real-Time Shiba Inu Price & Charts">
-    <meta property="og:description" content="Get real-time Shiba Inu (SHIB) price updates, market cap data, trading volume, and interactive price charts updated every minute.">
-    <meta property="og:image" content="https://shibainucointracker.com/images/shib-og-image.jpg">
-    <meta property="og:site_name" content="ShibaInuCoinTracker">
-    <meta property="og:locale" content="en_US">
-    
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
+async function fetchShibaData() {="width=device-width, initial-scale=1.0">
+    try { http-equiv="Content-Type" content="text/html; charset=utf-8">
+        console.log('Fetching data from DIAdata...');ge">
+        k rel="dns-prefetch" href="//fonts.googleapis.com">
+        // Fetch SHIB price data using contract addressom">
+        const response = await fetch(`${DIADATA_API_URL}/assetQuotation/${BLOCKCHAIN}/${SHIB_CONTRACT}`);
+         Primary Meta Tags -->
+        if (!response.ok) { Live Price Tracker | Real-Time Charts & Analytics</title>
+            if (response.status === 404) {k Shiba Inu (SHIB) cryptocurrency with real-time price updates using DIAdata API...">
+                throw new Error('API endpoint not found (404). Check the contract address or endpoint.');, Shiba Inu chart, SHIB market cap, SHIB analytics, Shiba coin tracker">
+            }e="author" content="ShibaInuCoinTracker">
+            throw new Error(`API response error: ${response.status}`);e">
+        }
+         Canonical URL -->
+        const data = await response.json();bainucointracker.com/">
+        
+        if (!data || typeof data.Price === 'undefined') {
+            throw new Error('Invalid data structure received from API');
+        } property="og:url" content="https://shibainucointracker.com/">
+        a property="og:title" content="SHIB Live Tracker | Real-Time Shiba Inu Price & Charts">
+        // Update price displayson" content="Get real-time Shiba Inu (SHIB) price updates, market cap data, trading volume, and interactive price charts updated every minute.">
+        const price = data.Price || 0;"https://shibainucointracker.com/images/shib-og-image.jpg">
+        const priceYesterday = data.PriceYesterday || 0;racker">
+        const volume = data.VolumeYesterdayUSD || 0;
+        
+        // Calculate 24h change
+        const priceChange = price - priceYesterday;e_image">
     <meta name="twitter:url" content="https://shibainucointracker.com/">
     <meta name="twitter:title" content="Live SHIB Price Tracker | Shiba Inu Coin Analytics">
     <meta name="twitter:description" content="Track Shiba Inu (SHIB) with real-time price data, market stats, and interactive charts. Updated every minute.">
     <meta name="twitter:image" content="https://shibainucointracker.com/images/shib-twitter-card.jpg">
-    
-    <!-- Favicon and App Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <meta name="theme-color" content="#ffd700">
-
-    <!-- Preconnect to External Resources -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        
+    <!-- Favicon and App Icons -->PI response
+        if (document.getElementById('lastUpdate')) {f="/apple-touch-icon.png">
+            const lastUpdated = new Date(data.Time);href="/favicon-32x32.png">
+            document.getElementById('lastUpdate').textContent = `Last updated: ${lastUpdated.toLocaleTimeString()}`;
+        } rel="manifest" href="/site.webmanifest">
+    } catch (error) {-color" content="#ffd700">
+        console.error('Fetch Error Details:', error);
+        handleError(); External Resources -->
+    }link rel="preconnect" href="https://fonts.googleapis.com">
+}   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preload" href="styles.css" as="style">
-    <link rel="preload" href="script.js" as="script">
-    
-    <!-- Stylesheets -->
+function updatePriceElements(price, priceChange, changePercent, volume) {
+    // Main price displayref="styles.css" as="style">
+    if (document.getElementById('price')) {="script">
+        document.getElementById('price').textContent = `$${price.toFixed(8)}`;
+    }!-- Stylesheets -->
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Unified Mobile Menu CSS -->
+    // Mini price display" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    if (document.getElementById('price-mini')) {2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        document.getElementById('price-mini').textContent = `$${price.toFixed(8)}`;
+    }!-- Unified Mobile Menu CSS -->
     <link rel="stylesheet" href="mobile-menu.css">
-
-    <!-- Custom styles for SHIB price displays -->
-    <style>
-        /* Navbar mini price adjustment */
+    // Price change amount
+    if (document.getElementById('priceChange')) {>
+        document.getElementById('priceChange').textContent = `$${Math.abs(priceChange).toFixed(8)}`;
+    }   /* Navbar mini price adjustment */
         .mini-price #price-mini {
-            font-size: 0.85rem;
-        }
-        
-        /* Main price display adjustment */
-        .current-price #price {
-            font-size: 1.8rem;
+    // Change percentage with color
+    if (document.getElementById('changePercent')) {
+        const prefix = changePercent >= 0 ? '+' : '-';
+        document.getElementById('changePercent').textContent = `${prefix}${Math.abs(changePercent).toFixed(2)}%`;
+        document.getElementById('changePercent').className = changePercent >= 0 ? 'positive' : 'negative';
+    }       font-size: 1.8rem;
             word-break: break-word;
-        }
+    // Volume display
+    if (document.getElementById('volume')) {
+        document.getElementById('volume').textContent = `$${formatNumber(volume)}`;
+    }       font-size: 1rem;
+}       }
         
-        .price-change #priceChange {
-            font-size: 1rem;
-        }
+function handleError() {/
+    const elementsToUpdate = [
+        'price', 'priceChange', 'changePercent', 'volume', 'marketCap', 'rank', 'price-mini', 'change-mini'
+    ];  }
+    elementsToUpdate.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = 'Error'; 255, 0.1);
+    });     margin-bottom: 0.5rem;
+}       }
         
-        /* FAQ Styling */
-        .faq-content {
-            margin-top: 1rem;
-        }
+function formatNumber(num) {
+    if (!num || isNaN(num)) return '0.00';
+    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+    return num.toFixed(2);r;
+}       }
         
-        .faq-item {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 0.5rem;
-        }
-        
-        .faq-question {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-            cursor: pointer;
-        }
-        
-        .faq-question h3 {
-            font-size: 1.1rem;
-            margin: 0;
-            font-weight: 500;
-        }
-        
+document.addEventListener('DOMContentLoaded', () => {
+    // Add animation classes to elements: 1.1rem;
+    document.querySelectorAll('.card').forEach((card, index) => {
+        card.style.setProperty('--index', index);         font-weight: 500;
+        card.classList.add('fade-in');       }
+
+
+
+
+
+
+});    setInterval(fetchShibaData, 60000); // Update price data every minute    fetchShibaData();        });        
         .faq-answer {
             height: 0;
             overflow: hidden;
@@ -1141,6 +1147,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script defer src="js/mobile-menu.js"></script>
+
+    <!-- Add this in the head section -->
+    <link rel="stylesheet" href="theme.css">
 </head>
 
 <body>
@@ -1173,408 +1182,408 @@
     </div>
 </header>
 
-    <div class="hero-section">
-        <div class="container">
-            <div class="hero-content">
-                <h1>SHIBA INU COIN<span class="accent"> LIVE PRICE TRACKER</span></h1>
-                <p>Real-time SHIB price analytics, market data, charts, and comprehensive cryptocurrency insights updated every minute</p>
-            </div>
-
-            <!-- Center the last updated section -->
+<!-- Update the hero section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="hero-content fade-in">
+            <h1>SHIBA INU <span class="accent">LIVE PRICE TRACKER</span></h1>
+            <p>Real-time SHIB price analytics, market data, and comprehensive cryptocurrency insights</p>
             <div class="updated">
                 <i class="fas fa-sync-alt"></i>
                 <span id="lastUpdate">Last updated: Loading...</span>
             </div>
         </div>
     </div>
+</div>
 
     <div class="container">
         <section class="price-section">
-            <div class="price-card">
+            <!-- Update the price card -->
+            <div class="price-card card fade-in">
                 <div class="price-header">
-                    <h2>SHIB/USD</h2>
-                    <div class="timeframe">
-                        <span>24h</span>
-                    </div>
-                </div>
+                    </div>IB/USD</h2>
+                </div>iv class="timeframe">
                 <div class="price-content">
                     <div class="current-price">
                         <span id="price">$0.00000000</span>
-                    </div>
-                    <div class="price-change">
+                    </div>="price-content">
+                    <div class="price-change">>
                         <span id="changePercent">(0.00%)</span>
                         </div>
-                </div>
-            </div>
-
+                </div>iv class="price-change">
+            </div>      <span id="changePercent">(0.00%)</span>
+                        </div>
             <!-- Replace the price stats section -->
             <div class="price-stats">
                 <div class="stat-box">
                     <span class="stat-label">24h Volume</span>
                     <span class="stat-value" id="volume">Loading...</span>
+                </div>lass="stat-box">
+            </div>  <span class="stat-label">24h Volume</span>
+        </section>  <span class="stat-value" id="volume">Loading...</span>
                 </div>
-            </div>
-        </section>
-
         <!-- Latest News Section - Add this between chart and FAQ sections -->
         <section class="news-section">
             <div class="news-card">
-                <div class="news-header">
+                <div class="news-header">is between chart and FAQ sections -->
                     <h2><i class="fas fa-newspaper"></i> Stay Updated</h2>
-                </div>
+                </div>="news-card">
                 <div class="news-content">
                     <p>Get the latest Shiba Inu news, market updates, and cryptocurrency insights.</p>
                     <a href="blog.html" class="news-btn">
                         <span>Latest News</span>
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
+                        <i class="fas fa-arrow-right"></i>et updates, and cryptocurrency insights.</p>
+                    </a>ref="blog.html" class="news-btn">
+                </div>  <span>Latest News</span>
+            </div>      <i class="fas fa-arrow-right"></i>
+        </section>  </a>
                 </div>
-            </div>
-        </section>
-
 <!-- Add this FAQ section after the news section -->
 <section class="faq-section">
     <div class="faq-card">
-        <div class="faq-header">
+        <div class="faq-header">the news section -->
             <h2></i> Frequently Asked Questions</h2>
-        </div>
+        </div>="faq-card">
         <div class="faq-content">
-            <!-- FAQ Item 1 -->
+            <!-- FAQ Item 1 --> Asked Questions</h2>
             <div class="faq-item">
                 <div class="faq-question">
                     <h3>What is Shiba Inu (SHIB) cryptocurrency?</h3>
                     <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
+                </div>lass="faq-question">
+                <div class="faq-answer">u (SHIB) cryptocurrency?</h3>
                     <p>Shiba Inu (SHIB) is a decentralized cryptocurrency created in August 2020 by an anonymous person or group known as "Ryoshi." It's an ERC-20 token built on the Ethereum blockchain that began as an experiment in decentralized community building and was dubbed the "Dogecoin killer."</p>
                 </div>
-            </div>
-            
+            </div>iv class="faq-answer">
+                    <p>Shiba Inu (SHIB) is a decentralized cryptocurrency created in August 2020 by an anonymous person or group known as "Ryoshi." It's an ERC-20 token built on the Ethereum blockchain that began as an experiment in decentralized community building and was dubbed the "Dogecoin killer."</p>
             <!-- FAQ Item 2 -->
             <div class="faq-item">
                 <div class="faq-question">
                     <h3>Who created Shiba Inu coin?</h3>
                     <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
+                </div>lass="faq-question">
+                <div class="faq-answer">a Inu coin?</h3>
                     <p>Shiba Inu was created by an anonymous individual or group using the pseudonym "Ryoshi." Unlike many crypto projects, Ryoshi stepped away from the project in May 2021, stating that true decentralization requires the founders to step back.</p>
                 </div>
-            </div>
-            
+            </div>iv class="faq-answer">
+                    <p>Shiba Inu was created by an anonymous individual or group using the pseudonym "Ryoshi." Unlike many crypto projects, Ryoshi stepped away from the project in May 2021, stating that true decentralization requires the founders to step back.</p>
             <!-- FAQ Item 3 -->
             <div class="faq-item">
                 <div class="faq-question">
                     <h3>What is the total supply of SHIB tokens?</h3>
                     <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
+                </div>lass="faq-question">
+                <div class="faq-answer">l supply of SHIB tokens?</h3>
                     <p>SHIB was initially launched with a total supply of 1 quadrillion tokens. However, approximately 50% of the supply was sent to Vitalik Buterin's wallet, who burned 90% of his holdings (410 trillion SHIB) and donated the remaining 10% to the India Covid-Crypto Relief Fund.</p>
                 </div>
-            </div>
-            
+            </div>iv class="faq-answer">
+                    <p>SHIB was initially launched with a total supply of 1 quadrillion tokens. However, approximately 50% of the supply was sent to Vitalik Buterin's wallet, who burned 90% of his holdings (410 trillion SHIB) and donated the remaining 10% to the India Covid-Crypto Relief Fund.</p>
             <!-- FAQ Item 4 -->
             <div class="faq-item">
                 <div class="faq-question">
                     <h3>What is the Shiba Inu ecosystem?</h3>
                     <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
+                </div>lass="faq-question">
+                <div class="faq-answer">a Inu ecosystem?</h3>
                     <p>The Shiba Inu ecosystem consists of three main tokens: SHIB (the main currency), LEASH (originally a rebase token, now with limited supply), and BONE (governance token). The ecosystem also includes ShibaSwap DEX, Shibarium (Layer-2 solution), NFT projects, and metaverse development.</p>
                 </div>
-            </div>
-            
+            </div>iv class="faq-answer">
+                    <p>The Shiba Inu ecosystem consists of three main tokens: SHIB (the main currency), LEASH (originally a rebase token, now with limited supply), and BONE (governance token). The ecosystem also includes ShibaSwap DEX, Shibarium (Layer-2 solution), NFT projects, and metaverse development.</p>
             <!-- FAQ Item 5 -->
             <div class="faq-item">
                 <div class="faq-question">
                     <h3>When did Shiba Inu gain popularity?</h3>
                     <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
+                </div>lass="faq-question">
+                <div class="faq-answer">nu gain popularity?</h3>
                     <p>While created in 2020, SHIB exploded in popularity during early 2021 following Dogecoin's rise and Elon Musk's crypto tweets. It saw major price surges in May and October 2021, with the latter pushing it briefly into the top 10 cryptocurrencies by market cap.</p>
                 </div>
-            </div>
-            
+            </div>iv class="faq-answer">
+                    <p>While created in 2020, SHIB exploded in popularity during early 2021 following Dogecoin's rise and Elon Musk's crypto tweets. It saw major price surges in May and October 2021, with the latter pushing it briefly into the top 10 cryptocurrencies by market cap.</p>
             <!-- FAQ Item 6 -->
             <div class="faq-item">
                 <div class="faq-question">
                     <h3>What is ShibaSwap?</h3>
                     <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
+                </div>lass="faq-question">
+                <div class="faq-answer">p?</h3>
                     <p>ShibaSwap is Shiba Inu's decentralized exchange (DEX) launched in July 2021. It allows users to trade cryptocurrencies, stake tokens (called "BURY"), provide liquidity ("DIG"), and earn rewards. It forms the core of SHIB's DeFi capabilities.</p>
                 </div>
-            </div>
-            
+            </div>iv class="faq-answer">
+                    <p>ShibaSwap is Shiba Inu's decentralized exchange (DEX) launched in July 2021. It allows users to trade cryptocurrencies, stake tokens (called "BURY"), provide liquidity ("DIG"), and earn rewards. It forms the core of SHIB's DeFi capabilities.</p>
             <!-- FAQ Item 7 -->
             <div class="faq-item">
                 <div class="faq-question">
                     <h3>What is Shibarium?</h3>
                     <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
+                </div>lass="faq-question">
+                <div class="faq-answer">m?</h3>
                     <p>Shibarium is Shiba Inu's Layer-2 blockchain solution built on top of Ethereum, launched in 2023. It aims to provide faster transactions with lower fees while maintaining security. It enables more scalable development of applications within the Shiba ecosystem.</p>
                 </div>
-            </div>
-            
+            </div>iv class="faq-answer">
+                    <p>Shibarium is Shiba Inu's Layer-2 blockchain solution built on top of Ethereum, launched in 2023. It aims to provide faster transactions with lower fees while maintaining security. It enables more scalable development of applications within the Shiba ecosystem.</p>
             <!-- FAQ Item 8 -->
             <div class="faq-item">
                 <div class="faq-question">
                     <h3>What makes Shiba Inu different from Dogecoin?</h3>
                     <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
+                </div>lass="faq-question">
+                <div class="faq-answer"> Inu different from Dogecoin?</h3>
                     <p>While both are dog-themed cryptocurrencies, Shiba Inu is an ERC-20 token on Ethereum, whereas Dogecoin has its own blockchain. SHIB has a comprehensive ecosystem with multiple tokens and DeFi applications, while Dogecoin functions primarily as a currency. SHIB also has a much higher total supply.</p>
                 </div>
-            </div>
-            
+            </div>iv class="faq-answer">
+                    <p>While both are dog-themed cryptocurrencies, Shiba Inu is an ERC-20 token on Ethereum, whereas Dogecoin has its own blockchain. SHIB has a comprehensive ecosystem with multiple tokens and DeFi applications, while Dogecoin functions primarily as a currency. SHIB also has a much higher total supply.</p>
             <!-- FAQ Item 9 -->
             <div class="faq-item">
                 <div class="faq-question">
                     <h3>Has Shiba Inu been involved in any charitable work?</h3>
                     <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
+                </div>lass="faq-question">
+                <div class="faq-answer">en involved in any charitable work?</h3>
                     <p>Yes. Most notably, when Vitalik Buterin donated about $1 billion worth of SHIB tokens to India's COVID-19 Relief Fund in 2021. The community has also supported various charitable initiatives through the years.</p>
                 </div>
-            </div>
-            
+            </div>iv class="faq-answer">
+                    <p>Yes. Most notably, when Vitalik Buterin donated about $1 billion worth of SHIB tokens to India's COVID-19 Relief Fund in 2021. The community has also supported various charitable initiatives through the years.</p>
             <!-- FAQ Item 10 -->
             <div class="faq-item">
                 <div class="faq-question">
                     <h3>What is the "SHIB Army"?</h3>
                     <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
+                </div>lass="faq-question">
+                <div class="faq-answer">B Army"?</h3>
                     <p>The "SHIB Army" refers to the dedicated community of Shiba Inu supporters and investors. Known for its passionate engagement on social media, the community has been instrumental in SHIB's growth, marketing, and adoption without traditional corporate backing.</p>
                 </div>
-            </div>
+            </div>iv class="faq-answer">
+        </div>      <p>The "SHIB Army" refers to the dedicated community of Shiba Inu supporters and investors. Known for its passionate engagement on social media, the community has been instrumental in SHIB's growth, marketing, and adoption without traditional corporate backing.</p>
+    </div>      </div>
+</section>  </div>
         </div>
-    </div>
-</section>
-
 <!-- Add these containers just before the footer -->
 <div id="notificationContainer" class="notification-container"></div>
 <div id="alertsList" class="alerts-list"></div>
-
- <footer>
-        <div class="container">
+<!-- Add these containers just before the footer -->
+ <footer>notificationContainer" class="notification-container"></div>
+        <div class="container">rts-list"></div>
             <div class="footer-card">
                 <div class="footer-header">
                     <h2><i class="fas fa-info-circle"></i> About & Resources</h2>
-                </div>
+                </div>="footer-card">
                 <div class="footer-content">
-                    <div class="footer-section">
+                    <div class="footer-section">rcle"></i> About & Resources</h2>
                         <div class="footer-icon">
                             <i class="fas fa-dog"></i>
-                        </div>
+                        </div>="footer-section">
                         <div class="footer-about">
                             <h3>About SHIB Tracker</h3>
                             <p>Real-time Shiba Inu cryptocurrency price tracking and market data analytics. Not financial advice.</p>
-                        </div>
-                    </div>
-                    
+                        </div>lass="footer-about">
+                    </div>  <h3>About SHIB Tracker</h3>
+                            <p>Real-time Shiba Inu cryptocurrency price tracking and market data analytics. Not financial advice.</p>
                     <div class="footer-section">
                         <div class="footer-icon">
                             <i class="fas fa-link"></i>
-                        </div>
+                        </div>="footer-section">
                         <div class="footer-links">
-                            <h3>Resources</h3>
+                            <h3>Resources</h3>ink"></i>
                             <ul>
                                 <li><a href="blog.html" class="news-link"><i class="fas fa-newspaper"></i> Latest News</a></li>
                                 <li><a href="https://www.shibatoken.com/" target="_blank"><i class="fas fa-external-link-alt"></i> Official SHIB Website</a></li>
                             </ul>
-                        </div>
-                    </div>
-                    
+                        </div>  <li><a href="blog.html" class="news-link"><i class="fas fa-newspaper"></i> Latest News</a></li>
+                    </div>      <li><a href="https://www.shibatoken.com/" target="_blank"><i class="fas fa-external-link-alt"></i> Official SHIB Website</a></li>
+                            </ul>
                     <!-- Legal links section -->
                     <div class="footer-section">
                         <div class="footer-icon">
                             <i class="fas fa-shield-alt"></i>
-                        </div>
+                        </div>="footer-section">
                         <div class="footer-links">
-                            <h3>Legal</h3>
+                            <h3>Legal</h3>fa-shield-alt"></i>
                             <ul>
                                 <li><a href="disclaimer.html"><i class="fas fa-exclamation-circle"></i> Disclaimer</a></li>
                                 <li><a href="privacy.html"><i class="fas fa-user-shield"></i> Privacy Policy</a></li>
                             </ul>
+                        </div>  <li><a href="disclaimer.html"><i class="fas fa-exclamation-circle"></i> Disclaimer</a></li>
+                    </div>      <li><a href="privacy.html"><i class="fas fa-user-shield"></i> Privacy Policy</a></li>
+                </div>      </ul>
                         </div>
-                    </div>
-                </div>
-                
                 <div class="footer-bottom">
                     <p><i class="fas fa-copyright"></i> 2025 ShibaInuCoinTracker.com</p>
                 </div>
+            </div>iv class="footer-bottom">
+        </div>      <p><i class="fas fa-copyright"></i> 2025 ShibaInuCoinTracker.com</p>
+    </footer>   </div>
             </div>
-        </div>
-    </footer>
-
     <!-- Move scripts to end of body -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
     <script src="script.js"></script>
-
-    
-    <!-- Inline critical JS -->
+    <!-- Move scripts to end of body -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
+    <!-- Inline critical JS -->cript>
     <script>
         // Critical initialization
         document.addEventListener('DOMContentLoaded', () => {
             const priceElement = document.getElementById('price-mini');
             if(priceElement) priceElement.textContent = 'Loading...';
-        });
-    </script>
-    
+        });ument.addEventListener('DOMContentLoaded', () => {
+    </script>onst priceElement = document.getElementById('price-mini');
+            if(priceElement) priceElement.textContent = 'Loading...';
     <!-- Cookie Consent Popup -->
     <div id="cookieConsent" class="cookie-consent">
         <div class="cookie-content">
             <div class="cookie-text">
-                <i class="fas fa-cookie-bite"></i>
+                <i class="fas fa-cookie-bite"></i>>
                 <p>We use cookies to enhance your experience on our website. By continuing to browse, you agree to our <a href="privacy.html">Privacy Policy</a>.</p>
-            </div>
-            <div class="cookie-buttons">
-                <button id="cookieAccept" class="cookie-btn accept">Accept</button>
+            </div>lass="cookie-text">
+            <div class="cookie-buttons">bite"></i>
+                <button id="cookieAccept" class="cookie-btn accept">Accept</button>tinuing to browse, you agree to our <a href="privacy.html">Privacy Policy</a>.</p>
                 <a href="privacy.html" class="cookie-btn more">Learn More</a>
+            </div>lass="cookie-buttons">
+        </div>  <button id="cookieAccept" class="cookie-btn accept">Accept</button>
+    </div>      <a href="privacy.html" class="cookie-btn more">Learn More</a>
             </div>
-        </div>
-    </div>
-
 <!-- Remove all existing script tags at the bottom and replace with this organized version -->
-
+    </div>
 <!-- Load external dependencies first -->
-
+<!-- Remove all existing script tags at the bottom and replace with this organized version -->
 <!-- Load our main script -->
-<script src="script.js"></script>
+<script src="script.js"></script>irst -->
 
 <!-- Single initialization script -->
-<script>
+<script>src="script.js"></script>
 document.addEventListener('DOMContentLoaded', async () => {
-    try {
+    try {le initialization script -->
         // First check if script.js is loaded properly
-        if (typeof fetchShibaData === 'undefined') {
+        if (typeof fetchShibaData === 'undefined') {() => {
             throw new Error('Core functions not loaded');
-        }
-
-        // Initialize core functionality
+        }/ First check if script.js is loaded properly
+        if (typeof fetchShibaData === 'undefined') {
+        // Initialize core functionalityons not loaded');
         await fetchShibaData();
         
-        // Set up refresh interval
+        // Set up refresh intervalnality
         setInterval(fetchShibaData, 60000);
-
+        
         // Initialize UI components
-        initializeMobileMenu();
+        initializeMobileMenu();ata, 60000);
         initializeCookieConsent();
-
-    } catch (error) {
+        // Initialize UI components
+    } catch (error) {ileMenu();
         console.error('Initialization error:', error);
         document.getElementById('price').textContent = 'Error loading data';
         document.getElementById('price-mini').textContent = 'Error';
-    }
-});
-
+    }   console.error('Initialization error:', error);
+});     document.getElementById('price').textContent = 'Error loading data';
+        document.getElementById('price-mini').textContent = 'Error';
 // UI initialization functions
 function initializeMobileMenu() {
     const menuToggle = document.getElementById('menuToggle');
     const mainNav = document.querySelector('.main-nav');
-    const body = document.body;
-
-    // Create overlay element
+    const body = document.body; {
+    const menuToggle = document.getElementById('menuToggle');
+    // Create overlay elementquerySelector('.main-nav');
     const overlay = document.createElement('div');
     overlay.className = 'menu-overlay';
     body.appendChild(overlay);
-
-    if (menuToggle && mainNav) {
+    const overlay = document.createElement('div');
+    if (menuToggle && mainNav) {erlay';
         menuToggle.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            
+            Toggle.addEventListener('click', (e) => {
             menuToggle.classList.toggle('active');
             mainNav.classList.toggle('active');
             overlay.classList.toggle('active');
             body.style.overflow = body.style.overflow === 'hidden' ? '' : 'hidden';
-
+            mainNav.classList.toggle('active');
             const menuItems = mainNav.querySelectorAll('li');
-            menuItems.forEach((item, index) => {
+            menuItems.forEach((item, index) => {rflow === 'hidden' ? '' : 'hidden';
                 item.style.transitionDelay = `${index * 0.1}s`;
-            });
-        });
-
+            });st menuItems = mainNav.querySelectorAll('li');
+        }); menuItems.forEach((item, index) => {
+                item.style.transitionDelay = `${index * 0.1}s`;
         overlay.addEventListener('click', (e) => {
             e.preventDefault();
             closeMenu(menuToggle, mainNav, overlay, body);
-        });
-
-        const menuItems = mainNav.querySelectorAll('a');
+        });rlay.addEventListener('click', (e) => {
+            e.preventDefault();
+        const menuItems = mainNav.querySelectorAll('a'););
         menuItems.forEach(item => {
             item.addEventListener('click', () => {
                 closeMenu(menuToggle, mainNav, overlay, body);
-            });
-        });
-
+            });ms.forEach(item => {
+        }); item.addEventListener('click', () => {
+                closeMenu(menuToggle, mainNav, overlay, body);
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
                 closeMenu(menuToggle, mainNav, overlay, body);
-            }
+            }w.addEventListener('resize', () => {
+        }); if (window.innerWidth > 768) {
+    }           closeMenu(menuToggle, mainNav, overlay, body);
+}           }
         });
-    }
-}
-
 function closeMenu(menuToggle, mainNav, overlay, body) {
     menuToggle.classList.remove('active');
     mainNav.classList.remove('active');
-    overlay.classList.remove('active');
-    body.style.overflow = '';
-    
+    overlay.classList.remove('active'); overlay, body) {
+    body.style.overflow = '';ve('active');
+    mainNav.classList.remove('active');
     const menuItems = mainNav.querySelectorAll('li');
     menuItems.forEach(item => {
         item.style.transitionDelay = '0s';
-    });
-}
-
+    });st menuItems = mainNav.querySelectorAll('li');
+}   menuItems.forEach(item => {
+        item.style.transitionDelay = '0s';
 // Initialize the mobile menu
 document.addEventListener('DOMContentLoaded', () => {
     try {
         initializeMobileMenu();
-    } catch (error) {
+    } catch (error) {ener('DOMContentLoaded', () => {
         console.error('Mobile menu initialization error:', error);
-    }
-});
-
+    }   initializeMobileMenu();
+}); } catch (error) {
+        console.error('Mobile menu initialization error:', error);
 function initializeCookieConsent() {
     // existing code...
 }
-</script>
-
+</script>initializeCookieConsent() {
+    // existing code...
 <!-- Add this script at the bottom of your HTML file, before the closing body tag -->
-<script>
+<script>>
 (function() {
-    // Set initial state for all FAQ answers
+    // Set initial state for all FAQ answersTML file, before the closing body tag -->
     document.querySelectorAll('.faq-answer').forEach(answer => {
         answer.style.display = 'none';
-    });
-
+    });Set initial state for all FAQ answers
+    document.querySelectorAll('.faq-answer').forEach(answer => {
     // Add click event handlers to all FAQ questions
     document.querySelectorAll('.faq-question').forEach(question => {
         question.addEventListener('click', function() {
-            const faqItem = this.parentElement;
-            const answer = faqItem.querySelector('.faq-answer');
-
-            // Close all other open FAQs
+            const faqItem = this.parentElement;tions
+            const answer = faqItem.querySelector('.faq-answer');=> {
+        question.addEventListener('click', function() {
+            // Close all other open FAQslement;
             document.querySelectorAll('.faq-item.active').forEach(item => {
                 if (item !== faqItem) {
                     item.classList.remove('active');
-                    const otherAnswer = item.querySelector('.faq-answer');
+                    const otherAnswer = item.querySelector('.faq-answer');{
                     otherAnswer.style.display = 'none';
-                }
-            });
-
+                }   item.classList.remove('active');
+            });     const otherAnswer = item.querySelector('.faq-answer');
+                    otherAnswer.style.display = 'none';
             // Toggle the clicked FAQ
             faqItem.classList.toggle('active');
             answer.style.display = faqItem.classList.contains('active') ? 'block' : 'none';
-        });
+        }); // Toggle the clicked FAQ
+    });     faqItem.classList.toggle('active');
+})();       answer.style.display = faqItem.classList.contains('active') ? 'block' : 'none';
+</script>);
     });
-})();
-</script>
-
 <!-- Unified Mobile Menu JS -->
 <script src="mobile-menu.js"></script>
+
+</body>ified Mobile Menu JS -->
+</html> src="mobile-menu.js"></script>
 
 </body>
 </html>

@@ -11,6 +11,16 @@
     --border-radius: 12px;
     --error-color: #ff3b3b;
     font-family: 'Poppins', sans-serif;
+    --primary-orange: #FF6B00;
+    --secondary-orange: #FF8534;
+    --accent-orange: #FFA066;
+    --deep-black: #111111;
+    --rich-black: #1A1A1A;
+    --gray-dark: #2A2A2A;
+    --text-light: #F5F5F5;
+    --gradient-orange: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    --shadow-orange: 0 4px 20px rgba(255, 107, 0, 0.2);
+    --blur-bg: rgba(26, 26, 26, 0.8);
 }
 
 * {

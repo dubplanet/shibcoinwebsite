@@ -419,6 +419,198 @@
             }
         }
     </style>
+    <style>
+    /* Modern Blog Layout */
+    .blog-section {
+        background-color: var(--deep-black);
+        padding: 2rem 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Abstract Background Animation */
+    .blog-section::before {
+        content: '';
+        position: absolute;
+        width: 1000px;
+        height: 1000px;
+        background: var(--gradient-orange);
+        filter: blur(100px);
+        opacity: 0.1;
+        animation: floatBackground 20s ease-in-out infinite;
+        z-index: 0;
+    }
+
+    @keyframes floatBackground {
+        0%, 100% { transform: translate(-30%, -30%) rotate(0deg); }
+        50% { transform: translate(30%, 30%) rotate(180deg); }
+    }
+
+    /* Modern Card Design */
+    .article-card {
+        background: var(--rich-black);
+        border: 1px solid rgba(255, 107, 0, 0.1);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .article-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: var(--shadow-orange);
+        border-color: var(--primary-orange);
+    }
+
+    /* Image Hover Effect */
+    .article-image {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .article-image::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--gradient-orange);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .article-card:hover .article-image::after {
+        opacity: 0.2;
+    }
+
+    /* Modern Typography */
+    .article-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        background: var(--gradient-orange);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    /* Card Content Animation */
+    .article-content {
+        transform: translateY(0);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 1.5rem;
+    }
+
+    .article-card:hover .article-content {
+        transform: translateY(-5px);
+    }
+
+    /* Modern Button Design */
+    .read-more {
+        background: var(--gradient-orange);
+        color: var(--text-light);
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .read-more::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .read-more:hover::before {
+        transform: translateX(0);
+    }
+
+    /* Search Bar Redesign */
+    .blog-search input {
+        background: var(--rich-black);
+        border: 2px solid var(--gray-dark);
+        color: var(--text-light);
+        padding: 1rem 1.5rem 1rem 3rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+
+    .blog-search input:focus {
+        border-color: var(--primary-orange);
+        box-shadow: var(--shadow-orange);
+    }
+
+    /* Filter Buttons */
+    .filter-btn {
+        background: var(--rich-black);
+        color: var(--primary-orange);
+        border: 2px solid var(--primary-orange);
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+        background: var(--gradient-orange);
+        color: var(--text-light);
+        border-color: transparent;
+    }
+
+    /* Loading Animation */
+    .loader .spinner {
+        border-color: rgba(255, 107, 0, 0.2);
+        border-top-color: var(--primary-orange);
+    }
+
+    /* Pagination */
+    .pagination-btn {
+        background: var(--rich-black);
+        color: var(--primary-orange);
+        border: 1px solid var(--primary-orange);
+        transition: all 0.3s ease;
+    }
+
+    .pagination-btn:hover, .pagination-btn.active {
+        background: var(--gradient-orange);
+        color: var(--text-light);
+    }
+
+    /* Add these animations at the end of your style block */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    /* Stagger child animations */
+    .article-card {
+        opacity: 0;
+        animation-delay: calc(var(--index) * 0.1s);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .article-card, .blog-section::before {
+            animation: none;
+        }
+    }
+</style>
 </head>
 <body>
     <header class="site-header">
@@ -472,6 +664,13 @@
             </div>
         </div>
     </main>
+
+    <div class="blog-section">
+        <!-- Add these classes to your existing elements -->
+        <article class="article-card fade-in">
+            <!-- ... existing card content ... -->
+        </article>
+    </div>
 
     <footer>
         <div class="container">

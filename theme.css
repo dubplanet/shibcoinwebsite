@@ -1,0 +1,74 @@
+:root {
+    --primary-orange: #FF6B00;
+    --secondary-orange: #FF8534;
+    --accent-orange: #FFA066;
+    --deep-black: #111111;
+    --rich-black: #1A1A1A;
+    --gray-dark: #2A2A2A;
+    --text-light: #F5F5F5;
+    --gradient-orange: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    --shadow-orange: 0 4px 20px rgba(255, 107, 0, 0.2);
+    --blur-bg: rgba(26, 26, 26, 0.8);
+    --border-radius: 16px;
+}
+
+/* Global Animations */
+@keyframes floatBackground {
+    0%, 100% { transform: translate(-30%, -30%) rotate(0deg); }
+    50% { transform: translate(30%, 30%) rotate(180deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modern Card Design */
+.card {
+    background: var(--rich-black);
+    border: 1px solid rgba(255, 107, 0, 0.1);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: var(--shadow-orange);
+    border-color: var(--primary-orange);
+}
+
+/* Button Styles */
+.btn {
+    background: var(--gradient-orange);
+    color: var(--text-light);
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.btn:hover::before {
+    transform: translateX(0);
+}
