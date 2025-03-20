@@ -916,6 +916,94 @@
     /* transition: filter 0.3s ease; */
 
 </style>
+<style>
+    /* Fixed header and navigation positioning */
+    .site-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(20, 20, 30, 0.95);
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Logo positioning */
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .logo img {
+        width: 30px;
+        height: 30px;
+    }
+
+    /* Navigation positioning */
+    .main-nav {
+        display: flex;
+        align-items: center;
+    }
+
+    .main-nav ul {
+        display: flex;
+        gap: 2rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* Content spacing */
+    .blog-section {
+        margin-top: 80px; /* Space for fixed header */
+        padding-top: 2rem;
+    }
+
+    /* Mobile menu adjustments */
+    @media (max-width: 768px) {
+        .header-content {
+            padding: 1rem;
+        }
+
+        .menu-toggle {
+            display: flex;
+            position: relative;
+            right: 0;
+            top: 0;
+        }
+
+        .main-nav {
+            position: fixed;
+            top: 60px;
+            right: -300px;
+            width: 300px;
+            height: calc(100vh - 60px);
+            background: rgba(20, 20, 30, 0.95);
+            padding: 2rem;
+            transition: right 0.3s ease;
+        }
+
+        .main-nav.active {
+            right: 0;
+        }
+
+        .main-nav ul {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+    }
+</style>
 </head>
 <body>
     <!-- Update header section -->
@@ -1035,7 +1123,7 @@
 
     <script src="blog.js"></script>
     <script src="script.js"></script>
-    <script defer src="js/mobile-menu.js"></script>
+    
     <!-- Unified Mobile Menu JS -->
     <script src="mobile-menu.js"></script>
     <script>
