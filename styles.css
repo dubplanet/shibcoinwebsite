@@ -439,7 +439,7 @@ footer {
 }
 
 .footer-bottom p {
-    color: var(--text-secondary);
+    color: var (--text-secondary);
     font-size: 0.9rem;
     display: flex;
     align-items: center;
@@ -1645,7 +1645,7 @@ body.menu-open {
 /* Desktop Menu Styles */
 @media (min-width: 769px) {
     .menu-toggle {
-        display: none; /* Hide hamburger on desktop */
+        display: none; /* Hide hamburger menu on desktop */
     }
 
     .header-content {
@@ -1673,6 +1673,7 @@ body.menu-open {
         gap: 2rem;
         margin: 0;
         padding: 0;
+        list-style: none;
     }
 
     .main-nav ul li {
@@ -1689,7 +1690,7 @@ body.menu-open {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        transition: color 0.3s ease;
+        transition: color 0.3s ease, background 0.3s ease;
         background: transparent;
         border-radius: 4px;
     }
