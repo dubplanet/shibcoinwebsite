@@ -48,33 +48,45 @@
     transition: transform 0.3s ease-in-out;
 }
 
+/* Navigation Menu Alignment Fixes */
 .main-nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
     display: flex;
     align-items: center;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .main-nav li {
-    margin: 0 1rem;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
 }
 
 .main-nav a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.5rem 1rem;
     color: #fff;
     text-decoration: none;
     font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0.5rem;
     transition: color 0.3s ease;
-    position: relative;
+    white-space: nowrap;
 }
 
 .main-nav a:hover,
 .main-nav a.active {
     color: #ffd700;
+}
+
+/* Ensure consistent icon alignment */
+.main-nav a i {
+    width: 16px;
+    text-align: center;
+    font-size: 1rem;
 }
 
 /* Overlay for Mobile Menu */
@@ -133,10 +145,10 @@
     .main-nav ul {
         flex-direction: column;
         align-items: flex-start;
+        gap: 1rem;
     }
 
     .main-nav li {
-        margin: 0 0 1.5rem 0;
         width: 100%;
     }
 
@@ -145,8 +157,8 @@
     }
 
     .main-nav a {
-        padding: 0.5rem 0;
         width: 100%;
+        padding: 0.75rem 1rem;
         font-size: 1.1rem;
     }
 }
